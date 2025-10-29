@@ -3,7 +3,7 @@
 import axios from 'axios'
 import {cookies} from "next/headers";
 
-const BASE_URL = 'https://kb8334ks-3000.asse.devtunnels.ms/'
+const BASE_URL = 'https://kb8334ks-3000.asse.devtunnels.ms/api'
 
 const api = axios.create({
     baseURL: BASE_URL,
