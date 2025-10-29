@@ -1,10 +1,10 @@
 import React from 'react'
-import Header from '@/components/Header'
 
+// Home Page
 export default function Home() {
-  return (
-    <div>
-        <Header />
-    </div>
-  )
+    return (
+        <div>
+
+        </div>
+    )
 }
