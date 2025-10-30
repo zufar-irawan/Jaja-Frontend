@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../styles/globals.css";
-import ClientLayout from "@components/ClientLayout"; 
+import { Poppins } from "next/font/google";
+import ClientLayout from "@components/ClientLayout";
+import "@styles/globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  weight: ["400", "700"],
+})
 
 export const metadata: Metadata = {
   title: "Jaja ID",
@@ -26,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} antialiased bg-gray-100`}
       >
         <ClientLayout>{children}</ClientLayout>
       </body>
