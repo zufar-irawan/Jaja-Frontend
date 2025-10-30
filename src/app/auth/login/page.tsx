@@ -95,7 +95,7 @@ export default function Login() {
                 />
                 <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
               </label>
-              <a href="#" className="text-sm text-[#6AAFBE] hover:text-[#5A9FAE] font-medium">
+              <a href="/auth/lupaPassword" className="text-sm text-[#6AAFBE] hover:text-[#5A9FAE] font-medium">
                 Lupa Password?
               </a>
             </div>
