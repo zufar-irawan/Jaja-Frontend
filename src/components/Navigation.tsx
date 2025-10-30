@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut } from 'lucide-react';
 
 export default function JajaNavbar() {
@@ -8,6 +9,7 @@ export default function JajaNavbar() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State untuk status login
+  const router = useRouter();
 
   return (
     <nav className="bg-white shadow-lg relative z-50">
@@ -25,7 +27,7 @@ export default function JajaNavbar() {
             
             <div className="flex items-center space-x-3 cursor-pointer group">
               <img 
-                src="logo.webp" 
+                src="/images/logo.webp" 
                 alt="Jaja.id Logo" 
                 className="h-17 w-auto object-contain transition-transform group-hover:scale-105"
               />
@@ -144,12 +146,14 @@ export default function JajaNavbar() {
               // Tombol Login dan Daftar untuk user yang belum login
               <div className="flex items-center space-x-3">
                 <button 
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={() => router.push("/auth/login")}
                   className="px-4 py-2 text-[#55B4E5] font-semibold hover:bg-[#55B4E5]/10 rounded-lg transition-all border border-[#55B4E5]/30 hover:border-[#55B4E5]/50"
                 >
                   Masuk
                 </button>
-                <button className="px-4 py-2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105">
+                <button
+                  onClick={() => router.push("/auth/register")}
+                  className="px-4 py-2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105">
                   Daftar
                 </button>
               </div>

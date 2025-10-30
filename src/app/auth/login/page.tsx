@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -20,7 +21,7 @@ export default function Login() {
           {/* Logo - Using actual image */}
           <div className="mb-8">
             <img 
-              src="/images/logo-jajaid.webp"
+              src="/images/logo.webp"
               alt="Jaja.id Logo"
               className="h-16 mb-2"
               onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -154,7 +155,7 @@ export default function Login() {
 
         {/* Content */}
         <div className="relative z-10 text-center text-white max-w-lg">
-          {/* Verified Badge - Using actual image */}
+          {/* Verified Badge */}
           <div className="flex justify-center mb-8">
             <img 
               src="/images/verified-badge.webp"
