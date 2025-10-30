@@ -1,9 +1,12 @@
+import { MapPin } from 'lucide-react'
+
 type ProductCardProps = {
     key: number
     item: {
         name: string
         price: number
         image: string
+        address: string
     }
 }
 
@@ -20,6 +23,12 @@ export default function ProductCard({ key, item }: ProductCardProps) {
             <div className='px-5 py-6'>
                 <p className="text-start text-xl">{item.name}</p>
                 <p className="text-start font-bold text-blue-800">Rp{item.price}</p>
+
+                <div className="flex flex-row items-center mt-2 gap-0.5">
+                    <MapPin size={20} color='#f54842' />
+
+                    <p className='items-center'>{item.address}</p>
+                </div>
             </div>
         </div>
     )
