@@ -3,4 +3,17 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.wave {
+    aspect-ratio: 960/300;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.wave-svg {
+    background-image: url('../../public/svg/stacked-steps-haikei.svg');
 }
