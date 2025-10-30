@@ -34,7 +34,7 @@ export default function Home() {
         <div className="gap-y-10 flex flex-col">
 
             {/* Hero Banner */}
-            <section className="text-gray-50 text-4xl flex flex-row w-full min-h-[300px] bg-gray-900 items-center justify-center">
+            <section className="text-gray-50 text-4xl flex flex-row w-full min-h-[400px] bg-gray-900 items-center justify-center">
                 Welcome to our app!
             </section>
 
@@ -85,7 +85,7 @@ export default function Home() {
                     </div>
 
                     {/* Product Item grid */}
-                    <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 ml-5">
+                    <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-x-3 gap-y-5 ml-5">
                         {products.slice(0, 8).map((item, index) => (
                             <ProductCard key={index} item={item} />
                         ))}
@@ -102,7 +102,7 @@ export default function Home() {
                     Produk paling laris!
                 </header>
 
-                <div className='flex flex-row gap-6'>
+                <div className='flex flex-row gap-x-3'>
                     {products.slice(0, 6).map((item, index) => (
                         <ProductCard key={index} item={item} />
                     ))}
@@ -116,7 +116,7 @@ export default function Home() {
                     Mungkin kamu juga suka
                 </header>
 
-                <div className="w-full flex flex-wrap gap-6">
+                <div className="w-full flex flex-wrap gap-x-3 gap-y-5">
                     {products.map((item, index) => (
                         <ProductCard key={index} item={item} />
                     ))}

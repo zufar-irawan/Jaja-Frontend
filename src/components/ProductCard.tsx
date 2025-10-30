@@ -15,7 +15,7 @@ export default function ProductCard({ key, item }: ProductCardProps) {
     return (
         <div
             key={key}
-            className="w-45 bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg">
+            className="w-48 bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg">
             <p className="text-blue-600 bg-gray-100 h-45 text-2xl font-bold rounded-t-lg text-center px-10 py-15">
                 Jaja
                 <span className="text-orange-400">ID</span>
