@@ -58,7 +58,7 @@ export default function Login() {
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="Masukkan email Anda"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition"
               />
             </div>
 
@@ -73,7 +73,7 @@ export default function Login() {
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   placeholder="Masukkan password Anda"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition pr-12"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition"
                 />
                 <button
                   type="button"
