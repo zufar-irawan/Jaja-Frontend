@@ -1,5 +1,5 @@
-import React from 'react'
 import { Music, Palette, Gamepad, Book, Flower2, ToyBrick, Dumbbell, Monitor, Camera } from 'lucide-react'
+import ProductCard from '@/components/ProductCard'
 
 // Home Page
 export default function Home() {
@@ -44,8 +44,10 @@ export default function Home() {
 
                 <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5">
                     {categories.map((item, index) => (
-                        <div key={index} className="shadow-2xl rounded-lg justify-center items-center flex flex-col py-5">
-                            <div className="flex w-35 h-35 items-center justify-center">
+                        <div
+                            key={index}
+                            className="w-40 h-45 cursor-pointer hover:shadow-md transition-all rounded-lg justify-center items-center flex flex-col p-5">
+                            <div className="flex w-15 h-20 justify-center items-center">
                                 {item.icon}
                             </div>
 
@@ -59,7 +61,7 @@ export default function Home() {
             </section>
 
             {/* Featured Product */}
-            <section className="w-full flex flex-col">
+            <section className="w-full flex flex-col gap-y-5">
 
                 <header className="text-4xl text-gray-900 py-5">
                     Produk terbaru dari Jaja!
@@ -78,17 +80,7 @@ export default function Home() {
                     {/* Product Item grid */}
                     <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 ml-5">
                         {products.slice(0, 8).map((item, index) => (
-                            <div key={index} className="w-45 h-fit shadow-2xl rounded-lg">
-                                <p className="text-blue-600 bg-gray-100 h-45 text-2xl font-bold text-center px-10 py-15">
-                                    Jaja
-                                    <span className="text-orange-400">ID</span>
-                                </p>
-
-                                <div className='px-5 py-6 gap-2 flex flex-col'>
-                                    <p className="text-start text-2xl">{item.name}</p>
-                                    <p className="text-start font-bold text-blue-800">Rp{item.price}</p>
-                                </div>
-                            </div>
+                            <ProductCard key={index} item={item} />
                         ))}
                     </div>
 
