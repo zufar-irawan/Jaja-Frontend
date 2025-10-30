@@ -37,7 +37,6 @@ export default function Login() {
                 <span className="text-4xl font-bold text-[#F5B041]">.id</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500">1st Marketplace for Your Hobbies</p>
           </div>
 
           {/* Welcome Text */}
@@ -137,7 +136,7 @@ export default function Login() {
           {/* Register Link */}
           <p className="text-center text-gray-600 mt-8">
             Belum punya akun?{' '}
-            <a href="#" className="text-[#F5B041] hover:text-[#E5A031] font-medium">
+            <a href="/auth/register" className="text-[#F5B041] hover:text-[#E5A031] font-medium">
               Daftar sekarang
             </a>
           </p>
