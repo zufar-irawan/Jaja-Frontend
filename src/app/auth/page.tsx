@@ -1,19 +1,11 @@
 "use client"
 
-import { useState } from "react";
-import Login from "@/app/auth/login/page";
-import Register from "@/app/auth/register/page";
+import { useRouter } from 'next/navigation'
 
-export default function Auth(){
-    const [isLogin, setIsLogin] = useState(false)
+export default function Auth() {
+    const router = useRouter()
 
-    return (
-        <div>
-            {isLogin ? (
-                <Login />
-            ) : (
-                <Register />
-            )}
-        </div>
-    )
+    router.push('/auth/login')
+
+    return null
 }

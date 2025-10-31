@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export default function Login() {
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
-          {/* Logo - Using actual image */}
+          {/* Logo */}
           <div className="mb-8">
             <img 
               src="/images/logo.webp"
@@ -33,11 +34,10 @@ export default function Login() {
             />
             <div style={{display: 'none'}}>
               <div className="flex items-center gap-1 mb-2">
-                <span className="text-4xl font-bold text-[#6AAFBE]">Jaja</span>
-                <span className="text-4xl font-bold text-[#F5B041]">.id</span>
+                <span className="text-4xl font-bold text-[#55B4E5]">Jaja</span>
+                <span className="text-4xl font-bold text-[#FBB338]">.id</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500">1st Marketplace for Your Hobbies</p>
           </div>
 
           {/* Welcome Text */}
@@ -58,7 +58,7 @@ export default function Login() {
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 placeholder="Masukkan email Anda"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
               />
             </div>
 
@@ -73,7 +73,7 @@ export default function Login() {
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   placeholder="Masukkan password Anda"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AAFBE] focus:border-transparent transition pr-12"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
                 />
                 <button
                   type="button"
@@ -92,19 +92,19 @@ export default function Login() {
                   type="checkbox" 
                   checked={rememberMe}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-[#6AAFBE] border-gray-300 rounded focus:ring-[#6AAFBE]" 
+                  className="w-4 h-4 text-[#55B4E5] border-gray-300 rounded focus:ring-[#55B4E5]" 
                 />
                 <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
               </label>
-              <a href="#" className="text-sm text-[#6AAFBE] hover:text-[#5A9FAE] font-medium">
+              <Link href="/auth/lupaPassword" className="text-sm text-[#55B4E5] hover:text-[#4A9FD0] font-medium">
                 Lupa Password?
-              </a>
+              </Link>
             </div>
 
             {/* Login Button */}
             <button
               onClick={handleLogin}
-              className="w-full bg-[#6AAFBE] text-white py-3 rounded-lg font-medium hover:bg-[#5A9FAE] transition shadow-md hover:shadow-lg"
+              className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg"
             >
               Masuk
             </button>
@@ -137,15 +137,15 @@ export default function Login() {
           {/* Register Link */}
           <p className="text-center text-gray-600 mt-8">
             Belum punya akun?{' '}
-            <a href="#" className="text-[#F5B041] hover:text-[#E5A031] font-medium">
+            <Link href="/auth/register" className="text-[#FBB338] hover:text-[#E5A031] font-medium">
               Daftar sekarang
-            </a>
+            </Link>
           </p>
         </div>
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#6AAFBE] to-[#5A9FAE] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -170,8 +170,8 @@ export default function Login() {
             />
             <div style={{display: 'none'}} className="w-32 h-32 bg-white rounded-full items-center justify-center shadow-2xl">
               <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
-                <path d="M50 10L60 25L77 27L63.5 40L67 57L50 48L33 57L36.5 40L23 27L40 25L50 10Z" fill="#6AAFBE" opacity="0.3"/>
-                <path d="M30 55L42 67L70 39" stroke="#F5B041" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M50 10L60 25L77 27L63.5 40L67 57L50 48L33 57L36.5 40L23 27L40 25L50 10Z" fill="#55B4E5" opacity="0.3"/>
+                <path d="M30 55L42 67L70 39" stroke="#FBB338" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
@@ -184,19 +184,19 @@ export default function Login() {
           {/* Features */}
           <div className="space-y-4 text-left">
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#F5B041] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Ribuan produk hobby terlengkap</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#F5B041] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Transaksi aman dan terpercaya</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#F5B041] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Komunitas penggemar hobby aktif</span>
