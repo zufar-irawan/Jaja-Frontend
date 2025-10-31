@@ -2,7 +2,7 @@ import formatCurrency from '@/utils/format'
 import { MapPin } from 'lucide-react'
 
 type ProductCardProps = {
-    key: number
+    index: number
     item: {
         name: string
         price: number
@@ -11,10 +11,10 @@ type ProductCardProps = {
     }
 }
 
-export default function ProductCard({ key, item }: ProductCardProps) {
+export default function ProductCard({ index, item }: ProductCardProps) {
     return (
         <div
-            key={key}
+            key={index}
             className="w-48 bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg">
             <p className="text-blue-600 bg-gray-100 h-45 text-2xl font-bold rounded-t-lg text-center px-10 py-15">
                 Jaja
