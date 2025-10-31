@@ -5,6 +5,7 @@ import ProductImages from './components/ProductImages';
 import ProductInfo from './components/ProductInfo';
 import StoreInfo from './components/StoreInfo';
 import ProductTabs from './components/ProductTabs';
+import { ChevronLeft, ChevronRight, Heart, Star } from 'lucide-react';
 
 interface Variant {
   name: string;
@@ -52,6 +53,16 @@ interface RatingStats {
   average: number;
   total: number;
   breakdown: RatingBreakdown[];
+}
+
+interface RelatedProduct {
+  id: number;
+  name: string;
+  subtitle: string;
+  image: string;
+  rating: number;
+  price: string;
+  originalPrice: string;
 }
 
 export default function ProductPage() {
@@ -165,25 +176,75 @@ export default function ProductPage() {
     ]
   };
 
+  const relatedProducts: RelatedProduct[] = [
+    {
+      id: 1,
+      name: 'Lenovo ThinkPad X1 Carbon',
+      subtitle: 'Business Laptop Ultrabook',
+      image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop',
+      rating: 4.8,
+      price: 'Rp 18.999.000',
+      originalPrice: 'Rp 22.999.000'
+    },
+    {
+      id: 2,
+      name: 'Lenovo Yoga 9i',
+      subtitle: '2-in-1 Convertible Laptop',
+      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=300&fit=crop',
+      rating: 4.6,
+      price: 'Rp 15.499.000',
+      originalPrice: 'Rp 18.999.000'
+    },
+    {
+      id: 3,
+      name: 'Lenovo Legion 5 Pro',
+      subtitle: 'Gaming Laptop RTX 4060',
+      image: 'https://images.unsplash.com/photo-1602080858428-57174f9431cf?w=300&h=300&fit=crop',
+      rating: 4.9,
+      price: 'Rp 21.999.000',
+      originalPrice: 'Rp 25.999.000'
+    },
+    {
+      id: 4,
+      name: 'Lenovo IdeaPad 5',
+      subtitle: 'Student Laptop Thin & Light',
+      image: 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=300&h=300&fit=crop',
+      rating: 4.4,
+      price: 'Rp 9.999.000',
+      originalPrice: 'Rp 12.999.000'
+    }
+  ];
+
   const currentVariant = variants.find(v => v.name === selectedVariant);
   const discount = Math.round(((currentVariant!.originalPrice - currentVariant!.price) / currentVariant!.originalPrice) * 100);
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '32px' }}>
+    <div style={{ 
+      fontFamily: "'Poppins', sans-serif", 
+      backgroundColor: '#f8f9fa', 
+      minHeight: '100vh', 
+      padding: '32px' 
+    }}>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+      `}</style>
+      
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Breadcrumb */}
         <div style={{ 
           marginBottom: '24px',
           fontSize: '14px',
-          color: '#7f8c8d'
+          color: '#7f8c8d',
+          fontFamily: "'Poppins', sans-serif"
         }}>
           {categories.map((cat, idx) => (
             <span key={idx}>
               {idx > 0 && <span style={{ margin: '0 8px' }}>›</span>}
               <span style={{ 
                 color: idx === categories.length - 1 ? '#55B4E5' : '#7f8c8d',
-                fontWeight: idx === categories.length - 1 ? '600' : '400'
+                fontWeight: idx === categories.length - 1 ? '600' : '400',
+                fontFamily: "'Poppins', sans-serif"
               }}>{cat}</span>
             </span>
           ))}
@@ -237,6 +298,177 @@ export default function ProductPage() {
           ratingStats={ratingStats}
           reviews={reviews}
         />
+
+         {/* Related Products */}
+        <div style={{ marginBottom: '60px' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '32px'
+          }}>
+            <h2 style={{
+              fontSize: '28px',
+              fontWeight: '700',
+              color: '#1a1a1a',
+              margin: 0,
+              fontFamily: "'Poppins', sans-serif"
+            }}>
+              Produk <span style={{ 
+                color: '#6b7280', 
+                fontWeight: '400',
+                fontFamily: "'Poppins', sans-serif"
+              }}>Terkait</span>
+            </h2>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button style={{
+                backgroundColor: 'white',
+                border: '2px solid #e5e7eb',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontFamily: "'Poppins', sans-serif"
+              }}>
+                <ChevronLeft size={20} />
+              </button>
+              <button style={{
+                backgroundColor: 'white',
+                border: '2px solid #e5e7eb',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontFamily: "'Poppins', sans-serif"
+              }}>
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '24px'
+          }}>
+            {relatedProducts.map(product => (
+              <div key={product.id} style={{
+                backgroundColor: 'white',
+                borderRadius: '20px',
+                padding: '20px',
+                position: 'relative',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+                fontFamily: "'Poppins', sans-serif"
+              }}>
+                {/* Love Icon Only */}
+                <div style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  zIndex: 1
+                }}>
+                  <button style={{
+                    backgroundColor: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    fontFamily: "'Poppins', sans-serif"
+                  }}>
+                    <Heart size={16} />
+                  </button>
+                </div>
+
+                {/* Image */}
+                <img 
+                  src={product.image}
+                  alt={product.name}
+                  style={{
+                    width: '100%',
+                    height: '200px',
+                    objectFit: 'cover',
+                    borderRadius: '12px',
+                    marginBottom: '16px'
+                  }}
+                />
+
+                {/* Info */}
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: '#1a1a1a',
+                  marginBottom: '4px',
+                  marginTop: 0,
+                  fontFamily: "'Poppins', sans-serif"
+                }}>
+                  {product.name}
+                </h3>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#6b7280',
+                  marginBottom: '12px',
+                  fontFamily: "'Poppins', sans-serif"
+                }}>
+                  {product.subtitle}
+                </p>
+
+                {/* Rating & Price */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Star size={14} fill="#fbbf24" stroke="#fbbf24" />
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#1a1a1a',
+                      fontFamily: "'Poppins', sans-serif"
+                    }}>
+                      {product.rating}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      color: '#1a1a1a',
+                      fontFamily: "'Poppins', sans-serif"
+                    }}>
+                      {product.price}
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#9ca3af',
+                      textDecoration: 'line-through',
+                      fontFamily: "'Poppins', sans-serif"
+                    }}>
+                      {product.originalPrice}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
