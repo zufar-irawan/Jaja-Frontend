@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 
 export default function Verification() {
   const router = useRouter();
-  const [pin, setPin] = useState(["", "", "", "", "", ""]);
+  const [token, setToken] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [email, setEmail] = useState("");
 
   useEffect(() => {
@@ -35,67 +36,69 @@ export default function Verification() {
     return () => clearInterval(timer);
   }, [router]);
 
-  const handlePinChange = (index: number, value: string) => {
-    if (value.length <= 1 && /^\d*$/.test(value)) {
-      const newPin = [...pin];
-      newPin[index] = value;
-      setPin(newPin);
-
-      // Auto focus next input
-      if (value && index < 5) {
-        const nextInput = document.getElementById(`pin-${index + 1}`);
-        nextInput?.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !pin[index] && index > 0) {
-      const prevInput = document.getElementById(`pin-${index - 1}`);
-      prevInput?.focus();
-    }
+  const handleTokenChange = (value: string) => {
+    // Only allow alphanumeric characters
+    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    setToken(cleanValue);
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    if (/^\d+$/.test(pastedData)) {
-      const newPin = pastedData.split("");
-      setPin([...newPin, ...Array(6 - newPin.length).fill("")]);
-      // Focus on last filled input or last input
-      const focusIndex = Math.min(pastedData.length, 5);
-      document.getElementById(`pin-${focusIndex}`)?.focus();
-    }
+    const pastedData = e.clipboardData.getData("text");
+    handleTokenChange(pastedData);
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendTimer === 0) {
-      console.log("Resend code to:", email);
-      setResendTimer(60);
-      alert("Kode verifikasi telah dikirim ulang ke email Anda!");
+      setLoading(true);
+      setError("");
+
+      try {
+        // Import forgotPassword here to avoid circular dependency
+        const { forgotPassword } = await import("@/utils/authService");
+        const result = await forgotPassword({ email });
+        
+        if (result.success) {
+          setResendTimer(60);
+          alert("Token verifikasi telah dikirim ulang ke email Anda!");
+        } else {
+          setError(result.message || "Gagal mengirim ulang token");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setError("");
 
-    const pinCode = pin.join("");
-    if (pinCode.length !== 6) {
-      alert("Mohon masukkan 6 digit PIN lengkap");
+    if (!token || token.length < 10) {
+      setError("Mohon masukkan token verifikasi yang valid");
       return;
     }
 
     setLoading(true);
 
-    // Simulasi API call
-    setTimeout(() => {
-      console.log("PIN:", pinCode);
-      setLoading(false);
-      // Simpan PIN untuk verifikasi
-      sessionStorage.setItem("verificationPin", pinCode);
-      // Redirect ke halaman new password
+    try {
+      // Just save the token and proceed to next step
+      // The actual verification will happen in the reset password step
+      sessionStorage.setItem("verificationToken", token);
       router.push("/auth/lupaPassword/new-password");
-    }, 1000);
+    } catch (err) {
+      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e as any);
+    }
   };
 
   return (
@@ -141,47 +144,54 @@ export default function Verification() {
               Verification
             </h1>
             <p className="text-gray-600">
-              Tolong masukkan 6 digit PIN yang sudah dikirimkan ke email{" "}
+              Tolong masukkan token yang sudah dikirimkan ke email{" "}
               <span className="font-semibold text-[#55B4E5]">{email}</span>
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <div className="space-y-5">
-            {/* PIN Input */}
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            {/* Token Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
-                PIN
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Token Verifikasi
               </label>
-              <div className="flex gap-3 justify-between" onPaste={handlePaste}>
-                {pin.map((digit, index) => (
-                  <input
-                    key={index}
-                    id={`pin-${index}`}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handlePinChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
-                  />
-                ))}
-              </div>
+              <input
+                type="text"
+                value={token}
+                onChange={(e) => handleTokenChange(e.target.value)}
+                onPaste={handlePaste}
+                onKeyPress={handleKeyPress}
+                placeholder="Masukkan token verifikasi"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition font-mono"
+                disabled={loading}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Token berupa kombinasi huruf dan angka
+              </p>
             </div>
 
             {/* Resend Code */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                Tidak menerima kode?{" "}
+                Tidak menerima token?{" "}
                 {resendTimer > 0 ? (
                   <span className="text-gray-400">
                     Kirim ulang dalam {resendTimer}s
                   </span>
                 ) : (
                   <button
+                    type="button"
                     onClick={handleResend}
-                    className="text-[#55B4E5] hover:text-[#4A9FD0] font-medium"
+                    disabled={loading}
+                    className="text-[#55B4E5] hover:text-[#4A9FD0] font-medium disabled:opacity-50"
                   >
                     Kirim Ulang
                   </button>
@@ -191,13 +201,14 @@ export default function Verification() {
 
             {/* Submit Button */}
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Memverifikasi..." : "Verifikasi"}
             </button>
-          </div>
+          </form>
 
           {/* Login Link */}
           <p className="text-center text-gray-600 mt-8">
@@ -213,7 +224,7 @@ export default function Verification() {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -260,7 +271,7 @@ export default function Verification() {
 
           <h2 className="text-4xl font-bold mb-4">Verifikasi Email</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Kami telah mengirimkan kode verifikasi 6 digit ke email Anda.
+            Kami telah mengirimkan token verifikasi ke email Anda.
             Silakan periksa inbox atau folder spam Anda.
           </p>
 
@@ -276,7 +287,7 @@ export default function Verification() {
               <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">2</span>
               </div>
-              <span className="text-lg">Masukkan kode 6 digit</span>
+              <span className="text-lg">Salin token verifikasi</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">

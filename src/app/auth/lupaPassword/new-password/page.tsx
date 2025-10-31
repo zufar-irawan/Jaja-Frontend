@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { resetPassword } from "@/utils/authService";
 
 export default function NewPassword() {
   const router = useRouter();
@@ -10,31 +11,37 @@ export default function NewPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     // Check if user has verified
-    const verificationPin = sessionStorage.getItem("verificationPin");
-    const email = sessionStorage.getItem("resetEmail");
+    const verificationToken = sessionStorage.getItem("verificationToken");
+    const resetEmail = sessionStorage.getItem("resetEmail");
 
-    if (!verificationPin || !email) {
+    if (!verificationToken || !resetEmail) {
       // If not verified, redirect back
-      router.push("/auth/lupa-password");
+      router.push("/auth/lupaPassword");
+    } else {
+      setEmail(resetEmail);
+      setToken(verificationToken);
     }
   }, [router]);
 
   const validatePassword = () => {
     if (!password) {
-      alert("Password tidak boleh kosong");
+      setError("Password tidak boleh kosong");
       return false;
     }
 
-    if (password.length < 8) {
-      alert("Password minimal 8 karakter");
+    if (password.length < 5) {
+      setError("Password minimal 5 karakter");
       return false;
     }
 
     if (password !== confirmPassword) {
-      alert("Password dan konfirmasi password tidak sama");
+      setError("Password dan konfirmasi password tidak sama");
       return false;
     }
 
@@ -43,6 +50,7 @@ export default function NewPassword() {
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setError("");
 
     if (!validatePassword()) {
       return;
@@ -50,23 +58,34 @@ export default function NewPassword() {
 
     setLoading(true);
 
-    // Simulasi API call
-    setTimeout(() => {
-      console.log("New password:", password);
+    try {
+      const result = await resetPassword({
+        token: token,
+        email: email,
+        newPassword: password
+      });
 
-      // Clear session storage
-      sessionStorage.removeItem("resetEmail");
-      sessionStorage.removeItem("verificationPin");
+      if (result.success) {
+        // Clear session storage
+        sessionStorage.removeItem("resetEmail");
+        sessionStorage.removeItem("verificationToken");
 
+        alert("Password berhasil diubah! Silakan login dengan password baru Anda.");
+        router.push("/auth/login");
+      } else {
+        setError(result.message || "Gagal mengubah password. Token mungkin tidak valid atau sudah kadaluarsa.");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
       setLoading(false);
+    }
+  };
 
-      alert(
-        "Password berhasil diubah! Silakan login dengan password baru Anda."
-      );
-
-      // Redirect to login
-      router.push("/auth/login");
-    }, 1000);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit(e as any);
+    }
   };
 
   return (
@@ -114,8 +133,15 @@ export default function NewPassword() {
             <p className="text-gray-600">Masukkan password baru</p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <div className="space-y-5">
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
             {/* Password Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -126,13 +152,17 @@ export default function NewPassword() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Masukkan password baru"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
+                  disabled={loading}
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -149,13 +179,17 @@ export default function NewPassword() {
                   type={showPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Konfirmasi password baru"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
+                  disabled={loading}
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -170,6 +204,7 @@ export default function NewPassword() {
                 checked={showPassword}
                 onChange={(e) => setShowPassword(e.target.checked)}
                 className="w-4 h-4 text-[#55B4E5] border-gray-300 rounded focus:ring-[#55B4E5]"
+                disabled={loading}
               />
               <label
                 htmlFor="showPass"
@@ -185,42 +220,48 @@ export default function NewPassword() {
                 <div className="text-xs text-gray-600">Kekuatan Password:</div>
                 <div className="flex gap-1">
                   <div
-                    className={`h-1 flex-1 rounded ${
+                    className={`h-1 flex-1 rounded transition-colors ${
+                      password.length >= 5 ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <div
+                    className={`h-1 flex-1 rounded transition-colors ${
                       password.length >= 8 ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
                   <div
-                    className={`h-1 flex-1 rounded ${
+                    className={`h-1 flex-1 rounded transition-colors ${
                       /[A-Z]/.test(password) && /[a-z]/.test(password)
                         ? "bg-green-500"
                         : "bg-gray-300"
                     }`}
                   ></div>
                   <div
-                    className={`h-1 flex-1 rounded ${
+                    className={`h-1 flex-1 rounded transition-colors ${
                       /\d/.test(password) ? "bg-green-500" : "bg-gray-300"
                     }`}
                   ></div>
-                  <div
-                    className={`h-1 flex-1 rounded ${
-                      /[^A-Za-z0-9]/.test(password)
-                        ? "bg-green-500"
-                        : "bg-gray-300"
-                    }`}
-                  ></div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)
+                    ? "Password kuat"
+                    : password.length >= 5
+                    ? "Password sedang"
+                    : "Password lemah"}
                 </div>
               </div>
             )}
 
             {/* Submit Button */}
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Menyimpan..." : "Simpan Password"}
             </button>
-          </div>
+          </form>
 
           {/* Login Link */}
           <p className="text-center text-gray-600 mt-8">
@@ -236,7 +277,7 @@ export default function NewPassword() {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -287,7 +328,7 @@ export default function NewPassword() {
               <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
-              <span className="text-lg">Minimal 8 karakter</span>
+              <span className="text-lg">Minimal 5 karakter</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
@@ -299,7 +340,7 @@ export default function NewPassword() {
               <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
-              <span className="text-lg">Gunakan karakter spesial</span>
+              <span className="text-lg">Gunakan huruf besar dan kecil</span>
             </div>
           </div>
         </div>

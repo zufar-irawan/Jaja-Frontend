@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import { Search, ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight } from 'lucide-react';
+import { getUserProfile, type UserProfile } from '@/utils/userService';
+import { logout } from '@/utils/authService';
 
 interface Category {
   id_kategori: number;
@@ -36,12 +38,41 @@ export default function JajaNavbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
   const [expandedMobileCategories, setExpandedMobileCategories] = useState<number[]>([]);
   const router = useRouter();
 
+  // Fetch user profile
+  useEffect(() => {
+    async function fetchUserProfile() {
+      try {
+        setIsLoadingUser(true);
+        const result = await getUserProfile();
+        
+        if (result.success && result.data) {
+          setUserProfile(result.data);
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+          setUserProfile(null);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setIsLoggedIn(false);
+        setUserProfile(null);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    }
+
+    fetchUserProfile();
+  }, []);
+
+  // Fetch categories
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -65,7 +96,7 @@ export default function JajaNavbar() {
     setShowCategoryMenu(false);
     setIsMenuOpen(false);
     setHoveredCategory(null);
-    // router.push(`/category/${category.slug_kategori}`);
+    router.push(`/category/${category.slug_kategori}`);
   };
 
   const toggleMobileCategory = (categoryId: number) => {
@@ -74,6 +105,61 @@ export default function JajaNavbar() {
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
     );
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsLoggedIn(false);
+      setUserProfile(null);
+      setShowUserMenu(false);
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!userProfile) return '?';
+    
+    if (userProfile.first_name) {
+      return userProfile.first_name.charAt(0).toUpperCase();
+    }
+    
+    if (userProfile.nama_lengkap) {
+      return userProfile.nama_lengkap.charAt(0).toUpperCase();
+    }
+    
+    if (userProfile.email) {
+      return userProfile.email.charAt(0).toUpperCase();
+    }
+    
+    return '?';
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (!userProfile) return 'User';
+    
+    if (userProfile.first_name && userProfile.last_name) {
+      return `${userProfile.first_name} ${userProfile.last_name}`;
+    }
+    
+    if (userProfile.nama_lengkap) {
+      return userProfile.nama_lengkap;
+    }
+    
+    if (userProfile.username) {
+      return userProfile.username;
+    }
+    
+    if (userProfile.first_name) {
+      return userProfile.first_name;
+    }
+    
+    return 'User';
   };
 
   const renderSubcategories = (children: Category[], level = 0) => {
@@ -117,7 +203,10 @@ export default function JajaNavbar() {
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            <div className="flex items-center space-x-3 cursor-pointer group">
+            <div 
+              className="flex items-center space-x-3 cursor-pointer group"
+              onClick={() => router.push('/')}
+            >
               <img
                 src="/images/logo.webp"
                 alt="Jaja.id Logo"
@@ -159,7 +248,7 @@ export default function JajaNavbar() {
                         <div className="flex">
                           {/* Main Categories List */}
                           <div className="w-72 py-2 bg-gray-50/50">
-                            {categories.map((category, index) => (
+                            {categories.map((category) => (
                               <button
                                 key={category.id_kategori}
                                 onClick={() => handleCategoryClick(category)}
@@ -214,7 +303,7 @@ export default function JajaNavbar() {
                             ) : (
                               <div className="flex items-center justify-center h-full text-center py-12 px-6">
                                 <div>
-                                  <div className="w-16 h-16 bg-linear-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                  <div className="w-16 h-16 bg-gradient-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <Menu className="w-8 h-8 text-[#55B4E5]" />
                                   </div>
                                   <p className="text-gray-500 text-sm font-medium">Pilih kategori</p>
@@ -242,7 +331,7 @@ export default function JajaNavbar() {
                 className="w-full pl-36 pr-14 py-3 border-2 border-gray-200 rounded-full focus:border-[#55B4E5] focus:ring-4 focus:ring-[#55B4E5]/20 outline-none transition-all placeholder:text-gray-400"
               />
 
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
                 <Search className="w-5 h-5" />
               </button>
             </div>
@@ -255,25 +344,27 @@ export default function JajaNavbar() {
               <Search className="w-5 h-5 text-gray-600" />
             </button>
 
-            {isLoggedIn ? (
+            {isLoadingUser ? (
+              <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+            ) : isLoggedIn && userProfile ? (
               <>
                 <button className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Mail className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Bell className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
@@ -283,11 +374,19 @@ export default function JajaNavbar() {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center space-x-2 hover:bg-gray-50 px-3 py-2 rounded-full transition-all group border-2 border-transparent hover:border-[#55B4E5]/20"
                   >
-                    <div className="w-9 h-9 bg-linear-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
-                      G
-                    </div>
+                    {userProfile.foto_profil ? (
+                      <img 
+                        src={userProfile.foto_profil} 
+                        alt={getUserDisplayName()}
+                        className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 bg-gradient-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
+                        {getUserInitials()}
+                      </div>
+                    )}
                     <span className="hidden lg:block font-semibold text-gray-700 group-hover:text-[#55B4E5] transition-colors">
-                      Ghea Ananda
+                      {getUserDisplayName()}
                     </span>
                     <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                   </button>
@@ -295,16 +394,22 @@ export default function JajaNavbar() {
                   {showUserMenu && (
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl py-2 border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="font-semibold text-gray-800">Ghea Ananda</p>
-                        <p className="text-sm text-gray-500">ghea@example.com</p>
+                        <p className="font-semibold text-gray-800">{getUserDisplayName()}</p>
+                        <p className="text-sm text-gray-500">{userProfile.email}</p>
                       </div>
 
-                      <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group">
+                      <button 
+                        onClick={() => router.push('/profile')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
+                      >
                         <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">Akun Saya</span>
                       </button>
 
-                      <button className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group">
+                      <button 
+                        onClick={() => router.push('/orders')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
+                      >
                         <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">Pesanan Saya</span>
                       </button>
@@ -312,10 +417,7 @@ export default function JajaNavbar() {
                       <div className="border-t border-gray-100 my-2"></div>
 
                       <button
-                        onClick={() => {
-                          setIsLoggedIn(false);
-                          setShowUserMenu(false);
-                        }}
+                        onClick={handleLogout}
                         className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-all group"
                       >
                         <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -335,7 +437,8 @@ export default function JajaNavbar() {
                 </button>
                 <button
                   onClick={() => router.push("/auth/register")}
-                  className="px-4 py-2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105">
+                  className="px-4 py-2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
+                >
                   Daftar
                 </button>
               </div>

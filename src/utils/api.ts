@@ -14,10 +14,8 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(
-    (config) => {
-        const cookieStore = cookies()
-
-        // @ts-ignore
+    async (config) => {
+        const cookieStore = await cookies()
         const token = cookieStore.get('auth-token')?.value
 
         if (token) {
@@ -26,6 +24,17 @@ api.interceptors.request.use(
         return config
     },
     (error) => {
+        return Promise.reject(error)
+    }
+)
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Token expired or invalid
+            cookies().then(c => c.delete('auth-token'))
+        }
         return Promise.reject(error)
     }
 )

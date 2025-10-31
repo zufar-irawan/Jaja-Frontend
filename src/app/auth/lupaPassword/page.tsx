@@ -4,26 +4,45 @@ import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { forgotPassword } from "@/utils/authService";
 
 export default function LupaPassword() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setError("");
+
     if (!email) {
-      alert("Mohon Masukkan Email Anda");
+      setError("Mohon masukkan email Anda");
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Format email tidak valid");
+      return;
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      console.log("Reset Password for:", email);
+    try {
+      const result = await forgotPassword({ email });
+      
+      if (result.success) {
+        sessionStorage.setItem("resetEmail", email);
+        router.push("/auth/lupaPassword/verification");
+      } else {
+        setError(result.message || "Gagal mengirim kode verifikasi");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
       setLoading(false);
-      sessionStorage.setItem("resetEmail", email);
-      router.push("/auth/lupaPassword/verification");
-    }, 1000);
+    }
   };
 
   return (
@@ -71,6 +90,13 @@ export default function LupaPassword() {
             <p className="text-gray-600">Masukkan Email yang telah terdaftar</p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
           <div className="space-y-5">
             {/* Email Input */}
@@ -84,6 +110,7 @@ export default function LupaPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Masukkan email Anda"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                disabled={loading}
               />
             </div>
 

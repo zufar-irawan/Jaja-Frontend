@@ -1,17 +1,74 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { login } from '@/utils/authService';
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+  useEffect(() => {
+    // Check if there's a remembered email
+    const savedEmail = localStorage.getItem('rememberMe');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log('Login:', { email, password, rememberMe });
+    setError('');
+    
+    if (!email || !password) {
+      setError('Email dan password harus diisi');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Format email tidak valid');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        // Save email if remember me is checked
+        if (rememberMe) {
+          localStorage.setItem('rememberMe', email);
+        } else {
+          localStorage.removeItem('rememberMe');
+        }
+        
+        // Redirect ke dashboard atau home
+        router.push('/');
+        router.refresh();
+      } else {
+        setError(result.message || 'Email atau password salah');
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleLogin(e as any);
+    }
   };
 
   return (
@@ -46,8 +103,15 @@ export default function Login() {
             <p className="text-gray-600">Masuk untuk melanjutkan petualangan hobi Anda</p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Login Form */}
-          <div className="space-y-5">
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
             {/* Email Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -57,8 +121,11 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onKeyPress={handleKeyPress}
                 placeholder="Masukkan email Anda"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                disabled={loading}
+                autoComplete="email"
               />
             </div>
 
@@ -72,27 +139,32 @@ export default function Login() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Masukkan password Anda"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
+                  disabled={loading}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
 
-            {/* Forgot Password */}
+            {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
               <label className="flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={rememberMe}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-[#55B4E5] border-gray-300 rounded focus:ring-[#55B4E5]" 
+                  className="w-4 h-4 text-[#55B4E5] border-gray-300 rounded focus:ring-[#55B4E5]"
+                  disabled={loading}
                 />
                 <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
               </label>
@@ -103,10 +175,12 @@ export default function Login() {
 
             {/* Login Button */}
             <button
+              type="button"
               onClick={handleLogin}
-              className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg"
+              disabled={loading}
+              className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Masuk
+              {loading ? 'Memproses...' : 'Masuk'}
             </button>
 
             {/* Divider */}
@@ -123,6 +197,7 @@ export default function Login() {
             <button
               type="button"
               className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition"
+              disabled={loading}
             >
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -132,7 +207,7 @@ export default function Login() {
               </svg>
               Google
             </button>
-          </div>
+          </form>
 
           {/* Register Link */}
           <p className="text-center text-gray-600 mt-8">
@@ -145,7 +220,7 @@ export default function Login() {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -168,7 +243,7 @@ export default function Login() {
                 }
               }}
             />
-            <div style={{display: 'none'}} className="w-32 h-32 bg-white rounded-full items-center justify-center shadow-2xl">
+            <div style={{display: 'none'}} className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
               <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
                 <path d="M50 10L60 25L77 27L63.5 40L67 57L50 48L33 57L36.5 40L23 27L40 25L50 10Z" fill="#55B4E5" opacity="0.3"/>
                 <path d="M30 55L42 67L70 39" stroke="#FBB338" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
