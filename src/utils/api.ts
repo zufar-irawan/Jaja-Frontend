@@ -1,9 +1,9 @@
 "use server"
 
 import axios from 'axios'
-import {cookies} from "next/headers";
+import { cookies } from "next/headers";
 
-const BASE_URL = 'https://kb8334ks-3000.asse.devtunnels.ms/api'
+const BASE_URL = 'https://kb8334ks-3000.asse.devtunnels.ms'
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -20,7 +20,7 @@ api.interceptors.request.use(
         // @ts-ignore
         const token = cookieStore.get('auth-token')?.value
 
-        if(token) {
+        if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
         return config

@@ -1,8 +1,13 @@
+"use client"
+
 import ProductCard from '@/components/ProductCard'
+import useIsMobile from '@/hooks/useIsMobile'
 import Image from 'next/image'
 
 // Home Page
 export default function Home() {
+
+    const isMobile = useIsMobile()
 
     const categories = [
         { name: 'Musik', icon: '/category/Musik.png' },
@@ -39,26 +44,30 @@ export default function Home() {
             </section>
 
             {/* Category Section */}
-            <section className="w-full flex flex-col gap-y-5 px-40">
+            <section className="w-full flex flex-col gap-y-5 px-5 sm:px-10 lg:px-40">
 
-                <header className="py-5 text-4xl text-gray-900">Kategori pilihan</header>
+                <header className="py-5 text-lg sm:text-xl lg:text-4xl text-gray-900">Kategori pilihan</header>
 
-                <div className="flex w-full flex-row justify-center bg-white rounded-lg shadow-md px-5">
+                <div
+                    className={`flex h-48 min-h-48 w-full rounded-lg bg-white px-3 py-4 shadow-md sm:px-6 md:px-8 ${isMobile
+                        ? 'flex-wrap content-start gap-4 overflow-y-auto'
+                        : 'items-center gap-6 overflow-x-auto'
+                        }`}>
                     {categories.map((item, index) => (
                         <div
                             key={index}
-                            className="w-40 h-45 hover:scale-105 transition-all justify-center items-center flex flex-col p-5">
+                            className="flex h-32 w-32 flex-col items-center justify-center gap-3 transition-transform hover:scale-105 sm:h-36 sm:w-36">
                             <div
-                                className="cursor-pointer flex w-20 h-20 justify-center items-center">
+                                className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
                                 <Image
                                     src={item.icon}
                                     alt={item.name}
-                                    width={100}
-                                    height={100}
+                                    width={isMobile ? 48 : 80}
+                                    height={isMobile ? 48 : 80}
                                 />
                             </div>
 
-                            <p className="text-center text-gray-900 py-1">
+                            <p className="py-1 text-xs text-center text-gray-900 sm:text-sm lg:text-base">
                                 {item.name}
                             </p>
                         </div>
@@ -74,10 +83,12 @@ export default function Home() {
                     Produk terbaru dari Jaja!
                 </header>
 
-                <div className="flex flex-row w-full">
+                <div className={`flex w-full ${isMobile ? 'flex-col gap-6' : 'flex-row'}`}>
 
                     {/* Div Cover */}
-                    <div className="bg-linear-to-t shadow-lg from-blue-500 to-blue-800 w-130 rounded-lg flex flex-col items-center justify-center">
+                    <div
+                        className={`bg-linear-to-t shadow-lg from-blue-500 to-blue-800 rounded-lg flex flex-col items-center justify-center ${isMobile ? 'w-full' : 'w-130'
+                            }`}>
                         <p className="text-blue-400 text-2xl bg-white rounded-full font-bold text-center px-10 py-15">
                             Jaja
                             <span className="text-orange-400">ID</span>
@@ -85,9 +96,13 @@ export default function Home() {
                     </div>
 
                     {/* Product Item grid */}
-                    <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-x-3 gap-y-5 ml-5">
+                    <div
+                        className={`${isMobile
+                            ? 'flex w-full flex-nowrap gap-4 overflow-x-auto pb-2'
+                            : 'ml-5 grid w-full grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-x-3 gap-y-5'
+                            }`}>
                         {products.slice(0, 8).map((item, index) => (
-                            <ProductCard key={index} item={item} />
+                            <ProductCard index={index} item={item} />
                         ))}
                     </div>
 
@@ -104,7 +119,7 @@ export default function Home() {
 
                 <div className='flex flex-row gap-x-3'>
                     {products.slice(0, 6).map((item, index) => (
-                        <ProductCard key={index} item={item} />
+                        <ProductCard index={index} item={item} />
                     ))}
                 </div>
             </section>
@@ -118,7 +133,7 @@ export default function Home() {
 
                 <div className="w-full flex flex-wrap gap-x-3 gap-y-5">
                     {products.map((item, index) => (
-                        <ProductCard key={index} item={item} />
+                        <ProductCard index={index} item={item} />
                     ))}
                 </div>
             </section>
