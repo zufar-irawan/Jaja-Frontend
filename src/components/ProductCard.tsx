@@ -1,3 +1,4 @@
+import useIsMobile from '@/hooks/useIsMobile'
 import formatCurrency from '@/utils/format'
 import { MapPin } from 'lucide-react'
 
@@ -12,17 +13,21 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ index, item }: ProductCardProps) {
+    const isMobile = useIsMobile()
+
     return (
         <div
             key={index}
-            className="w-48 bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg">
-            <p className="text-blue-600 bg-gray-100 h-45 text-2xl font-bold rounded-t-lg text-center px-10 py-15">
+            className={`bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg
+                ${isMobile ? 'w-38' : 'w-48'}
+            `}>
+            <p className={`text-blue-600 bg-gray-100 ${isMobile ? 'h-40' : 'h-45'} text-2xl font-bold rounded-t-lg text-center flex items-center justify-center`}>
                 Jaja
                 <span className="text-orange-400">ID</span>
             </p>
 
             <div className='px-5 py-6'>
-                <p className="text-start text-xl">{item.name}</p>
+                <p className={`text-start ${isMobile ? 'text-md' : 'text-xl'}`}>{item.name}</p>
                 <p className="text-start font-bold text-blue-800">{formatCurrency(item.price)}</p>
 
                 <div className="flex flex-row items-center mt-2 gap-0.5">
@@ -36,7 +41,7 @@ export default function ProductCard({ index, item }: ProductCardProps) {
                         <path d="m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z" />
                     </svg>
 
-                    <p className='items-center'>4.9 (200+)</p>
+                    <p className={`items-center ${isMobile ? 'text-xs' : ''}`}>4.9 (200+)</p>
                 </div>
 
                 <div className="flex flex-row items-center gap-0.5">

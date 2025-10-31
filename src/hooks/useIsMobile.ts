@@ -1,27 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react'
 
 const MOBILE_BREAKPOINT = 768
 
-const getIsMobile = () => window.innerWidth < MOBILE_BREAKPOINT
-
 const useIsMobile = () => {
-    const [isMobile, setIsMobile] = useState(getIsMobile());
+    const [isMobile, setIsMobile] = useState(false)
 
     useEffect(() => {
-        const handleResize = () => {
-            const newIsMobile = getIsMobile();
+        const getIsMobile = () =>
+            typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
 
-            if (newIsMobile !== isMobile) {
-                setIsMobile(newIsMobile);
-            }
-        }
+        const updateIsMobile = () => setIsMobile(getIsMobile())
 
-        window.addEventListener('resize', handleResize);
+        updateIsMobile() // check immediately after mount
+        window.addEventListener('resize', updateIsMobile)
 
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        }
-    }, [isMobile])
+        return () => window.removeEventListener('resize', updateIsMobile)
+    }, [])
 
     return isMobile
 }
