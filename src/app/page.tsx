@@ -3,11 +3,14 @@
 import ProductCard from '@/components/ProductCard'
 import useIsMobile from '@/hooks/useIsMobile'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import api from '@/utils/api'
 
 // Home Page
 export default function Home() {
 
     const isMobile = useIsMobile()
+    const numberToSliceFeatured = isMobile ? 4 : 8
 
     const categories = [
         { name: 'Musik', icon: '/category/Musik.png' },
@@ -34,31 +37,33 @@ export default function Home() {
         { name: 'Produk 9', price: 90000, image: '', address: 'Palembang' },
         { name: 'Produk 10', price: 100000, image: '', address: 'Balikpapan' },
     ]
+    const numberToSliceRecommended = isMobile ? 6 : 12
 
     return (
-        <div className="gap-y-10 flex flex-col">
+        <div className="flex flex-col gap-y-10">
 
             {/* Hero Banner */}
-            <section className="text-gray-50 text-4xl flex flex-row w-full min-h-[400px] bg-gray-900 items-center justify-center">
+            <section className="flex w-full min-h-80 items-center justify-center bg-gray-900 px-4 text-center text-3xl text-gray-50 sm:min-h-[360px] sm:px-8 sm:text-4xl lg:min-h-[400px] lg:px-20 lg:text-5xl">
                 Welcome to our app!
             </section>
 
             {/* Category Section */}
-            <section className="w-full flex flex-col gap-y-5 px-5 sm:px-10 lg:px-40">
+            <section className="flex w-full flex-col gap-y-5 px-4 sm:px-8 lg:px-20 xl:px-40">
 
-                <header className="py-5 text-lg sm:text-xl lg:text-4xl text-gray-900">Kategori pilihan</header>
+                <header className="py-5 text-lg text-gray-900 sm:text-2xl lg:text-4xl">Kategori pilihan</header>
 
                 <div
-                    className={`flex h-48 min-h-48 w-full rounded-lg bg-white px-3 py-4 shadow-md sm:px-6 md:px-8 ${isMobile
-                        ? 'flex-wrap content-start gap-4 overflow-y-auto'
-                        : 'items-center gap-6 overflow-x-auto'
+                    className={`flex h-48 w-full px-3 py-4 rounded-lg bg-white shadow-md 
+                        ${isMobile
+                            ? 'flex-wrap gap-3 overflow-y-auto items-center'
+                            : 'items-center gap-5 overflow-x-auto'
                         }`}>
                     {categories.map((item, index) => (
                         <div
                             key={index}
-                            className="flex h-32 w-32 flex-col items-center justify-center gap-3 transition-transform hover:scale-105 sm:h-36 sm:w-36">
+                            className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 sm:h-36 sm:w-36">
                             <div
-                                className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
+                                className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
                                 <Image
                                     src={item.icon}
                                     alt={item.name}
@@ -77,32 +82,32 @@ export default function Home() {
             </section>
 
             {/* Featured Product */}
-            <section className="w-full flex flex-col gap-y-5 px-40 py-15 wave wave-svg">
+            <section className="w-full flex flex-col py-10 px-4 sm:px-10 lg:px-40 wave wave-svg">
 
-                <header className="text-4xl font-bold text-gray-50 py-5">
-                    Produk terbaru dari Jaja!
+                <header className="w-full flex flex-col gap-y-2 pt-5 font-bold">
+                    <p className="text-2xl text-gray-50 sm:text-3xl lg:text-4xl">
+                        Produk terbaru dari Jaja!
+                    </p>
+
+                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                        Lihat lainnya
+                    </p>
                 </header>
 
-                <div className={`flex w-full ${isMobile ? 'flex-col gap-6' : 'flex-row'}`}>
+                <div className="flex w-full flex-col items-center gap-6 md:flex-row md:items-stretch md:gap-8">
 
                     {/* Div Cover */}
-                    <div
-                        className={`bg-linear-to-t shadow-lg from-blue-500 to-blue-800 rounded-lg flex flex-col items-center justify-center ${isMobile ? 'w-full' : 'w-130'
-                            }`}>
-                        <p className="text-blue-400 text-2xl bg-white rounded-full font-bold text-center px-10 py-15">
+                    <div className="hidden h-175 w-full max-w-sm flex-col items-center justify-center rounded-lg bg-linear-to-t from-blue-500 to-blue-800 shadow-lg md:flex lg:max-w-none lg:w-130">
+                        <p className="rounded-full bg-white px-5 py-10 text-center text-2xl font-bold text-blue-400">
                             Jaja
                             <span className="text-orange-400">ID</span>
                         </p>
                     </div>
 
                     {/* Product Item grid */}
-                    <div
-                        className={`${isMobile
-                            ? 'flex w-full flex-nowrap gap-4 overflow-x-auto pb-2'
-                            : 'ml-5 grid w-full grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-x-3 gap-y-5'
-                            }`}>
-                        {products.slice(0, 8).map((item, index) => (
-                            <ProductCard index={index} item={item} />
+                    <div className="w-full grid grid-cols-2 gap-3 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-4">
+                        {products.slice(0, numberToSliceFeatured).map((item, index) => (
+                            <ProductCard key={`${item.name}-${index}`} index={index} item={item} />
                         ))}
                     </div>
 
@@ -111,30 +116,42 @@ export default function Home() {
             </section>
 
             {/* TOP PRODUCT */}
-            <section className='px-40 w-full flex flex-col gap-y-5 py-15'>
+            <section className="w-full flex flex-col gap-y-5 py-15 px-4 sm:px-10 lg:px-40">
 
-                <header className='text-gray-900 font-bold text-4xl'>
-                    Produk paling laris!
+                <header className="flex w-full flex-col gap-y-2 font-bold">
+                    <p className="text-2xl text-gray-900 sm:text-3xl lg:text-4xl">
+                        Produk paling laris!
+                    </p>
+
+                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                        Lihat lainnya
+                    </p>
                 </header>
 
-                <div className='flex flex-row gap-x-3'>
+                <div className='flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4'>
                     {products.slice(0, 6).map((item, index) => (
-                        <ProductCard index={index} item={item} />
+                        <ProductCard key={`top-${item.name}-${index}`} index={index} item={item} />
                     ))}
                 </div>
             </section>
 
-            {/* Mungkin anda suka */}
-            <section className='flex flex-col w-full px-40 py-15 gap-y-5'>
+            {/* FOR YOU PRODUCTS */}
+            <section className="flex w-full flex-col items-center gap-y-6 py-15 px-4 sm:px-8 lg:px-20 xl:px-32">
 
-                <header className='text-gray-900 font-bold text-4xl'>
+                <header className='text-center text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl'>
                     Mungkin kamu juga suka
                 </header>
 
-                <div className="w-full flex flex-wrap gap-x-3 gap-y-5">
-                    {products.map((item, index) => (
-                        <ProductCard index={index} item={item} />
+                <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-3 xl:grid-cols-6">
+                    {products.slice(0, numberToSliceRecommended).map((item, index) => (
+                        <ProductCard key={`recommend-${item.name}-${index}`} index={index} item={item} />
                     ))}
+                </div>
+
+                <div className='flex w-full justify-center'>
+                    <div className='w-fit rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300'>
+                        Lihat lainnya
+                    </div>
                 </div>
             </section>
         </div>
