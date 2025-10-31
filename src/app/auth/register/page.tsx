@@ -27,7 +27,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -80,19 +80,19 @@ export default function Register() {
           {/* Features */}
           <div className="space-y-4 text-left">
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Daftar gratis dan mudah</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Akses ke ribuan produk hobi</span>
             </div>
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#FBB338] rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-bold">✓</span>
               </div>
               <span className="text-lg">Jual barang hobi Anda dengan aman</span>
@@ -247,8 +247,8 @@ export default function Register() {
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28  -4.74 3.28-8.09z"
+                />    
                 <path
                   fill="#34A853"
                   d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
