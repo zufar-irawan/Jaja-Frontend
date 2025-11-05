@@ -3,12 +3,9 @@
 import ProductCard from '@/components/ProductCard'
 import useIsMobile from '@/hooks/useIsMobile'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import api from '@/utils/api'
 
 // Home Page
 export default function Home() {
-
     const isMobile = useIsMobile()
     const numberToSliceFeatured = isMobile ? 4 : 8
 
@@ -26,16 +23,16 @@ export default function Home() {
     ]
 
     const products = [
-        { name: 'Produk 1', price: 10000, image: '', address: 'Jakarta' },
-        { name: 'Produk 2', price: 20000, image: '', address: 'Bandung' },
-        { name: 'Produk 3', price: 30000, image: '', address: 'Surabaya' },
-        { name: 'Produk 4', price: 40000, image: '', address: 'Medan' },
-        { name: 'Produk 5', price: 50000, image: '', address: 'Bali' },
-        { name: 'Produk 6', price: 60000, image: '', address: 'Yogyakarta' },
-        { name: 'Produk 7', price: 70000, image: '', address: 'Semarang' },
-        { name: 'Produk 8', price: 80000, image: '', address: 'Makassar' },
-        { name: 'Produk 9', price: 90000, image: '', address: 'Palembang' },
-        { name: 'Produk 10', price: 100000, image: '', address: 'Balikpapan' },
+        { id: 1, name: 'Lenovo ThinkPad X1 Carbon Gen 11', price: 18999000, image: '', address: 'Jakarta Pusat' },
+        { id: 2, name: 'MacBook Air M2 2023', price: 15999000, image: '', address: 'Jakarta Selatan' },
+        { id: 3, name: 'Dell XPS 13 Plus', price: 21999000, image: '', address: 'Surabaya' },
+        { id: 4, name: 'ASUS ROG Zephyrus G14', price: 24999000, image: '', address: 'Bandung' },
+        { id: 5, name: 'HP Spectre x360', price: 17999000, image: '', address: 'Medan' },
+        { id: 6, name: 'Acer Swift 3', price: 8999000, image: '', address: 'Yogyakarta' },
+        { id: 7, name: 'MSI Prestige 14', price: 16999000, image: '', address: 'Semarang' },
+        { id: 8, name: 'LG Gram 17', price: 27999000, image: '', address: 'Makassar' },
+        { id: 9, name: 'Microsoft Surface Laptop 5', price: 19999000, image: '', address: 'Palembang' },
+        { id: 10, name: 'Samsung Galaxy Book3', price: 14999000, image: '', address: 'Balikpapan' },
     ]
     const numberToSliceRecommended = isMobile ? 6 : 12
 
@@ -44,7 +41,7 @@ export default function Home() {
 
             {/* Hero Banner */}
             <section className="flex w-full min-h-80 items-center justify-center bg-gray-900 px-4 text-center text-3xl text-gray-50 sm:min-h-[360px] sm:px-8 sm:text-4xl lg:min-h-[400px] lg:px-20 lg:text-5xl">
-                Welcome to our app!
+                Welcome to JajaID!
             </section>
 
             {/* Category Section */}
@@ -107,7 +104,7 @@ export default function Home() {
                     {/* Product Item grid */}
                     <div className="w-full grid grid-cols-2 gap-3 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-4">
                         {products.slice(0, numberToSliceFeatured).map((item, index) => (
-                            <ProductCard key={`${item.name}-${index}`} index={index} item={item} />
+                            <ProductCard key={`${item.id}-${item.name}`} index={index} item={item} />
                         ))}
                     </div>
 
@@ -130,7 +127,7 @@ export default function Home() {
 
                 <div className='flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4'>
                     {products.slice(0, 6).map((item, index) => (
-                        <ProductCard key={`top-${item.name}-${index}`} index={index} item={item} />
+                        <ProductCard key={`top-${item.id}-${item.name}`} index={index} item={item} />
                     ))}
                 </div>
             </section>
@@ -144,7 +141,7 @@ export default function Home() {
 
                 <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-3 xl:grid-cols-6">
                     {products.slice(0, numberToSliceRecommended).map((item, index) => (
-                        <ProductCard key={`recommend-${item.name}-${index}`} index={index} item={item} />
+                        <ProductCard key={`recommend-${item.id}-${item.name}`} index={index} item={item} />
                     ))}
                 </div>
 

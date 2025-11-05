@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import ProductImages from './components/ProductImages';
-import ProductInfo from './components/ProductInfo';
-import StoreInfo from './components/StoreInfo';
-import ProductTabs from './components/ProductTabs';
+import ProductImages from '../components/ProductImages';
+import ProductInfo from '../components/ProductInfo';
+import StoreInfo from '../components/StoreInfo';
+import ProductTabs from '../components/ProductTabs';
 import { ChevronLeft, ChevronRight, Heart, Star } from 'lucide-react';
 
 interface Variant {
