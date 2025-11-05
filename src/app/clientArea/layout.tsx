@@ -14,22 +14,22 @@ export default function ClientAreaLayout(
 
     return (
         <div>
-            <header className="flex flex-col gap-8 w-full justify-center wave wave-svg text-gray-50">
-                <div className="flex justify-between w-[50%] mx-auto items-center h-fit">
+            <header className="flex flex-col gap-8 w-full justify-center wave wave-svg text-gray-800">
+                <div className="flex bg-white/30 border-2 border-white/20 backdrop-blur-2xl rounded-2xl p-5 justify-between w-[50%] mx-auto items-center h-fit">
 
                     <div className="flex gap-2 justify-center items-center">
-                        <div className="flex bg-gray-200 text-black text-5xl rounded-full w-30 h-30 items-center justify-center">
+                        <div className="flex bg-gray-200 text-blue-500 text-5xl rounded-full w-30 h-30 items-center justify-center">
                             U
                         </div>
 
                         <div className="items-center">
                             <p className="text-3xl">Username</p>
 
-                            <p className="text-lg text-gray-50/60">Pelanggan</p>
+                            <p className="text-lg text-gray-800/60">Pelanggan</p>
                         </div>
                     </div>
 
-                    <div className="text-gray-50 hover:text-gray-50/50">
+                    <div className="text-gray-800 hover:text-gray-800/50">
                         <SquarePen size={35} />
                     </div>
                 </div>
