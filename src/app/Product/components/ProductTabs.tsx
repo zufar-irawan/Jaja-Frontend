@@ -1,56 +1,68 @@
-import React from 'react';
-import { Star } from 'lucide-react';
+'use client'
+
+import React, { useState } from 'react'
+import { Star } from 'lucide-react'
 
 interface Feature {
-  title: string;
-  description: string;
+  title: string
+  description: string
 }
 
 interface RatingBreakdown {
-  stars: number;
-  count: number;
-  percentage: number;
+  stars: number
+  count: number
+  percentage: number
 }
 
 interface RatingStats {
-  total: number;
-  average: number;
-  breakdown: RatingBreakdown[];
+  total: number
+  average: number
+  breakdown: RatingBreakdown[]
 }
 
 interface Review {
-  name: string;
-  date: string;
-  rating: number;
-  comment: string;
-  likes: number;
-  images?: string[];
+  name: string
+  date: string
+  rating: number
+  comment: string
+  likes: number
+  images?: string[]
 }
 
 interface ProductTabsProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  features: Feature[];
-  productSpecs: Record<string, string>;
-  ratingStats: RatingStats;
-  reviews: Review[];
+  activeTab: string
+  setActiveTab: (tab: string) => void
+  features: Feature[]
+  productSpecs: Record<string, string>
+  ratingStats: RatingStats
+  reviews: Review[]
+  description: string
 }
 
 export default function ProductTabs({ 
-  activeTab, 
-  setActiveTab, 
+  activeTab: initialActiveTab, 
+  setActiveTab: externalSetActiveTab, 
   features, 
   productSpecs, 
   ratingStats, 
-  reviews 
+  reviews,
+  description 
 }: ProductTabsProps) {
+  const [activeTab, setActiveTab] = useState(initialActiveTab)
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    externalSetActiveTab(tab)
+  }
+
   return (
     <div style={{ 
       backgroundColor: 'white',
       borderRadius: '8px',
       padding: '24px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-      border: '1px solid #e5e5e5'
+      border: '1px solid #e5e5e5',
+      marginBottom: '32px'
     }}>
       {/* Tabs Header */}
       <div style={{ 
@@ -60,7 +72,7 @@ export default function ProductTabs({
         marginBottom: '24px'
       }}>
         <button
-          onClick={() => setActiveTab('description')}
+          onClick={() => handleTabChange('description')}
           style={{
             backgroundColor: 'transparent',
             border: 'none',
@@ -77,7 +89,7 @@ export default function ProductTabs({
           Deskripsi Produk
         </button>
         <button
-          onClick={() => setActiveTab('reviews')}
+          onClick={() => handleTabChange('reviews')}
           style={{
             backgroundColor: 'transparent',
             border: 'none',
@@ -112,11 +124,10 @@ export default function ProductTabs({
             color: '#666',
             fontSize: '14px',
             lineHeight: '1.7',
-            marginBottom: '24px'
+            marginBottom: '24px',
+            whiteSpace: 'pre-line'
           }}>
-            Lenovo Slim 5 adalah laptop premium yang dirancang untuk memenuhi kebutuhan profesional modern. 
-            Dengan kombinasi performa tinggi, desain elegant, dan portabilitas maksimal, laptop ini menjadi 
-            pilihan sempurna untuk pekerjaan, hiburan, dan produktivitas sehari-hari.
+            {description}
           </p>
 
           <h4 style={{ 
@@ -178,7 +189,7 @@ export default function ProductTabs({
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '0'
           }}>
-            {Object.entries(productSpecs).map(([key, value], idx) => (
+            {Object.entries(productSpecs).map(([key, value]) => (
               <div key={key} style={{
                 display: 'flex',
                 padding: '12px 0',
@@ -188,10 +199,9 @@ export default function ProductTabs({
                   fontSize: '13px',
                   fontWeight: '500',
                   color: '#111',
-                  width: '130px',
-                  textTransform: 'capitalize'
+                  width: '180px'
                 }}>
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                  {key}
                 </span>
                 <span style={{
                   fontSize: '13px',
@@ -218,7 +228,7 @@ export default function ProductTabs({
               marginBottom: '10px',
               marginTop: 0
             }}>
-              📦 Isi Paket
+              📦 Informasi Tambahan
             </h5>
             <ul style={{
               margin: 0,
@@ -227,10 +237,10 @@ export default function ProductTabs({
               fontSize: '13px',
               lineHeight: '1.8'
             }}>
-              <li>1x Lenovo Slim 5 Laptop</li>
-              <li>1x Charger & Kabel Power</li>
-              <li>1x User Manual</li>
-              <li>1x Warranty Card (Garansi Resmi 2 Tahun)</li>
+              <li>Produk Original dan Berkualitas</li>
+              <li>Pengiriman Cepat dan Aman</li>
+              <li>Garansi Sesuai Ketentuan Toko</li>
+              <li>Proses Pengembalian Mudah</li>
             </ul>
           </div>
         </div>
@@ -446,24 +456,26 @@ export default function ProductTabs({
               </div>
             ))}
 
-            <button style={{
-              width: '100%',
-              backgroundColor: 'transparent',
-              border: '1px solid #e5e5e5',
-              color: '#111',
-              padding: '10px',
-              borderRadius: '4px',
-              fontSize: '13px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              marginTop: '12px',
-              transition: 'all 0.2s ease'
-            }}>
-              Muat Lebih Banyak Ulasan
-            </button>
+            {reviews.length > 3 && (
+              <button style={{
+                width: '100%',
+                backgroundColor: 'transparent',
+                border: '1px solid #e5e5e5',
+                color: '#111',
+                padding: '10px',
+                borderRadius: '4px',
+                fontSize: '13px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                marginTop: '12px',
+                transition: 'all 0.2s ease'
+              }}>
+                Muat Lebih Banyak Ulasan
+              </button>
+            )}
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
