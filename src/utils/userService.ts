@@ -1,5 +1,6 @@
 "use server"
 
+import { cookies } from 'next/headers'
 import api from './api'
 
 export interface UserProfile {
@@ -100,6 +101,16 @@ export interface ApiResponse<T> {
 export async function getUserProfile(): Promise<ApiResponse<UserProfile>> {
     try {
         const response = await api.get('/main/customer/profile')
+
+        const slugs = response.data.data.nama_lengkap.replaceAll(' ', '').toLowerCase();
+        const cookieStore = await cookies();
+        cookieStore.set('slugs', slugs, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7 // 7 days
+        });
+
         return {
             success: true,
             data: response.data.data

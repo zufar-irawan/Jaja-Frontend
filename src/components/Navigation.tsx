@@ -52,7 +52,7 @@ export default function JajaNavbar() {
       try {
         setIsLoadingUser(true);
         const result = await getUserProfile();
-        
+
         if (result.success && result.data) {
           setUserProfile(result.data);
           setIsLoggedIn(true);
@@ -123,42 +123,42 @@ export default function JajaNavbar() {
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!userProfile) return '?';
-    
+
     if (userProfile.first_name) {
       return userProfile.first_name.charAt(0).toUpperCase();
     }
-    
+
     if (userProfile.nama_lengkap) {
       return userProfile.nama_lengkap.charAt(0).toUpperCase();
     }
-    
+
     if (userProfile.email) {
       return userProfile.email.charAt(0).toUpperCase();
     }
-    
+
     return '?';
   };
 
   // Get user display name
   const getUserDisplayName = () => {
     if (!userProfile) return 'User';
-    
+
     if (userProfile.first_name && userProfile.last_name) {
       return `${userProfile.first_name} ${userProfile.last_name}`;
     }
-    
+
     if (userProfile.nama_lengkap) {
       return userProfile.nama_lengkap;
     }
-    
+
     if (userProfile.username) {
       return userProfile.username;
     }
-    
+
     if (userProfile.first_name) {
       return userProfile.first_name;
     }
-    
+
     return 'User';
   };
 
@@ -203,7 +203,7 @@ export default function JajaNavbar() {
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            <div 
+            <div
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => router.push('/')}
             >
@@ -303,7 +303,7 @@ export default function JajaNavbar() {
                             ) : (
                               <div className="flex items-center justify-center h-full text-center py-12 px-6">
                                 <div>
-                                  <div className="w-16 h-16 bg-gradient-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                  <div className="w-16 h-16 bg-linear-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <Menu className="w-8 h-8 text-[#55B4E5]" />
                                   </div>
                                   <p className="text-gray-500 text-sm font-medium">Pilih kategori</p>
@@ -331,7 +331,7 @@ export default function JajaNavbar() {
                 className="w-full pl-36 pr-14 py-3 border-2 border-gray-200 rounded-full focus:border-[#55B4E5] focus:ring-4 focus:ring-[#55B4E5]/20 outline-none transition-all placeholder:text-gray-400"
               />
 
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
                 <Search className="w-5 h-5" />
               </button>
             </div>
@@ -350,21 +350,21 @@ export default function JajaNavbar() {
               <>
                 <button className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Mail className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Bell className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
@@ -375,13 +375,13 @@ export default function JajaNavbar() {
                     className="flex items-center space-x-2 hover:bg-gray-50 px-3 py-2 rounded-full transition-all group border-2 border-transparent hover:border-[#55B4E5]/20"
                   >
                     {userProfile.foto_profil ? (
-                      <img 
-                        src={userProfile.foto_profil} 
+                      <img
+                        src={userProfile.foto_profil}
                         alt={getUserDisplayName()}
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-gradient-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
+                      <div className="w-9 h-9 bg-linear-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                         {getUserInitials()}
                       </div>
                     )}
@@ -398,16 +398,16 @@ export default function JajaNavbar() {
                         <p className="text-sm text-gray-500">{userProfile.email}</p>
                       </div>
 
-                      <button 
-                        onClick={() => router.push('/profile')}
+                      <button
+                        onClick={() => router.push(`/clientArea/${userProfile.nama_lengkap.replaceAll(' ', '').toLowerCase()}/profile`)}
                         className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
                       >
                         <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">Akun Saya</span>
                       </button>
 
-                      <button 
-                        onClick={() => router.push('/orders')}
+                      <button
+                        onClick={() => router.push(`/clientArea/${userProfile.nama_lengkap.replaceAll(' ', '').toLowerCase()}/orders`)}
                         className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
                       >
                         <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -437,7 +437,7 @@ export default function JajaNavbar() {
                 </button>
                 <button
                   onClick={() => router.push("/auth/register")}
-                  className="px-4 py-2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
+                  className="px-4 py-2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
                 >
                   Daftar
                 </button>

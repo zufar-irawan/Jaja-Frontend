@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
+    const slug = request.cookies.get('slugs')?.value || null;
     const { pathname } = request.nextUrl;
 
     const redirectUrl = request.nextUrl.clone();
@@ -13,13 +14,8 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(redirectUrl)
     }
 
-    if (pathname === '/clientArea') {
-        redirectUrl.pathname = `/clientArea/:id/profile`;
-        return NextResponse.redirect(redirectUrl)
-    }
-
-    if (pathname.startsWith('/clientArea/')) {
-        redirectUrl.pathname = `/clientArea/:id/profile`;
+    if (pathname === '/clientArea' || pathname.startsWith('/clientArea/')) {
+        redirectUrl.pathname = `/clientArea/${slug}/profile`;
         return NextResponse.redirect(redirectUrl)
     }
 
