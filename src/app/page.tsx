@@ -4,7 +4,6 @@ import ProductCard from '@/components/ProductCard'
 import useIsMobile from '@/hooks/useIsMobile'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import api from '@/utils/api'
 
 // Home Page
 export default function Home() {
