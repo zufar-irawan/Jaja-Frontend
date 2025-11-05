@@ -13,7 +13,6 @@ export default function ClientSidebar() {
         { title: 'Alamat', route: 'address', icon: <MapPin strokeWidth={1.5} size={40} /> },
         { title: 'Rekening', route: 'account', icon: <CreditCard strokeWidth={1.5} size={40} /> },
         { title: 'Keamanan', route: 'security', icon: <ShieldCheck strokeWidth={1.5} size={40} /> },
-        { title: 'Keluar', route: 'logout', icon: <LogOut strokeWidth={1.5} size={40} /> },
     ]
 
     return (
