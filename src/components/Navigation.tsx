@@ -52,7 +52,7 @@ export default function JajaNavbar() {
       try {
         setIsLoadingUser(true);
         const result = await getUserProfile();
-        
+
         if (result.success && result.data) {
           setUserProfile(result.data);
           setIsLoggedIn(true);
@@ -123,42 +123,42 @@ export default function JajaNavbar() {
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!userProfile) return '?';
-    
+
     if (userProfile.first_name) {
       return userProfile.first_name.charAt(0).toUpperCase();
     }
-    
+
     if (userProfile.nama_lengkap) {
       return userProfile.nama_lengkap.charAt(0).toUpperCase();
     }
-    
+
     if (userProfile.email) {
       return userProfile.email.charAt(0).toUpperCase();
     }
-    
+
     return '?';
   };
 
   // Get user display name
   const getUserDisplayName = () => {
     if (!userProfile) return 'User';
-    
+
     if (userProfile.first_name && userProfile.last_name) {
       return `${userProfile.first_name} ${userProfile.last_name}`;
     }
-    
+
     if (userProfile.nama_lengkap) {
       return userProfile.nama_lengkap;
     }
-    
+
     if (userProfile.username) {
       return userProfile.username;
     }
-    
+
     if (userProfile.first_name) {
       return userProfile.first_name;
     }
-    
+
     return 'User';
   };
 
@@ -203,7 +203,7 @@ export default function JajaNavbar() {
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            <div 
+            <div
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => router.push('/')}
             >
@@ -375,8 +375,8 @@ export default function JajaNavbar() {
                     className="flex items-center space-x-2 hover:bg-gray-50 px-3 py-2 rounded-full transition-all group border-2 border-transparent hover:border-[#55B4E5]/20"
                   >
                     {userProfile.foto_profil ? (
-                      <img 
-                        src={userProfile.foto_profil} 
+                      <img
+                        src={userProfile.foto_profil}
                         alt={getUserDisplayName()}
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
                       />
@@ -398,16 +398,16 @@ export default function JajaNavbar() {
                         <p className="text-sm text-gray-500">{userProfile.email}</p>
                       </div>
 
-                      <button 
-                        onClick={() => router.push('/profile')}
+                      <button
+                        onClick={() => router.push(`/clientArea/profile`)}
                         className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
                       >
                         <User className="w-5 h-5 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">Akun Saya</span>
                       </button>
 
-                      <button 
-                        onClick={() => router.push('/orders')}
+                      <button
+                        onClick={() => router.push(`/clientArea/orders`)}
                         className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
                       >
                         <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
