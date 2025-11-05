@@ -39,17 +39,17 @@ export default function ProductCard({ index, item }: ProductCardProps) {
             tabIndex={0}
             role="button"
             aria-label={`Lihat detail produk ${item.name}`}
-            className={`bg-white hover:shadow-xl transition-all h-fit cursor-pointer shadow-sm rounded-lg
+            className={`bg-white hover:shadow-xl transition-all cursor-pointer shadow-sm rounded-lg
                 ${isMobile ? 'w-38' : 'w-48'}
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
                 hover:scale-105
             `}>
-            
+
             {/* Image/Placeholder Section */}
             <div className={`bg-gray-100 ${isMobile ? 'h-40' : 'h-45'} rounded-t-lg flex items-center justify-center overflow-hidden`}>
                 {item.image ? (
-                    <img 
-                        src={item.image} 
+                    <img
+                        src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
                     />
@@ -63,10 +63,11 @@ export default function ProductCard({ index, item }: ProductCardProps) {
 
             {/* Product Info Section */}
             <div className='px-5 py-6'>
-                <p className={`text-start ${isMobile ? 'text-md' : 'text-xl'} line-clamp-2 mb-2`}>
+                <p className={`text-start ${isMobile ? 'text-md' : 'text-lg'} h-13 line-clamp-2 mb-2`}>
                     {item.name}
                 </p>
-                <p className="text-start font-bold text-blue-800 text-lg">
+
+                <p className="text-start font-bold text-blue-800 text-md">
                     {formatCurrency(item.price)}
                 </p>
 
