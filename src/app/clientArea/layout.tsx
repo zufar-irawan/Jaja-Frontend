@@ -53,7 +53,7 @@ export default function ClientAreaLayout(
                     <ClientSidebar />
                 </div>
 
-                <div className="flex w-full rounded-lg bg-white px-6 py-8 shadow-lg sm:px-8 lg:px-10">
+                <div className="flex w-full rounded-lg bg-white px-6 py-8 shadow-md sm:px-8 lg:px-10">
                     {children}
                 </div>
             </main>

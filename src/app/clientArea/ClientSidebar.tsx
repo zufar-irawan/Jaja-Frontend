@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleUserRound, Package2, Settings } from 'lucide-react'
+import { CircleUserRound, MapPin, Package2, CreditCard, ShieldCheck, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { useSelectedLayoutSegment } from 'next/navigation'
 
@@ -10,11 +10,14 @@ export default function ClientSidebar() {
     const menuItems = [
         { title: 'Profil', route: 'profile', icon: <CircleUserRound strokeWidth={1.5} size={40} /> },
         { title: 'Pesanan', route: 'orders', icon: <Package2 strokeWidth={1.5} size={40} /> },
-        { title: 'Settings', route: 'settings', icon: <Settings strokeWidth={1.5} size={40} /> },
+        { title: 'Alamat', route: 'address', icon: <MapPin strokeWidth={1.5} size={40} /> },
+        { title: 'Rekening', route: 'account', icon: <CreditCard strokeWidth={1.5} size={40} /> },
+        { title: 'Keamanan', route: 'security', icon: <ShieldCheck strokeWidth={1.5} size={40} /> },
+        { title: 'Keluar', route: 'logout', icon: <LogOut strokeWidth={1.5} size={40} /> },
     ]
 
     return (
-        <aside className="bg-white px-5 flex-1/4 flex py-8 rounded-lg shadow-lg">
+        <aside className="bg-white px-5 flex-1/4 flex py-8 rounded-lg shadow-md">
             <nav className="w-full">
                 <ul className="flex flex-col gap-2">
                     {menuItems.map((item) => (

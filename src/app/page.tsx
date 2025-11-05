@@ -86,7 +86,7 @@ export default function Home() {
                         Produk terbaru dari Jaja!
                     </p>
 
-                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                    <p className="mb-2 flex cursor-pointer justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
                         Lihat lainnya
                     </p>
                 </header>
@@ -120,7 +120,7 @@ export default function Home() {
                         Produk paling laris!
                     </p>
 
-                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                    <p className="mb-2 cursor-pointer flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
                         Lihat lainnya
                     </p>
                 </header>
@@ -146,7 +146,7 @@ export default function Home() {
                 </div>
 
                 <div className='flex w-full justify-center'>
-                    <div className='w-fit rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300'>
+                    <div className='w-fit cursor-pointer rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300'>
                         Lihat lainnya
                     </div>
                 </div>
