@@ -1,15 +1,29 @@
-import React from 'react';
+'use client'
+
+import React, { useState } from 'react'
 
 interface ProductImagesProps {
-  images: string[];
-  selectedImage: number;
-  setSelectedImage: (index: number) => void;
-  discount: number;
+  images: string[]
+  selectedImage: number
+  setSelectedImage: (index: number) => void
+  discount: number
 }
 
-export default function ProductImages({ images, selectedImage, setSelectedImage, discount }: ProductImagesProps) {
+export default function ProductImages({ 
+  images, 
+  selectedImage: initialSelectedImage, 
+  setSelectedImage: externalSetSelectedImage, 
+  discount 
+}: ProductImagesProps) {
+  const [selectedImage, setSelectedImage] = useState(initialSelectedImage)
+
+  const handleImageSelect = (index: number) => {
+    setSelectedImage(index)
+    externalSetSelectedImage(index)
+  }
+
   return (
-    <div style={{ width: '100%', height: '484px' }}> {/* Height sama dengan ProductInfo */}
+    <div style={{ width: '100%', height: '484px' }}>
       <div style={{ 
         backgroundColor: 'white', 
         borderRadius: '16px', 
@@ -18,7 +32,7 @@ export default function ProductImages({ images, selectedImage, setSelectedImage,
         boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
         border: '1px solid rgba(0,0,0,0.04)',
         position: 'relative',
-        height: '380px' // Sesuaikan agar total height = 484px
+        height: '380px'
       }}>
         {discount > 0 && (
           <div style={{
@@ -39,7 +53,7 @@ export default function ProductImages({ images, selectedImage, setSelectedImage,
         )}
         <img 
           src={images[selectedImage]} 
-          alt="Lenovo Slim 5"
+          alt="Product"
           style={{ 
             width: '100%', 
             height: '100%', 
@@ -53,7 +67,7 @@ export default function ProductImages({ images, selectedImage, setSelectedImage,
         {images.map((img, idx) => (
           <div 
             key={idx}
-            onClick={() => setSelectedImage(idx)}
+            onClick={() => handleImageSelect(idx)}
             style={{ 
               backgroundColor: 'white',
               borderRadius: '12px',
@@ -79,5 +93,5 @@ export default function ProductImages({ images, selectedImage, setSelectedImage,
         ))}
       </div>
     </div>
-  );
+  )
 }

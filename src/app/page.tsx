@@ -1,13 +1,20 @@
-"use client"
-
+// app/page.tsx
 import ProductCard from '@/components/ProductCard'
-import useIsMobile from '@/hooks/useIsMobile'
 import Image from 'next/image'
+import { 
+    getFeaturedProducts, 
+    getTopProducts, 
+    getRecommendedProducts 
+} from '@/utils/productService'
 
-// Home Page
-export default function Home() {
-    const isMobile = useIsMobile()
-    const numberToSliceFeatured = isMobile ? 4 : 8
+// Home Page - Server Component
+export default async function Home() {
+    // Fetch data di server
+    const [featuredProducts, topProducts, recommendedProducts] = await Promise.all([
+        getFeaturedProducts(8),
+        getTopProducts(6),
+        getRecommendedProducts(12)
+    ])
 
     const categories = [
         { name: 'Musik', icon: '/category/Musik.png' },
@@ -22,20 +29,6 @@ export default function Home() {
         { name: 'Peliharaan', icon: '/category/Peliharaan.png' },
     ]
 
-    const products = [
-        { id: 1, name: 'Lenovo ThinkPad X1 Carbon Gen 11', price: 18999000, image: '', address: 'Jakarta Pusat' },
-        { id: 2, name: 'MacBook Air M2 2023', price: 15999000, image: '', address: 'Jakarta Selatan' },
-        { id: 3, name: 'Dell XPS 13 Plus', price: 21999000, image: '', address: 'Surabaya' },
-        { id: 4, name: 'ASUS ROG Zephyrus G14', price: 24999000, image: '', address: 'Bandung' },
-        { id: 5, name: 'HP Spectre x360', price: 17999000, image: '', address: 'Medan' },
-        { id: 6, name: 'Acer Swift 3', price: 8999000, image: '', address: 'Yogyakarta' },
-        { id: 7, name: 'MSI Prestige 14', price: 16999000, image: '', address: 'Semarang' },
-        { id: 8, name: 'LG Gram 17', price: 27999000, image: '', address: 'Makassar' },
-        { id: 9, name: 'Microsoft Surface Laptop 5', price: 19999000, image: '', address: 'Palembang' },
-        { id: 10, name: 'Samsung Galaxy Book3', price: 14999000, image: '', address: 'Balikpapan' },
-    ]
-    const numberToSliceRecommended = isMobile ? 6 : 12
-
     return (
         <div className="flex flex-col gap-y-10">
 
@@ -47,28 +40,23 @@ export default function Home() {
             {/* Category Section */}
             <section className="flex w-full flex-col gap-y-5 px-4 sm:px-8 lg:px-20 xl:px-40">
 
-                <header className="py-5 text-lg text-gray-900 sm:text-2xl lg:text-4xl">Kategori pilihan</header>
+                <header className="py-5 text-lg text-gray-900 sm:text-2xl lg:text-4xl">
+                    Kategori pilihan
+                </header>
 
-                <div
-                    className={`flex h-48 w-full px-3 py-4 rounded-lg bg-white shadow-md 
-                        ${isMobile
-                            ? 'flex-wrap gap-3 overflow-y-auto items-center'
-                            : 'items-center gap-5 overflow-x-auto'
-                        }`}>
+                <div className="flex h-48 w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-5 overflow-x-auto md:flex-wrap md:overflow-y-auto">
                     {categories.map((item, index) => (
                         <div
                             key={index}
-                            className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 sm:h-36 sm:w-36">
-                            <div
-                                className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
+                            className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 sm:h-36 sm:w-36 cursor-pointer">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
                                 <Image
                                     src={item.icon}
                                     alt={item.name}
-                                    width={isMobile ? 48 : 80}
-                                    height={isMobile ? 48 : 80}
+                                    width={80}
+                                    height={80}
                                 />
                             </div>
-
                             <p className="py-1 text-xs text-center text-gray-900 sm:text-sm lg:text-base">
                                 {item.name}
                             </p>
@@ -86,7 +74,7 @@ export default function Home() {
                         Produk terbaru dari Jaja!
                     </p>
 
-                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
                         Lihat lainnya
                     </p>
                 </header>
@@ -103,8 +91,18 @@ export default function Home() {
 
                     {/* Product Item grid */}
                     <div className="w-full grid grid-cols-2 gap-3 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-4">
-                        {products.slice(0, numberToSliceFeatured).map((item, index) => (
-                            <ProductCard key={`${item.id}-${item.name}`} index={index} item={item} />
+                        {featuredProducts.map((product) => (
+                            <ProductCard 
+                                key={`featured-${product.id_produk}`}
+                                item={{
+                                    id: product.id_produk,
+                                    name: product.nama_produk,
+                                    price: product.harga,
+                                    image: '', // Add image URL from your backend
+                                    address: product.tokos.wilayah?.kelurahan_desa || '',
+                                    slug: product.slug_produk
+                                }} 
+                            />
                         ))}
                     </div>
 
@@ -120,14 +118,24 @@ export default function Home() {
                         Produk paling laris!
                     </p>
 
-                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl">
+                    <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
                         Lihat lainnya
                     </p>
                 </header>
 
                 <div className='flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4'>
-                    {products.slice(0, 6).map((item, index) => (
-                        <ProductCard key={`top-${item.id}-${item.name}`} index={index} item={item} />
+                    {topProducts.map((product) => (
+                        <ProductCard 
+                            key={`top-${product.id_produk}`}
+                            item={{
+                                id: product.id_produk,
+                                name: product.nama_produk,
+                                price: product.harga,
+                                image: '',
+                                address: product.tokos.wilayah?.kelurahan_desa || '',
+                                slug: product.slug_produk
+                            }} 
+                        />
                     ))}
                 </div>
             </section>
@@ -140,13 +148,23 @@ export default function Home() {
                 </header>
 
                 <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-3 xl:grid-cols-6">
-                    {products.slice(0, numberToSliceRecommended).map((item, index) => (
-                        <ProductCard key={`recommend-${item.id}-${item.name}`} index={index} item={item} />
+                    {recommendedProducts.map((product) => (
+                        <ProductCard 
+                            key={`recommend-${product.id_produk}`}
+                            item={{
+                                id: product.id_produk,
+                                name: product.nama_produk,
+                                price: product.harga,
+                                image: '',
+                                address: product.tokos.wilayah?.kelurahan_desa || '',
+                                slug: product.slug_produk
+                            }} 
+                        />
                     ))}
                 </div>
 
                 <div className='flex w-full justify-center'>
-                    <div className='w-fit rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300'>
+                    <div className='w-fit rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300 cursor-pointer'>
                         Lihat lainnya
                     </div>
                 </div>
