@@ -21,7 +21,7 @@ export default function ProductCard({ index, item }: ProductCardProps) {
     // Fungsi untuk handle klik produk
     const handleProductClick = () => {
         // Navigasi ke halaman produk dengan ID
-        router.push(`/product/${item.id || index}`)
+        router.push(`/Product/${item.id || index}`)
     }
 
     // Fungsi untuk handle keyboard navigation
