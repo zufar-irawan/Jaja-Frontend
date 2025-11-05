@@ -5,7 +5,8 @@ import ProductImages from '../components/ProductImages';
 import ProductInfo from '../components/ProductInfo';
 import StoreInfo from '../components/StoreInfo';
 import ProductTabs from '../components/ProductTabs';
-import { ChevronLeft, ChevronRight, Heart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ProductCard from '@/components/ProductCard';
 
 interface Variant {
   name: string;
@@ -352,120 +353,19 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '24px'
-          }}>
-            {relatedProducts.map(product => (
-              <div key={product.id} style={{
-                backgroundColor: 'white',
-                borderRadius: '20px',
-                padding: '20px',
-                position: 'relative',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s',
-                cursor: 'pointer',
-                fontFamily: "'Poppins', sans-serif"
-              }}>
-                {/* Love Icon Only */}
-                <div style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  zIndex: 1
-                }}>
-                  <button style={{
-                    backgroundColor: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '36px',
-                    height: '36px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    fontFamily: "'Poppins', sans-serif"
-                  }}>
-                    <Heart size={16} />
-                  </button>
-                </div>
-
-                {/* Image */}
-                <img 
-                  src={product.image}
-                  alt={product.name}
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '12px',
-                    marginBottom: '16px'
-                  }}
-                />
-
-                {/* Info */}
-                <h3 style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: '#1a1a1a',
-                  marginBottom: '4px',
-                  marginTop: 0,
-                  fontFamily: "'Poppins', sans-serif"
-                }}>
-                  {product.name}
-                </h3>
-                <p style={{
-                  fontSize: '13px',
-                  color: '#6b7280',
-                  marginBottom: '12px',
-                  fontFamily: "'Poppins', sans-serif"
-                }}>
-                  {product.subtitle}
-                </p>
-
-                {/* Rating & Price */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <Star size={14} fill="#fbbf24" stroke="#fbbf24" />
-                    <span style={{
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#1a1a1a',
-                      fontFamily: "'Poppins', sans-serif"
-                    }}>
-                      {product.rating}
-                    </span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      color: '#1a1a1a',
-                      fontFamily: "'Poppins', sans-serif"
-                    }}>
-                      {product.price}
-                    </div>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#9ca3af',
-                      textDecoration: 'line-through',
-                      fontFamily: "'Poppins', sans-serif"
-                    }}>
-                      {product.originalPrice}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {relatedProducts.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                index={index}
+                item={{
+                  id: product.id,
+                  name: product.name,
+                  price: parseInt(product.price.replace(/[^0-9]/g, '')),
+                  image: product.image,
+                  address: product.subtitle
+                }}
+              />
             ))}
           </div>
         </div>

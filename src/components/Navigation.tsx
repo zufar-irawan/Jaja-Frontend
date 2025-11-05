@@ -303,7 +303,7 @@ export default function JajaNavbar() {
                             ) : (
                               <div className="flex items-center justify-center h-full text-center py-12 px-6">
                                 <div>
-                                  <div className="w-16 h-16 bg-gradient-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                  <div className="w-16 h-16 bg-linear-to-br from-[#55B4E5]/20 to-[#FBB338]/20 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <Menu className="w-8 h-8 text-[#55B4E5]" />
                                   </div>
                                   <p className="text-gray-500 text-sm font-medium">Pilih kategori</p>
@@ -331,7 +331,7 @@ export default function JajaNavbar() {
                 className="w-full pl-36 pr-14 py-3 border-2 border-gray-200 rounded-full focus:border-[#55B4E5] focus:ring-4 focus:ring-[#55B4E5]/20 outline-none transition-all placeholder:text-gray-400"
               />
 
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
                 <Search className="w-5 h-5" />
               </button>
             </div>
@@ -350,21 +350,21 @@ export default function JajaNavbar() {
               <>
                 <button className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Mail className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
 
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Bell className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
                 </button>
@@ -381,7 +381,7 @@ export default function JajaNavbar() {
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-gradient-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
+                      <div className="w-9 h-9 bg-linear-to-br from-[#55B4E5] via-[#55B4E5] to-[#FBB338] rounded-full flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white">
                         {getUserInitials()}
                       </div>
                     )}
@@ -437,7 +437,7 @@ export default function JajaNavbar() {
                 </button>
                 <button
                   onClick={() => router.push("/auth/register")}
-                  className="px-4 py-2 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
+                  className="px-4 py-2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
                 >
                   Daftar
                 </button>
