@@ -30,7 +30,7 @@ export default function ClientAreaLayout(
                     </div>
 
                     <div className="text-gray-800 hover:text-gray-800/50">
-                        <SquarePen size={35} />
+                        <SquarePen size={30} />
                     </div>
                 </div>
 
