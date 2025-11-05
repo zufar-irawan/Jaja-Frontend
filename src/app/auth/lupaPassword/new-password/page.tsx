@@ -290,29 +290,11 @@ export default function NewPassword() {
           <div className="flex justify-center mb-8">
             {/* Ikon SVG */}
             <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 100 100"
-                xmlns="http://www.w3.org/2000/svg">
-                {/* Lingkaran luar kuning */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="30"
-                  stroke="#FBB338"
-                  strokeWidth="4"
-                  fill="none"/>
-                {/* Centang biru halus */}
-                <path
-                  d="M38 52 L47 60 L63 40"
-                  fill="none"
-                  stroke="#55B4E5"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <img
+                src="/svg/check_icon.svg"
+                alt="Check Icon"
+                className="w-20 h-20"
+              />
             </div>
           </div>
 

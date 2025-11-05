@@ -18,11 +18,9 @@ export default function Verification() {
     if (savedEmail) {
       setEmail(savedEmail);
     } else {
-      // If no email found, redirect back
       router.push("/auth/lupaPassword");
     }
 
-    // Timer countdown
     const timer = setInterval(() => {
       setResendTimer((prev) => {
         if (prev <= 1) {
@@ -37,7 +35,6 @@ export default function Verification() {
   }, [router]);
 
   const handleTokenChange = (value: string) => {
-    // Only allow alphanumeric characters
     const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
     setToken(cleanValue);
   };
@@ -54,7 +51,6 @@ export default function Verification() {
       setError("");
 
       try {
-        // Import forgotPassword here to avoid circular dependency
         const { forgotPassword } = await import("@/utils/authService");
         const result = await forgotPassword({ email });
         
@@ -236,36 +232,11 @@ export default function Verification() {
           <div className="flex justify-center mb-8">
             {/* Ikon lingkaran putih dengan SVG gembok */}
             <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 100 100"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="25"
-                  y="35"
-                  width="50"
-                  height="40"
-                  rx="5"
-                  stroke="#55B4E5"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  d="M35 35 V25 Q35 15 50 15 Q65 15 65 25 V35"
-                  stroke="#55B4E5"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <circle cx="50" cy="55" r="8" fill="#FBB338" />
-                <path
-                  d="M50 63 L50 68"
-                  stroke="#FBB338"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <img
+                src="/svg/lock_icon.svg"
+                alt="Lock Icon"
+                className="w-20 h-20"
+              />
             </div>
           </div>
 

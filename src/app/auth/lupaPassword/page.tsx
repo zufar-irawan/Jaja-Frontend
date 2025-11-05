@@ -151,30 +151,11 @@ export default function LupaPassword() {
           <div className="flex justify-center mb-8">
             {/* Ikon lingkaran putih dengan SVG user + gembok */}
             <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 100 100"
-                xmlns="http://www.w3.org/2000/svg">
-                {/* Kepala */}
-                <circle
-                  cx="50"
-                  cy="35"
-                  r="12"
-                  stroke="#55B4E5"
-                  strokeWidth="4"
-                  fill="none"/>
-
-                {/* Badan (warna biru muda transparan) */}
-                <path
-                  d="M30 55 Q30 45 40 45 H60 Q70 45 70 55 V75 H30 V55Z"
-                  fill="#55B4E5"
-                  opacity="0.3"/>
-
-                {/* Gembok */}
-                <circle cx="50" cy="65" r="8" fill="#FBB338" />
-                <rect x="48" y="65" width="4" height="12" fill="#FBB338" />
-              </svg>
+              <img 
+                src="/svg/user_lock_icon.svg" 
+                alt="User Lock Icon"
+                className="w-20 h-20" 
+              />
             </div>
           </div>
 
