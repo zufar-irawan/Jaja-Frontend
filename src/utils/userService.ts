@@ -102,7 +102,7 @@ export async function getUserProfile(): Promise<ApiResponse<UserProfile>> {
         const response = await api.get('/main/customer/profile')
         return {
             success: true,
-            data: response.data
+            data: response.data.data
         }
     } catch (error: any) {
         return {

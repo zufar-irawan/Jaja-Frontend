@@ -277,7 +277,7 @@ export default function NewPassword() {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -290,29 +290,11 @@ export default function NewPassword() {
           <div className="flex justify-center mb-8">
             {/* Ikon SVG */}
             <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 100 100"
-                xmlns="http://www.w3.org/2000/svg">
-                {/* Lingkaran luar kuning */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="30"
-                  stroke="#FBB338"
-                  strokeWidth="4"
-                  fill="none"/>
-                {/* Centang biru halus */}
-                <path
-                  d="M38 52 L47 60 L63 40"
-                  fill="none"
-                  stroke="#55B4E5"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <img
+                src="/svg/check_icon.svg"
+                alt="Check Icon"
+                className="w-20 h-20"
+              />
             </div>
           </div>
 
