@@ -52,7 +52,7 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
 export async function login(data: LoginData): Promise<AuthResponse> {
     try {
         const response = await api.post('/main/auth/login', data)
-        
+
         if (response.data.token) {
             const cookieStore = await cookies()
             cookieStore.set('auth-token', response.data.token, {
@@ -62,7 +62,7 @@ export async function login(data: LoginData): Promise<AuthResponse> {
                 maxAge: 60 * 60 * 24 * 7 // 7 days
             })
         }
-        
+
         return {
             success: true,
             message: response.data.message || 'Login berhasil',
@@ -112,7 +112,7 @@ export async function resetPassword(data: ResetPasswordData): Promise<AuthRespon
 export async function loginWithGoogle(token: string): Promise<AuthResponse> {
     try {
         const response = await api.post('/main/auth/google', { token })
-        
+
         if (response.data.token) {
             const cookieStore = await cookies()
             cookieStore.set('auth-token', response.data.token, {
@@ -122,7 +122,7 @@ export async function loginWithGoogle(token: string): Promise<AuthResponse> {
                 maxAge: 60 * 60 * 24 * 7
             })
         }
-        
+
         return {
             success: true,
             message: response.data.message || 'Login berhasil',
