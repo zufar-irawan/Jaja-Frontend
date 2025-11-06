@@ -26,7 +26,7 @@ export default function ProductCard({ item }: ProductCardProps) {
     return (
         <Link
             href={productUrl}
-            className="block h-full transform rounded-lg bg-white transition-all will-change-transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="block h-full w-50 transform rounded-lg bg-white transition-all will-change-transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
             <div className="flex h-full flex-col">
                 {/* Image/Placeholder Section */}
@@ -57,7 +57,7 @@ export default function ProductCard({ item }: ProductCardProps) {
                         {formatCurrency(item.price)}
                     </p>
 
-                {/* Rating Section */}
+                    {/* Rating Section */}
                     <div className="mt-auto pt-2">
                         {/* Rating Section */}
                         <div className="flex flex-row items-center gap-1">
