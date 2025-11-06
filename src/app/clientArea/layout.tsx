@@ -22,8 +22,8 @@ export default function ClientAreaLayout(
                             U
                         </div>
 
-                        <div className="space-y-1">
-                            <p className="text-2xl font-semibold sm:text-3xl">Username</p>
+                        <div className="">
+                            <p className="text-xl font-semibold sm:text-xl">Username</p>
 
                             <p className="text-base text-gray-800/60 sm:text-lg">Pelanggan</p>
                         </div>
