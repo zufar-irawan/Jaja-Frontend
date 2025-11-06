@@ -6,7 +6,7 @@ import api from '@/utils/api'
 // Types untuk Product
 export interface Product {
     id_produk: number
-    is_deleted?: boolean // Added to support filtering
+    is_deleted?: boolean 
     nama_produk: string
     harga: number
     diskon: number
@@ -25,7 +25,7 @@ export interface Product {
         nama_toko: string
         slug_toko: string
         foto: string
-        alamat_toko?: string // Added from API response
+        alamat_toko?: string
         wilayah?: {
             kelurahan_desa: string
         }
