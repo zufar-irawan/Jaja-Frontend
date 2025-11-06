@@ -2,12 +2,16 @@
 
 import React, { useState } from 'react'
 import { Heart, Share2, Star, ShoppingCart, Plus, Minus, Shield } from 'lucide-react'
+import Swal from 'sweetalert2'
+import { addToCart } from '@/utils/cartActions'
+import { useRouter } from 'next/navigation'
 
 interface Variant {
   name: string
   price: number
   originalPrice: number
   stock: number
+  id?: number
 }
 
 interface RatingStats {
@@ -25,6 +29,11 @@ interface ProductInfoProps {
   productWeight: string
   productCondition: string
   productStock: number
+  productId: number
+  productImage?: string
+  storeName?: string
+  productPrice: number
+  productDiscount?: number
 }
 
 export default function ProductInfo({ 
@@ -37,10 +46,17 @@ export default function ProductInfo({
   productName,
   productWeight,
   productCondition,
-  productStock
+  productStock,
+  productId,
+  productImage,
+  storeName,
+  productPrice,
+  productDiscount = 0
 }: ProductInfoProps) {
   const [selectedVariant, setSelectedVariant] = useState(initialSelectedVariant)
   const [quantity, setQuantity] = useState(initialQuantity)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const router = useRouter()
 
   const currentVariant = variants.find(v => v.name === selectedVariant) || variants[0]
   const discount = Math.round(((currentVariant.originalPrice - currentVariant.price) / currentVariant.originalPrice) * 100)
@@ -53,6 +69,167 @@ export default function ProductInfo({
   const handleQuantityChange = (newQuantity: number) => {
     setQuantity(newQuantity)
     externalSetQuantity(newQuantity)
+  }
+
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true)
+
+      // Prepare complete cart data with all product information
+      const cartData = {
+        id_produk: productId,
+        qty: quantity,
+        id_variasi: currentVariant.id,
+        model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
+        produk_cover: productImage || '',
+        toko: storeName || '',
+        // Additional product data for better cart display
+        nama_produk: productName,
+        harga: currentVariant.price,
+        diskon: productDiscount
+      }
+
+      console.log('Adding to cart with data:', cartData)
+      const response = await addToCart(cartData)
+      console.log('Add to Cart Response:', response)
+
+      if (response.success) {
+        // Success SweetAlert with better design
+        const result = await Swal.fire({
+          icon: 'success',
+          title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',
+          html: `
+            <div style="text-align: left; padding: 0 20px; font-family: 'Poppins', sans-serif;">
+              <div style="display: flex; gap: 16px; align-items: start; padding: 16px; background: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
+                <img src="${productImage || '/placeholder.png'}" alt="${productName}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" />
+                <div style="flex: 1;">
+                  <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">
+                    ${productName}
+                  </p>
+                  ${selectedVariant !== 'Standard' ? `<p style="color: #6c757d; font-size: 12px; margin: 0 0 4px 0;">Variasi: ${selectedVariant}</p>` : ''}
+                  <p style="color: #6c757d; font-size: 12px; margin: 0;">Jumlah: ${quantity} item</p>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
+                <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
+                <span style="color: white; font-weight: 700; font-size: 18px;">
+                  Rp ${(currentVariant.price * quantity).toLocaleString('id-ID')}
+                </span>
+              </div>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-shopping-cart"></i> Lihat Keranjang',
+          cancelButtonText: 'Lanjut Belanja',
+          confirmButtonColor: '#55B4E5',
+          cancelButtonColor: '#6c757d',
+          customClass: {
+            popup: 'rounded-xl',
+            confirmButton: 'px-6 py-3 rounded-lg font-semibold',
+            cancelButton: 'px-6 py-3 rounded-lg font-semibold'
+          },
+          buttonsStyling: true
+        })
+
+        if (result.isConfirmed) {
+          router.push('/Cart')
+        }
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: '<span style="font-family: Poppins, sans-serif;">Oops...</span>',
+          text: response.message || 'Gagal menambahkan ke keranjang',
+          confirmButtonColor: '#55B4E5',
+          confirmButtonText: 'OK'
+        })
+      }
+    } catch (error: any) {
+      console.error('Error adding to cart:', error)
+      
+      if (error.response?.status === 401) {
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: '<span style="font-family: Poppins, sans-serif;">Login Diperlukan</span>',
+          html: '<p style="font-family: Poppins, sans-serif;">Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang</p>',
+          showCancelButton: true,
+          confirmButtonText: 'Login Sekarang',
+          cancelButtonText: 'Nanti Saja',
+          confirmButtonColor: '#55B4E5',
+          cancelButtonColor: '#6c757d'
+        })
+
+        if (result.isConfirmed) {
+          router.push('/auth/login')
+        }
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: '<span style="font-family: Poppins, sans-serif;">Terjadi Kesalahan</span>',
+          html: '<p style="font-family: Poppins, sans-serif;">Tidak dapat menambahkan produk ke keranjang. Silakan coba lagi.</p>',
+          confirmButtonColor: '#55B4E5',
+          confirmButtonText: 'OK'
+        })
+      }
+    } finally {
+      setIsAddingToCart(false)
+    }
+  }
+
+  const handleBuyNow = async () => {
+    try {
+      setIsAddingToCart(true)
+
+      const cartData = {
+        id_produk: productId,
+        qty: quantity,
+        id_variasi: currentVariant.id,
+        model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
+        produk_cover: productImage || '',
+        toko: storeName || '',
+        nama_produk: productName,
+        harga: currentVariant.price,
+        diskon: productDiscount
+      }
+
+      const response = await addToCart(cartData)
+
+      if (response.success) {
+        router.push('/Cart')
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: response.message || 'Gagal memproses pesanan',
+          confirmButtonColor: '#55B4E5'
+        })
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: 'Login Diperlukan',
+          text: 'Anda harus login terlebih dahulu',
+          showCancelButton: true,
+          confirmButtonText: 'Login Sekarang',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#55B4E5',
+          cancelButtonColor: '#6c757d'
+        })
+
+        if (result.isConfirmed) {
+          router.push('/auth/login')
+        }
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Terjadi Kesalahan',
+          text: 'Tidak dapat memproses pesanan. Silakan coba lagi.',
+          confirmButtonColor: '#55B4E5'
+        })
+      }
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   return (
@@ -73,7 +250,8 @@ export default function ProductInfo({
           color: '#1a1a1a',
           marginBottom: '12px',
           marginTop: 0,
-          letterSpacing: '-0.5px'
+          letterSpacing: '-0.5px',
+          fontFamily: "'Poppins', sans-serif"
         }}>
           {productName}
         </h2>
@@ -250,14 +428,16 @@ export default function ProductInfo({
             }}>
               <button 
                 onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
                 style={{
                   backgroundColor: 'white',
                   border: 'none',
                   padding: '8px 12px',
-                  cursor: 'pointer',
+                  cursor: quantity <= 1 ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  opacity: quantity <= 1 ? 0.5 : 1
                 }}
               >
                 <Minus size={14} stroke="#FBB338" />
@@ -270,14 +450,16 @@ export default function ProductInfo({
               }}>{quantity}</span>
               <button 
                 onClick={() => handleQuantityChange(Math.min(productStock, quantity + 1))}
+                disabled={quantity >= productStock}
                 style={{
                   backgroundColor: 'white',
                   border: 'none',
                   padding: '8px 12px',
-                  cursor: 'pointer',
+                  cursor: quantity >= productStock ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  opacity: quantity >= productStock ? 0.5 : 1
                 }}
               >
                 <Plus size={14} stroke="#FBB338" />
@@ -308,40 +490,56 @@ export default function ProductInfo({
 
         {/* Buy Buttons */}
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button style={{
-            flex: 1,
-            background: 'linear-gradient(135deg, #FBB338 0%, #f59e0b 100%)',
-            border: 'none',
-            color: 'white',
-            padding: '14px',
-            borderRadius: '10px',
-            fontSize: '14px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 12px rgba(251, 179, 56, 0.3)'
-          }}>
-            Beli Langsung
+          <button 
+            onClick={handleBuyNow}
+            disabled={isAddingToCart || productStock === 0}
+            style={{
+              flex: 1,
+              background: productStock === 0 ? '#cccccc' : 'linear-gradient(135deg, #FBB338 0%, #f59e0b 100%)',
+              border: 'none',
+              color: 'white',
+              padding: '14px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: productStock === 0 || isAddingToCart ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: productStock === 0 ? 'none' : '0 4px 12px rgba(251, 179, 56, 0.3)',
+              opacity: isAddingToCart ? 0.7 : 1
+            }}
+          >
+            {isAddingToCart ? 'Memproses...' : productStock === 0 ? 'Stok Habis' : 'Beli Langsung'}
           </button>
-          <button style={{
-            flex: 1,
-            background: 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
-            border: 'none',
-            color: 'white',
-            padding: '14px',
-            borderRadius: '10px',
-            fontSize: '14px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 12px rgba(85, 180, 229, 0.3)'
-          }}>
-            <ShoppingCart size={16} />
-            + Keranjang
+          <button 
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || productStock === 0}
+            style={{
+              flex: 1,
+              background: productStock === 0 ? '#cccccc' : 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
+              border: 'none',
+              color: 'white',
+              padding: '14px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: '700',
+              cursor: productStock === 0 || isAddingToCart ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.3s ease',
+              boxShadow: productStock === 0 ? 'none' : '0 4px 12px rgba(85, 180, 229, 0.3)',
+              opacity: isAddingToCart ? 0.7 : 1
+            }}
+          >
+            {isAddingToCart ? (
+              <>Menambahkan...</>
+            ) : (
+              <>
+                <ShoppingCart size={16} />
+                + Keranjang
+              </>
+            )}
           </button>
         </div>
       </div>

@@ -14,7 +14,6 @@ interface Category {
   children?: Category[];
 }
 
-// Helper to recursively clean API data and ensure it matches the Category type
 const cleanCategoryData = (categoriesToClean: any[]): Category[] => {
   if (!Array.isArray(categoriesToClean)) {
     return [];
@@ -46,7 +45,6 @@ export default function JajaNavbar() {
   const [expandedMobileCategories, setExpandedMobileCategories] = useState<number[]>([]);
   const router = useRouter();
 
-  // Fetch user profile
   useEffect(() => {
     async function fetchUserProfile() {
       try {
@@ -72,7 +70,6 @@ export default function JajaNavbar() {
     fetchUserProfile();
   }, []);
 
-  // Fetch categories
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -120,7 +117,11 @@ export default function JajaNavbar() {
     }
   };
 
-  // Get user initials for avatar
+  // Handler untuk navigasi ke halaman cart
+  const handleCartClick = () => {
+    router.push('/Cart');
+  };
+
   const getUserInitials = () => {
     if (!userProfile) return '?';
 
@@ -139,7 +140,6 @@ export default function JajaNavbar() {
     return '?';
   };
 
-  // Get user display name
   const getUserDisplayName = () => {
     if (!userProfile) return 'User';
 
@@ -191,10 +191,8 @@ export default function JajaNavbar() {
 
   return (
     <nav className="bg-white shadow-lg relative z-50">
-      {/* Main Navbar */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
-          {/* Logo */}
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -215,10 +213,8 @@ export default function JajaNavbar() {
             </div>
           </div>
 
-          {/* Search Bar - Desktop */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <div className={`relative w-full transition-all duration-300 ${isSearchFocused ? 'scale-105' : ''}`}>
-              {/* Category Dropdown */}
               <div className="absolute left-0 top-0 bottom-0 flex items-center z-10">
                 <div className="relative">
                   <button
@@ -230,7 +226,6 @@ export default function JajaNavbar() {
                     <ChevronDown className={`w-4 h-4 text-gray-500 group-hover:text-[#55B4E5] transition-transform ${showCategoryMenu ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {/* Mega Menu Kategori */}
                   {showCategoryMenu && (
                     <div
                       onMouseLeave={() => {
@@ -246,7 +241,6 @@ export default function JajaNavbar() {
                         </div>
                       ) : categories.length > 0 ? (
                         <div className="flex">
-                          {/* Main Categories List */}
                           <div className="w-72 py-2 bg-gray-50/50">
                             {categories.map((category) => (
                               <button
@@ -269,7 +263,6 @@ export default function JajaNavbar() {
                             ))}
                           </div>
 
-                          {/* Subcategories Panel */}
                           <div className="w-80 bg-white">
                             {hoveredCategory ? (
                               (() => {
@@ -337,9 +330,7 @@ export default function JajaNavbar() {
             </div>
           </div>
 
-          {/* Right Actions */}
           <div className="flex items-center space-x-2 lg:space-x-4">
-            {/* Search Icon - Mobile */}
             <button className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors">
               <Search className="w-5 h-5 text-gray-600" />
             </button>
@@ -348,7 +339,11 @@ export default function JajaNavbar() {
               <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
             ) : isLoggedIn && userProfile ? (
               <>
-                <button className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
+                {/* TOMBOL CART - UPDATED dengan onClick handler */}
+                <button 
+                  onClick={handleCartClick}
+                  className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group"
+                >
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
                   <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                     0
@@ -446,7 +441,6 @@ export default function JajaNavbar() {
           </div>
         </div>
 
-        {/* Search Bar - Mobile */}
         <div className="lg:hidden pb-4">
           <div className="relative">
             <input
@@ -459,7 +453,6 @@ export default function JajaNavbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg animate-in slide-in-from-top duration-300">
           <div className="container mx-auto px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
@@ -474,7 +467,6 @@ export default function JajaNavbar() {
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <div key={category.id_kategori} className="bg-white rounded-xl overflow-hidden border border-gray-200">
-                      {/* Main Category Button */}
                       <div className="flex items-center">
                         <button
                           onClick={() => handleCategoryClick(category)}
@@ -483,7 +475,6 @@ export default function JajaNavbar() {
                           <span className="font-semibold text-gray-800 text-sm">{category.kategori}</span>
                         </button>
 
-                        {/* Toggle Button */}
                         {category.children && category.children.length > 0 && (
                           <button
                             onClick={() => toggleMobileCategory(category.id_kategori)}
@@ -495,7 +486,6 @@ export default function JajaNavbar() {
                         )}
                       </div>
 
-                      {/* Subcategories - Accordion */}
                       {category.children && category.children.length > 0 && expandedMobileCategories.includes(category.id_kategori) && (
                         <div className="bg-gray-50 px-3 py-3 border-t border-gray-200">
                           {renderSubcategories(category.children)}
@@ -528,7 +518,6 @@ export default function JajaNavbar() {
         </div>
       )}
 
-      {/* Background Overlay */}
       {(showUserMenu || showCategoryMenu) && (
         <div
           className="fixed inset-0 bg-black/20 -z-10"

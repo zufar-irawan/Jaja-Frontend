@@ -6,12 +6,12 @@ import StoreInfo from '@/app/Product/components/StoreInfo'
 import ProductTabs from '@/app/Product/components/ProductTabs'
 import ProductCard from '@/components/ProductCard'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Product } from '@/utils/productService' // Import the Product type
+import { Product } from '@/utils/productService'
 
 interface ProductViewProps {
     product: Product;
     otherProduct: Product[];
-    storeInfo: any; // Define more specific types if needed
+    storeInfo: any;
     productSpecs: Record<string, string>;
     features: any[];
     reviews: any[];
@@ -21,8 +21,18 @@ interface ProductViewProps {
     variants: any[];
 }
 
-// This component will handle the UI and will be a client component.
-export default function ProductView({ product, otherProduct, storeInfo, productSpecs, features, reviews, ratingStats, categories, images, variants }: ProductViewProps) {
+export default function ProductView({ 
+    product, 
+    otherProduct, 
+    storeInfo, 
+    productSpecs, 
+    features, 
+    reviews, 
+    ratingStats, 
+    categories, 
+    images, 
+    variants 
+}: ProductViewProps) {
 
     // Filter and transform other products
     const relatedProducts = otherProduct
@@ -97,6 +107,11 @@ export default function ProductView({ product, otherProduct, storeInfo, productS
                             productWeight={product.berat || ''}
                             productCondition={product.kondisi}
                             productStock={product.stok}
+                            productId={product.id_produk}
+                            productImage={images[0]}
+                            storeName={storeInfo.name}
+                            productPrice={product.harga}
+                            productDiscount={product.diskon}
                         />
                     </div>
                 </div>
@@ -177,7 +192,7 @@ export default function ProductView({ product, otherProduct, storeInfo, productS
                                         id: prod.id_produk,
                                         name: prod.nama_produk,
                                         price: prod.harga,
-                                        image: '', // You might want to get the actual image
+                                        image: '',
                                         address: prod.tokos?.alamat_toko || '',
                                         slug: prod.slug_produk
                                     }}
