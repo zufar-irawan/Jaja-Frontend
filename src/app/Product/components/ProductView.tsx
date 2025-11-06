@@ -39,6 +39,9 @@ export default function ProductView({
         .filter((p: Product) => !p.is_deleted && p.id_produk !== product.id_produk)
         .slice(0, 8)
 
+    // Use covers from product if images array is empty
+    const productImages = images.length > 0 ? images : (product.covers?.map(cover => cover.foto) || [])
+
     return (
         <div style={{ 
             fontFamily: "'Poppins', sans-serif", 
@@ -84,7 +87,7 @@ export default function ProductView({
                         minWidth: 0
                     }}>
                         <ProductImages 
-                            images={images}
+                            images={productImages}
                             selectedImage={0}
                             setSelectedImage={() => {}}
                             discount={product.diskon || 0}
@@ -108,7 +111,7 @@ export default function ProductView({
                             productCondition={product.kondisi}
                             productStock={product.stok}
                             productId={product.id_produk}
-                            productImage={images[0]}
+                            productImage={productImages[0]}
                             storeName={storeInfo.name}
                             productPrice={product.harga}
                             productDiscount={product.diskon}
@@ -192,7 +195,7 @@ export default function ProductView({
                                         id: prod.id_produk,
                                         name: prod.nama_produk,
                                         price: prod.harga,
-                                        image: '',
+                                        image: prod.covers?.[0]?.foto || '',
                                         address: prod.tokos?.alamat_toko || '',
                                         slug: prod.slug_produk
                                     }}

@@ -1,10 +1,11 @@
-// components/ProductCard.tsx
+'use client'
+
 import formatCurrency from '@/utils/format'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 type ProductCardProps = {
-    item?: { // Make item optional to prevent error on undefined
+    item?: {
         id?: number
         name: string
         price: number
@@ -17,7 +18,6 @@ type ProductCardProps = {
 export default function ProductCard({ item }: ProductCardProps) {
     // If item or slug is not available, don't render the card.
     if (!item?.slug) {
-        // You can return null or a placeholder
         return null
     }
 
@@ -36,15 +36,27 @@ export default function ProductCard({ item }: ProductCardProps) {
                             src={item.image}
                             alt={item.name}
                             className="h-full w-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                                // Fallback if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                if (target.nextElementSibling) {
+                                    (target.nextElementSibling as HTMLElement).style.display = 'flex';
+                                }
+                            }}
                         />
-                    ) : (
-                        <div className="flex h-full items-center justify-center">
-                            <p className="text-center text-2xl font-bold text-blue-600">
-                                Jaja
-                                <span className="text-orange-400">ID</span>
-                            </p>
-                        </div>
-                    )}
+                    ) : null}
+                    {/* Fallback placeholder - always render but hide if image loads */}
+                    <div 
+                        className="flex h-full items-center justify-center"
+                        style={{ display: item.image ? 'none' : 'flex' }}
+                    >
+                        <p className="text-center text-2xl font-bold text-blue-600">
+                            Jaja
+                            <span className="text-orange-400">ID</span>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Product Info Section */}

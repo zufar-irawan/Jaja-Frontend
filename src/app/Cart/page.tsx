@@ -26,6 +26,7 @@ const ShoppingCartPage = () => {
   const router = useRouter();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingQuantities, setEditingQuantities] = useState<Record<number, string>>({});
   const [couponCode, setCouponCode] = useState('');
   const [deliveryType, setDeliveryType] = useState<'standard' | 'express' | 'free'>('standard');
   const [discount, setDiscount] = useState(0);
@@ -193,6 +194,14 @@ const ShoppingCartPage = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
       `}</style>
       
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -293,7 +302,7 @@ const ShoppingCartPage = () => {
                   const itemTotal = price * item.qty;
                   const imageUrl = getProductImageUrl(item);
                   const product = typeof item.produk === 'object' && item.produk ? item.produk : null;
-                  const stock = item.variasi?.stok_variasi ?? product?.stok ?? 999;
+                  const stock = item.variasi?.stok_variasi || product?.stok || 99;
                   
                   return (
                     <div key={item.id_cart} style={{ 
@@ -371,9 +380,47 @@ const ShoppingCartPage = () => {
                             >
                               <Minus size={14} />
                             </button>
-                            <span style={{ fontSize: '14px', fontWeight: '500', minWidth: '25px', textAlign: 'center' }}>
-                              {item.qty}
-                            </span>
+                            <input
+                              type="number"
+                              value={editingQuantities[item.id_cart] ?? item.qty}
+                              onFocus={() => {
+                                setEditingQuantities(prev => ({ ...prev, [item.id_cart]: String(item.qty) }));
+                              }}
+                              onChange={(e) => {
+                                setEditingQuantities(prev => ({ ...prev, [item.id_cart]: e.target.value }));
+                              }}
+                              onBlur={() => {
+                                const editedValue = editingQuantities[item.id_cart];
+                                let newQuantity = parseInt(editedValue, 10);
+                      
+                                if (isNaN(newQuantity) || newQuantity < 1) {
+                                  newQuantity = 1;
+                                } else if (newQuantity > stock) {
+                                  newQuantity = stock;
+                                }
+                      
+                                // Clean up the editing state
+                                setEditingQuantities(prev => {
+                                  const next = { ...prev };
+                                  delete next[item.id_cart];
+                                  return next;
+                                });
+                                
+                                // Only update if the quantity is different
+                                if (newQuantity !== item.qty) {
+                                  handleUpdateQuantity(item.id_cart, newQuantity);
+                                }
+                              }}
+                              style={{
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                width: '50px',
+                                textAlign: 'center',
+                                border: '1px solid #dee2e6',
+                                borderRadius: '5px',
+                                appearance: 'textfield',
+                              }}
+                            />
                             <button
                               onClick={() => handleUpdateQuantity(item.id_cart, item.qty + 1)}
                               disabled={item.qty >= stock}

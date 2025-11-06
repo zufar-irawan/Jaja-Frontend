@@ -162,7 +162,7 @@ export async function toggleCartSelection(id_cart: number): Promise<CartResponse
     try {
         console.log('Toggling cart selection:', id_cart)
 
-        const response = await api.put(`/main/cart/${id_cart}/status-pilih`)
+        const response = await api.put(`/main/cart/${id_cart}/toggle-select-product`)
 
         return {
             success: true,

@@ -34,6 +34,11 @@ export interface Product {
         kategori: string
         slug_kategori: string
     }
+    covers?: {
+        id_foto: number
+        foto: string
+        thumbnail: string
+    }[]
 }
 
 export interface SearchProductsParams {
