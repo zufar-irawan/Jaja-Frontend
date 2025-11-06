@@ -1,6 +1,5 @@
 import formatCurrency from "@/utils/format";
 import { Banknote, CheckCircle, Clock, Truck } from "lucide-react"
-import { format } from "path";
 import { JSX } from "react"
 
 function Status({ status, icon, color }: { status: string, icon: JSX.Element, color: string }) {
