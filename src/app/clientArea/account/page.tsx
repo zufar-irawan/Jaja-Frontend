@@ -22,9 +22,17 @@ export default function AccountPage() {
             </h1>
 
             <div className="mx-auto w-full max-w-2xl space-y-4">
-                {rekening ? rekening.map((item: any, index: number) => (
-                    <AccountListCard key={index} rekening={item} />
-                )) : (
+                {rekening ? (
+                    <>
+                        {rekening.map((item: any, index: number) => (
+                            <AccountListCard key={index} rekening={item} />
+                        ))}
+
+                        <button className="mt-2 w-full rounded-lg bg-blue-400 px-4 py-2 text-sm font-medium text-gray-50 transition-all hover:-translate-y-1 shadow-md">
+                            + Tambah Rekening
+                        </button>
+                    </>
+                ) : (
                     <button className="group flex w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-8 py-16 transition-all hover:border-blue-400 hover:bg-blue-50/50">
                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-500 shadow-md transition-transform group-hover:scale-102 group-hover:bg-blue-500 group-hover:text-white">
                             <CirclePlus size={40} strokeWidth={2} />
