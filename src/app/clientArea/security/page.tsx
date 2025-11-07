@@ -1,12 +1,11 @@
 'use client'
 
 import { KeyRound } from "lucide-react"
+import { useState } from "react";
+import ChangePassword from "./changePassword";
 
 export default function SecurityPage() {
-    const handleChangePassword = () => {
-        // TODO: Open modal to change password
-        console.log('Open change password modal')
-    }
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     return (
         <div className="w-full space-y-6">
@@ -35,7 +34,7 @@ export default function SecurityPage() {
                         </div>
 
                         <button
-                            onClick={handleChangePassword}
+                            onClick={() => setIsChangePasswordOpen(true)}
                             className="flex shrink-0 items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-600 hover:shadow"
                         >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,6 +46,8 @@ export default function SecurityPage() {
                 </div>
 
             </div>
+
+            {isChangePasswordOpen && <ChangePassword onClose={setIsChangePasswordOpen} />}
         </div>
     )
 }
