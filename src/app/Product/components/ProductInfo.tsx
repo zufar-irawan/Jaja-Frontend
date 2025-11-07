@@ -6,6 +6,7 @@ import Swal from 'sweetalert2'
 import { addToCart } from '@/utils/cartActions'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
+import { formatCurrency } from '@/utils/format'
 
 interface Variant {
   name: string
@@ -110,7 +111,7 @@ const handleAddToCart = async () => {
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
             <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
-            <span style="color: white; font-weight: 700; font-size: 18px;">Rp ${(currentVariant.price * quantity).toLocaleString('id-ID')}</span>
+            <span style="color: white; font-weight: 700; font-size: 18px;">${formatCurrency(currentVariant.price * quantity)}</span>
           </div>
         </div>
       `,
@@ -250,7 +251,7 @@ const handleAddToCart = async () => {
               marginBottom: '4px',
               fontWeight: '500'
             }}>
-              Rp{currentVariant.originalPrice.toLocaleString('id-ID')}
+              {formatCurrency(currentVariant.originalPrice)}
             </div>
           )}
           <div style={{ 
@@ -259,7 +260,7 @@ const handleAddToCart = async () => {
             gap: '12px'
           }}>
             <div style={{ fontSize: '28px', fontWeight: '800', color: '#1a1a1a' }}>
-              Rp{currentVariant.price.toLocaleString('id-ID')}
+              {formatCurrency(currentVariant.price)}
             </div>
             {discount > 0 && (
               <div style={{ 

@@ -1,6 +1,6 @@
 'use client'
 
-import formatCurrency from '@/utils/format'
+import { formatCurrency } from '@/utils/format'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
 

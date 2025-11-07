@@ -49,9 +49,6 @@ export default function ProductView({
             minHeight: '100vh', 
             padding: '32px' 
         }}>
-            <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-            `}</style>
             
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                 

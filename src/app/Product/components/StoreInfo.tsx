@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Star, Store } from 'lucide-react';
+import { formatNumber } from '@/utils/format';
 
 interface StoreInfoProps {
   storeInfo: {
@@ -65,7 +66,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
           }}>
             <Star size={14} fill="#FBB338" stroke="#FBB338" />
             <span style={{ fontWeight: '600', color: '#1a1a1a' }}>{storeInfo.rating}</span>
-            <span style={{ color: '#7f8c8d' }}>({storeInfo.totalReviews.toLocaleString()})</span>
+            <span style={{ color: '#7f8c8d' }}>({formatNumber(storeInfo.totalReviews)})</span>
           </div>
         </div>
       </div>
