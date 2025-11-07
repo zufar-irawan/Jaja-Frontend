@@ -1,10 +1,45 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
+import { useClientArea } from "../ClientAreaContext";
 
 interface ProfileEditModalProps {
     onClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
+    const { user, isLoading } = useClientArea();
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        gender: "",
+        email: "",
+        phone: "",
+    });
+
+    useEffect(() => {
+        if (!user) return;
+        const normalizedGender = user.jenis_kelamin?.toLowerCase() || "";
+        setFormData({
+            firstName: user.first_name ?? "",
+            lastName: user.last_name ?? "",
+            birthDate: user.tgl_lahir ?? "",
+            gender: normalizedGender.includes("pria") || normalizedGender.startsWith("l") ? "pria"
+                : normalizedGender.includes("wanita") || normalizedGender.startsWith("p") ? "wanita"
+                    : normalizedGender,
+            email: user.email ?? "",
+            phone: user.telepon ?? "",
+        });
+    }, [user]);
+
+    const handleInputChange = (key: keyof typeof formData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData(prev => ({ ...prev, [key]: event.target.value }));
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        console.log("submit profile payload", formData);
+    };
+
     // Close modal on Escape key
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -41,7 +76,11 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                 {/* Body */}
                 <div className="flex flex-col lg:flex-row overflow-y-auto max-h-[calc(90vh-180px)]">
                     {/* Left Section - Form */}
-                    <form className="flex-1 px-8 py-6 space-y-6">
+                    <form
+                        id="profile-edit-form"
+                        className="flex-1 px-8 py-6 space-y-6"
+                        onSubmit={handleSubmit}
+                    >
                         {/* Biodata Section */}
                         <div className="space-y-4">
                             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -60,6 +99,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         id="firstName"
                                         type="text"
                                         placeholder="Masukkan nama depan"
+                                        value={formData.firstName}
+                                        onChange={handleInputChange("firstName")}
+                                        disabled={isLoading}
                                         className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
@@ -72,6 +114,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         id="lastName"
                                         type="text"
                                         placeholder="Masukkan nama belakang"
+                                        value={formData.lastName}
+                                        onChange={handleInputChange("lastName")}
+                                        disabled={isLoading}
                                         className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
@@ -84,6 +129,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                 <input
                                     id="birthDate"
                                     type="date"
+                                    value={formData.birthDate}
+                                    onChange={handleInputChange("birthDate")}
+                                    disabled={isLoading}
                                     className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
@@ -96,7 +144,10 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                             type="radio"
                                             id="pria"
                                             name="gender"
-                                            value="male"
+                                            value="pria"
+                                            checked={formData.gender === "pria"}
+                                            onChange={handleInputChange("gender")}
+                                            disabled={isLoading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
                                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Pria</span>
@@ -107,7 +158,10 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                             type="radio"
                                             id="wanita"
                                             name="gender"
-                                            value="female"
+                                            value="wanita"
+                                            checked={formData.gender === "wanita"}
+                                            onChange={handleInputChange("gender")}
+                                            disabled={isLoading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
                                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Wanita</span>
@@ -136,6 +190,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                     id="email"
                                     type="email"
                                     placeholder="contoh@email.com"
+                                    value={formData.email}
+                                    onChange={handleInputChange("email")}
+                                    disabled={isLoading}
                                     className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
@@ -148,6 +205,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                     id="phone"
                                     type="tel"
                                     placeholder="+62 812-3456-7890"
+                                    value={formData.phone}
+                                    onChange={handleInputChange("phone")}
+                                    disabled={isLoading}
                                     className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
@@ -162,7 +222,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                             {/* Profile Picture Preview */}
                             <div className="relative mb-6">
                                 <div className="w-40 h-40 rounded-full bg-gray-300 flex items-center justify-center text-gray-800 text-6xl font-bold shadow-xl ring-4 ring-white">
-                                    U
+                                    {isLoading ? '?' : user?.first_name.charAt(0)}
                                 </div>
                             </div>
 
@@ -196,6 +256,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                     </button>
                     <button
                         type="submit"
+                        form="profile-edit-form"
                         className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
