@@ -5,6 +5,8 @@ import { Heart, Share2, Star, ShoppingCart, Plus, Minus, Shield } from 'lucide-r
 import Swal from 'sweetalert2'
 import { addToCart } from '@/utils/cartActions'
 import { useRouter } from 'next/navigation'
+import { useCartStore } from '@/store/cartStore'
+import { formatCurrency } from '@/utils/format'
 
 interface Variant {
   name: string
@@ -71,110 +73,65 @@ export default function ProductInfo({
     externalSetQuantity(newQuantity)
   }
 
-  const handleAddToCart = async () => {
-    try {
-      setIsAddingToCart(true)
+  const addToCartAndUpdate = useCartStore((state) => state.addToCartAndUpdate);
 
-      // Prepare complete cart data with all product information
-      const cartData = {
-        id_produk: productId,
-        qty: quantity,
-        id_variasi: currentVariant.id,
-        model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
-        produk_cover: productImage || '',
-        toko: storeName || '',
-        // Additional product data for better cart display
-        nama_produk: productName,
-        harga: currentVariant.price,
-        diskon: productDiscount
-      }
+const handleAddToCart = async () => {
+  try {
+    setIsAddingToCart(true)
 
-      console.log('Adding to cart with data:', cartData)
-      const response = await addToCart(cartData)
-      console.log('Add to Cart Response:', response)
-
-      if (response.success) {
-        // Success SweetAlert with better design
-        const result = await Swal.fire({
-          icon: 'success',
-          title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',
-          html: `
-            <div style="text-align: left; padding: 0 20px; font-family: 'Poppins', sans-serif;">
-              <div style="display: flex; gap: 16px; align-items: start; padding: 16px; background: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
-                <img src="${productImage || '/placeholder.png'}" alt="${productName}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" />
-                <div style="flex: 1;">
-                  <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">
-                    ${productName}
-                  </p>
-                  ${selectedVariant !== 'Standard' ? `<p style="color: #6c757d; font-size: 12px; margin: 0 0 4px 0;">Variasi: ${selectedVariant}</p>` : ''}
-                  <p style="color: #6c757d; font-size: 12px; margin: 0;">Jumlah: ${quantity} item</p>
-                </div>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
-                <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
-                <span style="color: white; font-weight: 700; font-size: 18px;">
-                  Rp ${(currentVariant.price * quantity).toLocaleString('id-ID')}
-                </span>
-              </div>
-            </div>
-          `,
-          showCancelButton: true,
-          confirmButtonText: '<i class="fas fa-shopping-cart"></i> Lihat Keranjang',
-          cancelButtonText: 'Lanjut Belanja',
-          confirmButtonColor: '#55B4E5',
-          cancelButtonColor: '#6c757d',
-          customClass: {
-            popup: 'rounded-xl',
-            confirmButton: 'px-6 py-3 rounded-lg font-semibold',
-            cancelButton: 'px-6 py-3 rounded-lg font-semibold'
-          },
-          buttonsStyling: true
-        })
-
-        if (result.isConfirmed) {
-          router.push('/Cart')
-        }
-      } else {
-        await Swal.fire({
-          icon: 'error',
-          title: '<span style="font-family: Poppins, sans-serif;">Oops...</span>',
-          text: response.message || 'Gagal menambahkan ke keranjang',
-          confirmButtonColor: '#55B4E5',
-          confirmButtonText: 'OK'
-        })
-      }
-    } catch (error: any) {
-      console.error('Error adding to cart:', error)
-      
-      if (error.response?.status === 401) {
-        const result = await Swal.fire({
-          icon: 'warning',
-          title: '<span style="font-family: Poppins, sans-serif;">Login Diperlukan</span>',
-          html: '<p style="font-family: Poppins, sans-serif;">Anda harus login terlebih dahulu untuk menambahkan produk ke keranjang</p>',
-          showCancelButton: true,
-          confirmButtonText: 'Login Sekarang',
-          cancelButtonText: 'Nanti Saja',
-          confirmButtonColor: '#55B4E5',
-          cancelButtonColor: '#6c757d'
-        })
-
-        if (result.isConfirmed) {
-          router.push('/auth/login')
-        }
-      } else {
-        await Swal.fire({
-          icon: 'error',
-          title: '<span style="font-family: Poppins, sans-serif;">Terjadi Kesalahan</span>',
-          html: '<p style="font-family: Poppins, sans-serif;">Tidak dapat menambahkan produk ke keranjang. Silakan coba lagi.</p>',
-          confirmButtonColor: '#55B4E5',
-          confirmButtonText: 'OK'
-        })
-      }
-    } finally {
-      setIsAddingToCart(false)
+    const cartData = {
+      id_produk: productId,
+      qty: quantity,
+      id_variasi: currentVariant.id,
+      model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
+      produk_cover: productImage || '',
+      toko: storeName || '',
+      nama_produk: productName,
+      harga: currentVariant.price,
+      diskon: productDiscount
     }
-  }
 
+    await addToCartAndUpdate(cartData); // ✅ langsung update badge navbar tanpa refresh
+
+    // SweetAlert tetap sama
+    const result = await Swal.fire({
+      icon: 'success',
+      title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',
+      html: `
+        <div style="text-align: left; padding: 0 20px; font-family: 'Poppins', sans-serif;">
+          <div style="display: flex; gap: 16px; align-items: start; padding: 16px; background: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
+            <img src="${productImage || '/placeholder.png'}" alt="${productName}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" />
+            <div style="flex: 1;">
+              <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">
+                ${productName}
+              </p>
+              ${selectedVariant !== 'Standard' ? `<p style="color: #6c757d; font-size: 12px; margin: 0 0 4px 0;">Variasi: ${selectedVariant}</p>` : ''}
+              <p style="color: #6c757d; font-size: 12px; margin: 0;">Jumlah: ${quantity} item</p>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
+            <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
+            <span style="color: white; font-weight: 700; font-size: 18px;">${formatCurrency(currentVariant.price * quantity)}</span>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: '<i class="fas fa-shopping-cart"></i> Lihat Keranjang',
+      cancelButtonText: 'Lanjut Belanja',
+      confirmButtonColor: '#55B4E5',
+      cancelButtonColor: '#6c757d',
+    })
+
+    if (result.isConfirmed) {
+      router.push('/Cart')
+    }
+
+  } catch (error) {
+    console.error(error)
+  } finally {
+    setIsAddingToCart(false)
+  }
+}
   const handleBuyNow = async () => {
     try {
       setIsAddingToCart(true)
@@ -294,7 +251,7 @@ export default function ProductInfo({
               marginBottom: '4px',
               fontWeight: '500'
             }}>
-              Rp{currentVariant.originalPrice.toLocaleString('id-ID')}
+              {formatCurrency(currentVariant.originalPrice)}
             </div>
           )}
           <div style={{ 
@@ -303,7 +260,7 @@ export default function ProductInfo({
             gap: '12px'
           }}>
             <div style={{ fontSize: '28px', fontWeight: '800', color: '#1a1a1a' }}>
-              Rp{currentVariant.price.toLocaleString('id-ID')}
+              {formatCurrency(currentVariant.price)}
             </div>
             {discount > 0 && (
               <div style={{ 

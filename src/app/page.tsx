@@ -98,7 +98,7 @@ export default async function Home() {
                                     id: product.id_produk,
                                     name: product.nama_produk,
                                     price: product.harga,
-                                    image: '',      
+                                    image: product.covers?.[0]?.foto || '',      
                                     address: product.tokos.wilayah?.kelurahan_desa || '',
                                     slug: product.slug_produk
                                 }} 
@@ -124,21 +124,21 @@ export default async function Home() {
                 </header>
 
                 <div className='flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4'>
-    {topProducts.map((product) => (
-        <div key={`top-${product.id_produk}`} className="min-w-[180px] sm:min-w-[200px]">
-            <ProductCard 
-                item={{
-                    id: product.id_produk,
-                    name: product.nama_produk,
-                    price: product.harga,
-                    image: '',
-                    address: product.tokos.wilayah?.kelurahan_desa || '',
-                    slug: product.slug_produk
-                }} 
-            />
-        </div>
-    ))}
-</div>
+                    {topProducts.map((product) => (
+                        <div key={`top-${product.id_produk}`} className="min-w-[180px] sm:min-w-[200px]">
+                            <ProductCard 
+                                item={{
+                                    id: product.id_produk,
+                                    name: product.nama_produk,
+                                    price: product.harga,
+                                    image: product.covers?.[0]?.foto || '',
+                                    address: product.tokos.wilayah?.kelurahan_desa || '',
+                                    slug: product.slug_produk
+                                }} 
+                            />
+                        </div>
+                    ))}
+                </div>
             </section>
 
             {/* FOR YOU PRODUCTS */}
@@ -156,7 +156,7 @@ export default async function Home() {
                                 id: product.id_produk,
                                 name: product.nama_produk,
                                 price: product.harga,
-                                image: '',
+                                image: product.covers?.[0]?.foto || '',
                                 address: product.tokos.wilayah?.kelurahan_desa || '',
                                 slug: product.slug_produk
                             }} 

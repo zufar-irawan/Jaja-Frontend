@@ -1,10 +1,16 @@
+'use client'
+
 import { SquarePen, Wallet, Package2, Truck, MapPinCheck } from "lucide-react"
 import DashboardCard from "./DashboardCard"
 import ClientSidebar from "./ClientSidebar"
+import { useState } from "react"
+import ProfileEditModal from "./profile/profileEditModal"
 
 export default function ClientAreaLayout(
     { children }: { children: React.ReactNode }
 ) {
+    const [editProfile, setEditProfile] = useState(false)
+
     const headerCard = [
         { title: 'Belum bayar', value: 0, icon: (<Wallet color="#000000" size={40} strokeWidth={1.5} />) },
         { title: 'Diproses', value: 0, icon: (<Package2 color="#000000" size={40} strokeWidth={1.5} />) },
@@ -22,15 +28,16 @@ export default function ClientAreaLayout(
                             U
                         </div>
 
-                        <div className="space-y-1">
-                            <p className="text-2xl font-semibold sm:text-3xl">Username</p>
+                        <div className="">
+                            <p className="text-xl font-semibold sm:text-xl">Username</p>
 
                             <p className="text-base text-gray-800/60 sm:text-lg">Pelanggan</p>
                         </div>
                     </div>
 
                     <div className="flex w-full justify-end sm:w-auto">
-                        <button className="rounded-full border border-blue-400/30 p-3 text-gray-800 transition-all hover:border-blue-400 hover:text-blue-500">
+                        <button className="rounded-full border border-blue-400/30 p-3 text-gray-800 transition-all hover:border-blue-400 hover:text-blue-500"
+                            onClick={() => setEditProfile(true)}>
                             <SquarePen size={30} />
                         </button>
                     </div>
@@ -58,7 +65,9 @@ export default function ClientAreaLayout(
                 </div>
             </main>
 
-
+            {editProfile && (
+                <ProfileEditModal onClose={setEditProfile} />
+            )}
         </div>
     )
 }
