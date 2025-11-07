@@ -3,10 +3,13 @@
 import { useState } from "react";
 import ProfileEditModal from "./profileEditModal";
 import ProfileImageModal from "./profileImageModal";
+import { useClientArea } from "../ClientAreaContext";
 
 export default function ProfilePage() {
     const [modalEditProfile, setModalEditProfile] = useState(false);
     const [modalEditImage, setModalEditImage] = useState(false);
+
+    const { user, isLoading } = useClientArea()
 
     return (
         <div className="flex flex-col w-full gap-6">
@@ -34,17 +37,17 @@ export default function ProfilePage() {
                             <div className="space-y-5">
                                 <div className="flex items-start">
                                     <span className="text-sm font-medium text-gray-500 w-36">Nama</span>
-                                    <span className="text-sm text-gray-900 font-medium">User</span>
+                                    <span className="text-sm text-gray-900 font-medium">{isLoading ? 'Sabar tungguin...' : user?.nama_lengkap}</span>
                                 </div>
 
                                 <div className="flex items-start">
                                     <span className="text-sm font-medium text-gray-500 w-36">Tanggal Lahir</span>
-                                    <span className="text-sm text-gray-900">19/02/1995</span>
+                                    <span className="text-sm text-gray-900">{isLoading ? 'Sabar tungguin...' : (user?.tgl_lahir || '-')}</span>
                                 </div>
 
                                 <div className="flex items-start">
                                     <span className="text-sm font-medium text-gray-500 w-36">Jenis Kelamin</span>
-                                    <span className="text-sm text-gray-900">Pria</span>
+                                    <span className="text-sm text-gray-900">{isLoading ? 'Sabar tungguin...' : (user?.jenis_kelamin || '-')}</span>
                                 </div>
                             </div>
                         </div>
@@ -64,12 +67,12 @@ export default function ProfilePage() {
                             <div className="space-y-5">
                                 <div className="flex items-start">
                                     <span className="text-sm font-medium text-gray-500 w-36">Email</span>
-                                    <span className="text-sm text-gray-900">User@example.com</span>
+                                    <span className="text-sm text-gray-900">{isLoading ? 'Sabar tungguin...' : user?.email}</span>
                                 </div>
 
                                 <div className="flex items-start">
                                     <span className="text-sm font-medium text-gray-500 w-36">Nomor HP</span>
-                                    <span className="text-sm text-gray-900">+62 811-1767-87</span>
+                                    <span className="text-sm text-gray-900">{isLoading ? 'Sabar tungguin...' : user?.telepon}</span>
                                 </div>
                             </div>
                         </div>
@@ -81,13 +84,13 @@ export default function ProfilePage() {
                             {/* Profile Picture */}
                             <div className="relative mb-6">
                                 <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-5xl font-bold shadow-lg ring-4 ring-white">
-                                    U
+                                    {isLoading ? '?' : user?.first_name.charAt(0)}
                                 </div>
                             </div>
 
                             <div className="text-center mb-6">
-                                <h3 className="text-xl font-bold text-gray-900 mb-1">User</h3>
-                                <p className="text-sm text-gray-600">User@example.com</p>
+                                <h3 className="text-xl font-bold text-gray-900 mb-1">{isLoading ? '?' : user?.first_name}</h3>
+                                <p className="text-sm text-gray-600">{isLoading ? '?' : user?.email}</p>
                             </div>
 
                             {/* Action Buttons */}
