@@ -1,18 +1,21 @@
+'use client'
+
 import AccountListCard from "@/components/AccountListCard"
 import { CirclePlus } from "lucide-react"
+import { useState } from "react"
+import BankModal from "./BankModal";
 
 export default function AccountPage() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+
     const rekening = [
         {
             bank: "Bank Central Asia (BCA)",
             nomor_rekening: "1234567890",
-            atas_nama: "John Doe"
+            atas_nama: "John Doe",
+            bankUtama: true,
         },
-        {
-            bank: "Bank Mandiri",
-            nomor_rekening: "0987654321",
-            atas_nama: "Jane Smith"
-        }
     ]
 
     return (
@@ -25,15 +28,17 @@ export default function AccountPage() {
                 {rekening ? (
                     <>
                         {rekening.map((item: any, index: number) => (
-                            <AccountListCard key={index} rekening={item} />
+                            <AccountListCard key={index} rekening={item} isEdit={setIsEdit} onOpen={setIsModalOpen} />
                         ))}
 
-                        <button className="mt-2 w-full rounded-lg bg-blue-400 px-4 py-2 text-sm font-medium text-gray-50 transition-all hover:-translate-y-1 shadow-md">
+                        <button className="mt-2 w-full rounded-lg bg-blue-400 px-4 py-2 text-sm font-medium text-gray-50 transition-all hover:-translate-y-1 shadow-md"
+                            onClick={() => setIsModalOpen(true)}>
                             + Tambah Rekening
                         </button>
                     </>
                 ) : (
-                    <button className="group flex w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-8 py-16 transition-all hover:border-blue-400 hover:bg-blue-50/50">
+                    <button className="group flex w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-8 py-16 transition-all hover:border-blue-400 hover:bg-blue-50/50"
+                        onClick={() => setIsModalOpen(true)}>
                         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-500 shadow-md transition-transform group-hover:scale-102 group-hover:bg-blue-500 group-hover:text-white">
                             <CirclePlus size={40} strokeWidth={2} />
                         </div>
@@ -48,6 +53,10 @@ export default function AccountPage() {
                     </button>
                 )}
             </div>
+
+            {isModalOpen && (
+                <BankModal onClose={setIsModalOpen} isEdit={isEdit} />
+            )}
         </div>
     )
 }

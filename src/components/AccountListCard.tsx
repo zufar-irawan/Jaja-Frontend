@@ -1,4 +1,10 @@
-export default function AccountListCard({ rekening }: { rekening: any }) {
+interface AccountListCardProps {
+    rekening: any;
+    isEdit: React.Dispatch<React.SetStateAction<boolean>>;
+    onOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function AccountListCard({ rekening, isEdit, onOpen }: AccountListCardProps) {
     return (
         <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
             {/* Card Header */}
@@ -15,11 +21,21 @@ export default function AccountListCard({ rekening }: { rekening: any }) {
                             <p className="text-xl font-bold text-gray-800">{rekening.bank}</p>
                         </div>
                     </div>
-                    <button className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
+                    <button className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                        onClick={() => {
+                            isEdit(true);
+                            onOpen(true);
+                        }}>
                         Edit
                     </button>
                 </div>
             </div>
+
+            {rekening.bankUtama && (
+                <div className="border border-gray-100 bg-green-100 p-4 text-green-800">
+                    <p className="font-semibold">Rekening Utama</p>
+                </div>
+            )}
 
             {/* Card Body */}
             <div className="space-y-4 p-6">
@@ -56,6 +72,6 @@ export default function AccountListCard({ rekening }: { rekening: any }) {
                     Rekening terverifikasi
                 </p>
             </div>
-        </div>
+        </div >
     )
 }
