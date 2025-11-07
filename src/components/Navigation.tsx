@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
-import { Search, ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight } from 'lucide-react';
 import { getUserProfile, type UserProfile } from '@/utils/userService';
 import { logout } from '@/utils/authService';
+import { getCart } from '@/utils/cartActions';
+import { useCartStore } from '@/store/cartStore';
+import { Search, ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight } from 'lucide-react';
 
 interface Category {
   id_kategori: number;
@@ -43,6 +45,8 @@ export default function JajaNavbar() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
   const [expandedMobileCategories, setExpandedMobileCategories] = useState<number[]>([]);
+  const cartCount = useCartStore((state) => state.cartCount);
+  const fetchCartCount = useCartStore((state) => state.fetchCartCount);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,6 +73,10 @@ export default function JajaNavbar() {
 
     fetchUserProfile();
   }, []);
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [fetchCartCount]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -345,11 +353,12 @@ export default function JajaNavbar() {
                   className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group"
                 >
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
-                    0
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
+                    {cartCount}
+                  </span> 
+                  )}
                 </button>
-
                 <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Mail className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
                   <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">

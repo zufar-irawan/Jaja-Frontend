@@ -3,24 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-// Import server actions
-import {
-  getCart,
-  updateCartQuantity,
-  toggleCartSelection,
-  deleteCartItem,
-  clearCart
-} from '@/utils/cartActions';
-
-// Import helper functions and types
-import {
-  getProductPrice,
-  getProductImageUrl,
-  calculateCartTotals,
-  formatCurrency,
-  type CartItem
-} from '@/utils/cartService';
+import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
+import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
 
 const ShoppingCartPage = () => {
   const router = useRouter();
@@ -220,14 +204,14 @@ const ShoppingCartPage = () => {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '14px',
-                color: '#6c757d',
+                color: '#6c757d',   
                 marginBottom: '12px'
               }}
             >
               <ArrowLeft size={16} /> Kembali Belanja
             </button>
             <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#333', margin: 0 }}>
-              Keranjang Belanja ({cartItems.length} items)
+              Keranjang Belanja ({cartItems.length})
             </h1>
           </div>
           
