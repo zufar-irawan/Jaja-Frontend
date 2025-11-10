@@ -75,63 +75,63 @@ export default function ProductInfo({
 
   const addToCartAndUpdate = useCartStore((state) => state.addToCartAndUpdate);
 
-const handleAddToCart = async () => {
-  try {
-    setIsAddingToCart(true)
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true)
 
-    const cartData = {
-      id_produk: productId,
-      qty: quantity,
-      id_variasi: currentVariant.id,
-      model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
-      produk_cover: productImage || '',
-      toko: storeName || '',
-      nama_produk: productName,
-      harga: currentVariant.price,
-      diskon: productDiscount
-    }
+      const cartData = {
+        id_produk: productId,
+        qty: quantity,
+        id_variasi: currentVariant.id,
+        model_variasi: selectedVariant !== 'Standard' ? selectedVariant : undefined,
+        produk_cover: productImage || '',
+        toko: storeName || '',
+        nama_produk: productName,
+        harga: currentVariant.price,
+        diskon: productDiscount
+      }
 
-    await addToCartAndUpdate(cartData); // ✅ langsung update badge navbar tanpa refresh
+      await addToCartAndUpdate(cartData);
 
-    // SweetAlert tetap sama
-    const result = await Swal.fire({
-      icon: 'success',
-      title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',
-      html: `
-        <div style="text-align: left; padding: 0 20px; font-family: 'Poppins', sans-serif;">
-          <div style="display: flex; gap: 16px; align-items: start; padding: 16px; background: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
-            <img src="${productImage || '/placeholder.png'}" alt="${productName}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" />
-            <div style="flex: 1;">
-              <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">
-                ${productName}
-              </p>
-              ${selectedVariant !== 'Standard' ? `<p style="color: #6c757d; font-size: 12px; margin: 0 0 4px 0;">Variasi: ${selectedVariant}</p>` : ''}
-              <p style="color: #6c757d; font-size: 12px; margin: 0;">Jumlah: ${quantity} item</p>
+      const result = await Swal.fire({
+        icon: 'success',
+        title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',
+        html: `
+          <div style="text-align: left; padding: 0 20px; font-family: 'Poppins', sans-serif;">
+            <div style="display: flex; gap: 16px; align-items: start; padding: 16px; background: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
+              <img src="${productImage || '/placeholder.png'}" alt="${productName}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" />
+              <div style="flex: 1;">
+                <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; font-size: 14px;">
+                  ${productName}
+                </p>
+                ${selectedVariant !== 'Standard' ? `<p style="color: #6c757d; font-size: 12px; margin: 0 0 4px 0;">Variasi: ${selectedVariant}</p>` : ''}
+                <p style="color: #6c757d; font-size: 12px; margin: 0;">Jumlah: ${quantity} item</p>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
+              <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
+              <span style="color: white; font-weight: 700; font-size: 18px;">${formatCurrency(currentVariant.price * quantity)}</span>
             </div>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%); border-radius: 8px;">
-            <span style="color: white; font-size: 13px; font-weight: 500;">Total Harga:</span>
-            <span style="color: white; font-weight: 700; font-size: 18px;">${formatCurrency(currentVariant.price * quantity)}</span>
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: '<i class="fas fa-shopping-cart"></i> Lihat Keranjang',
-      cancelButtonText: 'Lanjut Belanja',
-      confirmButtonColor: '#55B4E5',
-      cancelButtonColor: '#6c757d',
-    })
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-shopping-cart"></i> Lihat Keranjang',
+        cancelButtonText: 'Lanjut Belanja',
+        confirmButtonColor: '#55B4E5',
+        cancelButtonColor: '#6c757d',
+      })
 
-    if (result.isConfirmed) {
-      router.push('/Cart')
+      if (result.isConfirmed) {
+        router.push('/Cart')
+      }
+
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsAddingToCart(false)
     }
-
-  } catch (error) {
-    console.error(error)
-  } finally {
-    setIsAddingToCart(false)
   }
-}
+
   const handleBuyNow = async () => {
     try {
       setIsAddingToCart(true)
@@ -428,23 +428,6 @@ const handleAddToCart = async () => {
 
       {/* Bottom Section */}
       <div style={{ marginTop: 'auto' }}>
-        {/* Warranty Badge */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          gap: '8px',
-          marginBottom: '16px',
-          padding: '12px',
-          backgroundColor: '#f0fdf4',
-          borderRadius: '8px',
-          border: '1px solid #bbf7d0'
-        }}>
-          <Shield size={16} stroke="#27ae60" />
-          <span style={{ fontSize: '13px', color: '#7f8c8d' }}>
-            <strong style={{ color: '#27ae60' }}>Produk Original</strong> dengan Jaminan Kualitas
-          </span>
-        </div>
-
         {/* Buy Buttons */}
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
