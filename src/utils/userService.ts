@@ -22,7 +22,7 @@ export interface UpdateProfileData {
     nama_lengkap?: string
     username?: string
     telepon?: string
-    jenis_kelamin?: 'pria' | 'wanita'
+    jenis_kelamin?: string
     tgl_lahir?: string
 }
 
