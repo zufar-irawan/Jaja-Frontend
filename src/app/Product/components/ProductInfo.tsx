@@ -91,9 +91,8 @@ const handleAddToCart = async () => {
       diskon: productDiscount
     }
 
-    await addToCartAndUpdate(cartData); // ✅ langsung update badge navbar tanpa refresh
+    await addToCartAndUpdate(cartData); 
 
-    // SweetAlert tetap sama
     const result = await Swal.fire({
       icon: 'success',
       title: '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Berhasil Ditambahkan!</span>',

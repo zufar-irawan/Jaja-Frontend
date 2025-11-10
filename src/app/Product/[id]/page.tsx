@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import ProductView from '@/app/Product/components/ProductView'
 
 interface ProductPageProps {
-    // The params object is a Promise in async components
     params: Promise<{
         id: string // This is the slug
     }>
@@ -12,7 +11,6 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
     try {
-        // Await the params to get the resolved object
         const { id: slug } = await params
         if (!slug) {
             console.error("No slug provided for product page.")
@@ -51,7 +49,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             }
         ]
 
-        // Categories breadcrumb
         const categories = [
             'Elektronik',
             product.kategori?.kategori || 'Kategori',

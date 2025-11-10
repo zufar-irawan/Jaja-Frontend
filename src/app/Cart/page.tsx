@@ -5,6 +5,8 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2 } from 'lucide-re
 import { useRouter } from 'next/navigation';
 import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
 import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
+import { useCartStore } from '@/store/cartStore';
+import Swal from 'sweetalert2';
 
 const ShoppingCartPage = () => {
   const router = useRouter();
@@ -79,29 +81,91 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const handleRemoveItem = async (id_cart: number) => {
-    try {
-      const response = await deleteCartItem(id_cart);
-      if (response.success) {
-        setCartItems(items => items.filter(item => item.id_cart !== id_cart));
-      }
-    } catch (error) {
-      console.error('Error removing item:', error);
+  const { fetchCartCount } = useCartStore();
+
+const handleRemoveItem = async (id_cart: number) => {
+  try {
+    const confirm = await Swal.fire({
+      title: 'Hapus produk ini?',
+      text: 'Produk akan dihapus dari keranjang Anda.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal',
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const response = await deleteCartItem(id_cart);
+
+    if (response.success) {
+      setCartItems(items => items.filter(item => item.id_cart !== id_cart));
+      await fetchCartCount();
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Produk telah dihapus dari keranjang.',
+        icon: 'success',
+        confirmButtonColor: '#55B4E5',
+      });
+    } else {
+      await Swal.fire({
+        title: 'Gagal',
+        text: response.message || 'Terjadi kesalahan saat menghapus produk.',
+        icon: 'error',
+        confirmButtonColor: '#55B4E5',
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error removing item:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Terjadi kesalahan tak terduga.',
+      icon: 'error',
+      confirmButtonColor: '#55B4E5',
+    });
+  }
+};
 
   const handleClearCart = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin mengosongkan keranjang?')) return;
-    
-    try {
-      const response = await clearCart();
-      if (response.success) {
-        setCartItems([]);
-      }
-    } catch (error) {
-      console.error('Error clearing cart:', error);
+  const confirm = await Swal.fire({
+    title: 'Kosongkan keranjang?',
+    text: 'Semua produk akan dihapus dari keranjang Anda.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Ya, kosongkan!',
+    cancelButtonText: 'Batal',
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const response = await clearCart();
+    if (response.success) {
+      setCartItems([]);
+      await fetchCartCount(); 
+      await Swal.fire({
+        title: 'Keranjang dikosongkan!',
+        text: 'Semua produk telah dihapus.',
+        icon: 'success',
+        confirmButtonColor: '#55B4E5',
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Terjadi kesalahan saat mengosongkan keranjang.',
+      icon: 'error',
+      confirmButtonColor: '#55B4E5',
+    });
+  }
+};
+
+
 
   const applyCoupon = () => {
     if (couponCode.toLowerCase() === 'discount10') {
@@ -112,7 +176,6 @@ const ShoppingCartPage = () => {
     }
   };
 
-  // Calculate totals using the helper function
   const shippingCost = cartItems.filter(item => item.status_pilih).length > 0 
     ? (deliveryType === 'standard' ? 50000 : deliveryType === 'express' ? 100000 : 0)
     : 0;

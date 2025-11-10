@@ -78,7 +78,6 @@
         }
     }
 
-    // NEW: Types untuk Category
     export interface Category {
         id_kategori: number
         kategori: string
@@ -89,7 +88,6 @@
         children?: Category[]
     }
 
-    // NEW: Types untuk Search Results
     export interface SearchResults {
         products: Product[]
         stores: Product['tokos'][]
@@ -169,20 +167,16 @@
         limit: number = 5
     ): Promise<SearchResults> {
         try {
-            // Search products
             const productResponse = await searchProducts({
                 nama_produk: query,
                 limit,
                 stok: 'ready'
             })
 
-            // Get all categories
             const allCategories = await getAllCategories()
-            
-            // Search in categories
+
             const matchedCategories = await searchInCategories(allCategories, query)
 
-            // Extract unique stores from products
             const uniqueStores: Product['tokos'][] = []
             const storeIds = new Set<number>()
             
