@@ -57,10 +57,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         // Store info
         const storeInfo = {
+            slug: product.tokos?.slug_toko || '',
             name: product.tokos?.nama_toko || 'Nama Toko',
             location: product.tokos?.alamat_toko || 'Lokasi tidak diketahui',
             rating: 4.8, // Mock data
-            totalReviews: 15420, // Mock data
+            totalReviews: 15420, // Mock data   
             responseRate: '98%', // Mock data
             responseTime: '< 1 jam', // Mock data
             products: 245, // Mock data

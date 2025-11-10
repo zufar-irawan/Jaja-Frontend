@@ -1,9 +1,11 @@
 import React from 'react';
+import Link from 'next/link';
 import { MapPin, Star, Store } from 'lucide-react';
 import { formatNumber } from '@/utils/format';
 
 interface StoreInfoProps {
   storeInfo: {
+    slug: string;
     image: string;
     name: string;
     location: string;
@@ -16,6 +18,30 @@ interface StoreInfoProps {
 }
 
 export default function StoreInfo({ storeInfo }: StoreInfoProps) {
+  // 🔍 Debug: Log data yang diterima
+  console.log('🏪 StoreInfo received:', {
+    slug: storeInfo.slug,
+    name: storeInfo.name,
+    fullData: storeInfo
+  });
+
+  // ⚠️ Validasi slug
+  if (!storeInfo.slug || storeInfo.slug === 'undefined') {
+    console.error('❌ Invalid slug in StoreInfo:', storeInfo.slug);
+    return (
+      <div style={{ 
+        backgroundColor: '#fff3cd', 
+        borderRadius: '16px', 
+        padding: '32px',
+        border: '2px solid #ffc107'
+      }}>
+        <p style={{ color: '#856404', margin: 0 }}>
+          ⚠️ Slug toko tidak valid. Data: {JSON.stringify(storeInfo)}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
       backgroundColor: 'white', 
@@ -96,27 +122,43 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
           <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>3 tahun lalu</div>
         </div>
       </div>
-
-      <button style={{
-        width: '200px',
-        background: 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
-        border: 'none',
-        color: 'white',
-        padding: '14px',
-        borderRadius: '12px',
-        fontSize: '15px',
-        fontWeight: '700',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 16px rgba(85, 180, 229, 0.3)'
+      
+      {/* 🔍 Debug info - Hapus setelah masalah solved */}
+      <div style={{ 
+        fontSize: '11px', 
+        color: '#666', 
+        marginBottom: '12px',
+        padding: '8px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px'
       }}>
+        🔍 Debug: Slug = "{storeInfo.slug}" | Link = /Toko/{storeInfo.slug}
+      </div>
+
+      <Link 
+        href={`/Toko/${storeInfo.slug}`}
+        style={{
+          width: '200px',
+          background: 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
+          border: 'none',
+          color: 'white',
+          padding: '14px',
+          borderRadius: '12px',
+          fontSize: '15px',
+          fontWeight: '700',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 16px rgba(85, 180, 229, 0.3)',
+          textDecoration: 'none'
+        }}
+      >
         <Store size={18} />
         Kunjungi Toko
-      </button>
+      </Link>
     </div>
   );
 }
