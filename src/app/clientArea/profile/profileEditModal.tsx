@@ -1,43 +1,100 @@
 import React, { useEffect, useState } from "react"
 import { useClientArea } from "../ClientAreaContext";
+import Swal from "sweetalert2";
+import { updateUserProfile } from "@/utils/userService";
 
 interface ProfileEditModalProps {
     onClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const normalizePhone = (value: string) => {
+    const digits = value.replace(/\D/g, "")
+    let withoutPrefix = digits
+    if (withoutPrefix.startsWith("62")) {
+        withoutPrefix = withoutPrefix.slice(2)
+    } else if (withoutPrefix.startsWith("0")) {
+        withoutPrefix = withoutPrefix.slice(1)
+    }
+    return withoutPrefix ? `+62${withoutPrefix}` : "+62"
+}
+
 export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
-    const { user, isLoading } = useClientArea();
+    const { user, isLoading, refetch } = useClientArea();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        birthDate: "",
-        gender: "",
-        email: "",
-        phone: "",
+        first_name: "",
+        last_name: "",
+        nama_lengkap: "",
+        username: "",
+        telepon: "",
+        jenis_kelamin: "",
+        tgl_lahir: "",
     });
 
     useEffect(() => {
         if (!user) return;
         const normalizedGender = user.jenis_kelamin?.toLowerCase() || "";
         setFormData({
-            firstName: user.first_name ?? "",
-            lastName: user.last_name ?? "",
-            birthDate: user.tgl_lahir ?? "",
-            gender: normalizedGender.includes("pria") || normalizedGender.startsWith("l") ? "pria"
+            first_name: user.first_name ?? "",
+            last_name: user.last_name ?? "",
+            nama_lengkap: (user.nama_lengkap || `${user.first_name} ${user.last_name}`).trim(),
+            username: (user.username || `${user.first_name}${user.last_name}`).replace(/\s+/g, "").toLowerCase(),
+            telepon: normalizePhone(user.telepon ?? ""),
+            jenis_kelamin: normalizedGender.includes("pria") || normalizedGender.startsWith("l") ? "pria"
                 : normalizedGender.includes("wanita") || normalizedGender.startsWith("p") ? "wanita"
                     : normalizedGender,
-            email: user.email ?? "",
-            phone: user.telepon ?? "",
+            tgl_lahir: user.tgl_lahir ?? "",
         });
     }, [user]);
 
     const handleInputChange = (key: keyof typeof formData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (key === "telepon") {
+            setFormData(prev => ({ ...prev, telepon: normalizePhone(event.target.value) }));
+            return;
+        }
         setFormData(prev => ({ ...prev, [key]: event.target.value }));
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log("submit profile payload", formData);
+        if (loading) return;
+        setLoading(true);
+        const payload = {
+            ...formData,
+            telepon: normalizePhone(formData.telepon),
+        };
+
+        try {
+            const result = await updateUserProfile(payload);
+            if (!result.success) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal",
+                    text: result.message || "Profil tidak dapat diperbarui.",
+                    confirmButtonText: "Tutup",
+                });
+                return;
+            }
+
+            await refetch();
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: "Profil Anda telah diperbarui.",
+                confirmButtonText: "Tutup",
+            });
+            onClose(false);
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Terjadi kesalahan saat memperbarui profil.",
+                confirmButtonText: "Tutup",
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Close modal on Escape key
@@ -55,7 +112,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
             <div className="absolute inset-0" onClick={() => onClose(false)}></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden z-10">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden z-10">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
                     <div>
@@ -99,9 +156,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         id="firstName"
                                         type="text"
                                         placeholder="Masukkan nama depan"
-                                        value={formData.firstName}
-                                        onChange={handleInputChange("firstName")}
-                                        disabled={isLoading}
+                                        value={formData.first_name}
+                                        onChange={handleInputChange("first_name")}
+                                        disabled={isLoading || loading}
                                         className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
@@ -114,9 +171,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         id="lastName"
                                         type="text"
                                         placeholder="Masukkan nama belakang"
-                                        value={formData.lastName}
-                                        onChange={handleInputChange("lastName")}
-                                        disabled={isLoading}
+                                        value={formData.last_name}
+                                        onChange={handleInputChange("last_name")}
+                                        disabled={isLoading || loading}
                                         className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
@@ -129,9 +186,9 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                 <input
                                     id="birthDate"
                                     type="date"
-                                    value={formData.birthDate}
-                                    onChange={handleInputChange("birthDate")}
-                                    disabled={isLoading}
+                                    value={formData.tgl_lahir}
+                                    onChange={handleInputChange("tgl_lahir")}
+                                    disabled={isLoading || loading}
                                     className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
@@ -143,11 +200,11 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         <input
                                             type="radio"
                                             id="pria"
-                                            name="gender"
+                                            name="jenis_kelamin"
                                             value="pria"
-                                            checked={formData.gender === "pria"}
-                                            onChange={handleInputChange("gender")}
-                                            disabled={isLoading}
+                                            checked={formData.jenis_kelamin === "pria"}
+                                            onChange={handleInputChange("jenis_kelamin")}
+                                            disabled={isLoading || loading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
                                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Pria</span>
@@ -157,44 +214,16 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         <input
                                             type="radio"
                                             id="wanita"
-                                            name="gender"
+                                            name="jenis_kelamin"
                                             value="wanita"
-                                            checked={formData.gender === "wanita"}
-                                            onChange={handleInputChange("gender")}
-                                            disabled={isLoading}
+                                            checked={formData.jenis_kelamin === "wanita"}
+                                            onChange={handleInputChange("jenis_kelamin")}
+                                            disabled={isLoading || loading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
                                         <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Wanita</span>
                                     </label>
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="border-t border-gray-200"></div>
-
-                        {/* Contact Info Section */}
-                        <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                Informasi Kontak
-                            </h2>
-
-                            <div className="space-y-2">
-                                <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                                    Email <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    placeholder="contoh@email.com"
-                                    value={formData.email}
-                                    onChange={handleInputChange("email")}
-                                    disabled={isLoading}
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                                />
                             </div>
 
                             <div className="space-y-2">
@@ -205,44 +234,15 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                     id="phone"
                                     type="tel"
                                     placeholder="+62 812-3456-7890"
-                                    value={formData.phone}
-                                    onChange={handleInputChange("phone")}
-                                    disabled={isLoading}
+                                    value={formData.telepon}
+                                    onChange={handleInputChange("telepon")}
+                                    disabled={isLoading || loading}
                                     className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
+
                         </div>
                     </form>
-
-                    {/* Right Section - Profile Picture */}
-                    <div className="lg:w-80 bg-linear-to-br from-gray-50 to-blue-50 border-l border-gray-200 px-8 py-6 flex flex-col items-center justify-center">
-                        <div className="flex flex-col items-center w-full">
-                            <p className="text-sm font-medium text-gray-700 mb-4">Foto Profil</p>
-
-                            {/* Profile Picture Preview */}
-                            <div className="relative mb-6">
-                                <div className="w-40 h-40 rounded-full bg-gray-300 flex items-center justify-center text-gray-800 text-6xl font-bold shadow-xl ring-4 ring-white">
-                                    {isLoading ? '?' : user?.first_name.charAt(0)}
-                                </div>
-                            </div>
-
-                            {/* Upload Button */}
-                            <button
-                                type="button"
-                                className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-6 rounded-lg transition-all duration-200 border-2 border-gray-300 hover:border-blue-400 flex items-center justify-center gap-2 shadow-sm"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                                Upload Foto
-                            </button>
-
-                            <p className="text-xs text-gray-500 mt-3 text-center">
-                                JPG, PNG atau GIF<br />
-                                Maksimal 5MB
-                            </p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Footer */}
@@ -257,7 +257,8 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                     <button
                         type="submit"
                         form="profile-edit-form"
-                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                        disabled={loading}
+                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

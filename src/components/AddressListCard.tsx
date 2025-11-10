@@ -1,12 +1,14 @@
 import { Building, House } from "lucide-react";
+import type { Address } from "@/utils/userService";
 
 interface AddressListCardProps {
-    alamat: any;
+    alamat: Address | any;
     onEdit: React.Dispatch<React.SetStateAction<boolean>>;
     onOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    onSelect?: (alamat: Address | any) => void;
 }
 
-export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListCardProps) {
+export default function AddressListCard({ alamat, onEdit, onOpen, onSelect }: AddressListCardProps) {
     const tipeAlamat = (tipe: string) => {
         switch (tipe) {
             case 'home':
@@ -18,23 +20,23 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
 
     return (
         <div className="w-full">
-            {alamat.alamatUtama && (
+            {alamat.status_utama === "Y" && (
                 <div className="w-full rounded-t-xl border-t border-r border-l border-gray-200 bg-green-50/50 px-5 py-3 text-xl font-semibold text-green-700">
                     Alamat Utama
                 </div>
             )}
 
-            <div className={`group w-full overflow-hidden ${alamat.alamatUtama ? 'rounded-b-xl' : 'rounded-xl'} border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md`}>
+            <div className={`group w-full overflow-hidden ${alamat.status_utama === "Y" ? 'rounded-b-xl' : 'rounded-xl'} border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 bg-linear-to-r from-gray-50 to-gray-100/50 px-5 py-3">
                     <div className="flex items-center gap-3">
-                        <div className={`rounded-lg p-2 ${alamat.tipe === 'home' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
-                            {tipeAlamat(alamat.tipe)}
+                        <div className={`rounded-lg p-2 ${alamat.label === 'Rumah' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
+                            {tipeAlamat(alamat.label)}
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">{alamat.nama}</h2>
-                            <p className="text-xs text-gray-500">Ditambahkan {alamat.tanggal}</p>
+                            <p className="text-xs text-gray-500">Ditambahkan {alamat.created_date}</p>
                         </div>
                     </div>
                 </div>
@@ -50,7 +52,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                             </svg>
                             <div className="flex-1">
                                 <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">Alamat Lengkap</p>
-                                <p className="text-sm leading-relaxed text-gray-700">{alamat.alamat}</p>
+                                <p className="text-sm leading-relaxed text-gray-700">{alamat.alamat_lengkap}</p>
                             </div>
                         </div>
                     </div>
@@ -64,7 +66,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                         </div>
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Nomor Telepon</p>
-                            <p className="text-sm font-semibold text-gray-800">{alamat.nomor_hp}</p>
+                            <p className="text-sm font-semibold text-gray-800">{alamat.no_telepon}</p>
                         </div>
                     </div>
                 </div>
@@ -72,7 +74,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                 {/* Footer Actions */}
                 <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50/50 px-5 py-4">
                     <button className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow"
-                        onClick={() => { onOpen(true); onEdit(true); }}>
+                        onClick={() => { onSelect && onSelect(alamat); onOpen(true); onEdit(true); }}>
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
