@@ -21,7 +21,6 @@ export default async function TokoPage({ params }: TokoPageProps) {
     getTokoStats(slug)
   ]);
 
-  // Jika toko tidak ditemukan
   if (!tokoData) {
     notFound();
   }
@@ -31,8 +30,6 @@ export default async function TokoPage({ params }: TokoPageProps) {
   const operationalDays = getOperationalDays(tokoData.data_buka_toko);
   const isOpen = isTokoOpen(tokoData.data_buka_toko);
   const storePhotoUrl = getTokoPhotoUrl(tokoData.foto);
-
-  // Transform products data to match ProductCard format
   const transformedProducts = productsResponse.data.map((product) => ({
     id: product.id_produk,
     name: product.nama_produk,
