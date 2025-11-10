@@ -112,7 +112,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
             <div className="absolute inset-0" onClick={() => onClose(false)}></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden z-10">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden z-10">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
                     <div>
@@ -243,36 +243,6 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
 
                         </div>
                     </form>
-
-                    {/* Right Section - Profile Picture */}
-                    <div className="lg:w-80 bg-linear-to-br from-gray-50 to-blue-50 border-l border-gray-200 px-8 py-6 flex flex-col items-center justify-center">
-                        <div className="flex flex-col items-center w-full">
-                            <p className="text-sm font-medium text-gray-700 mb-4">Foto Profil</p>
-
-                            {/* Profile Picture Preview */}
-                            <div className="relative mb-6">
-                                <div className="w-40 h-40 rounded-full bg-gray-300 flex items-center justify-center text-gray-800 text-6xl font-bold shadow-xl ring-4 ring-white">
-                                    {isLoading ? '?' : user?.first_name.charAt(0)}
-                                </div>
-                            </div>
-
-                            {/* Upload Button */}
-                            <button
-                                type="button"
-                                className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-6 rounded-lg transition-all duration-200 border-2 border-gray-300 hover:border-blue-400 flex items-center justify-center gap-2 shadow-sm"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                                Upload Foto
-                            </button>
-
-                            <p className="text-xs text-gray-500 mt-3 text-center">
-                                JPG, PNG atau GIF<br />
-                                Maksimal 5MB
-                            </p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Footer */}
