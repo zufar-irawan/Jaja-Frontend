@@ -1,4 +1,4 @@
-import formatCurrency from "@/utils/format";
+import { formatCurrency } from "@/utils/format";
 import { Banknote, CheckCircle, Clock, Truck } from "lucide-react"
 import { JSX } from "react"
 

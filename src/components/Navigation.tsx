@@ -7,29 +7,8 @@ import axios from "axios";
 import { getUserProfile, type UserProfile } from "@/utils/userService";
 import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
-import {
-  performGlobalSearch,
-  type SearchResults,
-  type Product,
-  type Category as SearchCategory,
-} from "@/utils/productService";
-import {
-  ShoppingCart,
-  Mail,
-  Bell,
-  ChevronDown,
-  Menu,
-  X,
-  User,
-  Package,
-  LogOut,
-  ChevronRight,
-  Search,
-  Store,
-  Grid,
-  TrendingUp,
-  Loader2,
-} from "lucide-react";
+import { performGlobalSearch, type SearchResults, type Product, type Category as SearchCategory, } from "@/utils/productService";
+import { ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight, Search, Store, Grid, TrendingUp, Loader2 } from "lucide-react";
 
 interface Category {
   id_kategori: number;
@@ -690,7 +669,7 @@ export default function JajaNavbar() {
                   className="relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group"
                 >
                   <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  {cartCount > 0 && (
+                  {cartCount >= 0 && (
                     <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
                       {cartCount}
                     </span>

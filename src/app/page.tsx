@@ -9,7 +9,6 @@ import {
 
 // Home Page - Server Component
 export default async function Home() {
-    // Fetch data di server
     const [featuredProducts, topProducts, recommendedProducts] = await Promise.all([
         getFeaturedProducts(8),
         getTopProducts(6),
