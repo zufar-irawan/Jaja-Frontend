@@ -49,7 +49,7 @@ export default function ClientAreaLayout(
                     <div className="flex w-full max-w-4xl flex-wrap items-center justify-between gap-6 rounded-2xl border-2 border-white/20 bg-white/30 p-5 backdrop-blur-2xl">
 
                         <div className="flex w-full flex-1 items-center justify-start gap-3 sm:w-auto">
-                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 text-5xl text-blue-500 sm:h-24 sm:w-24">
+                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-500 text-5xl text-gray-50 border-2 border-gray-200 sm:h-24 sm:w-24">
                                 {isLoading ? '?' : user?.first_name.charAt(0)}
                             </div>
 

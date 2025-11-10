@@ -82,7 +82,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col items-center w-full max-w-xs">
                             {/* Profile Picture */}
                             <div className="relative mb-6">
-                                <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-5xl font-bold shadow-lg ring-4 ring-white">
+                                <div className="w-32 h-32 rounded-full bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-5xl font-bold shadow-lg ring-4 ring-white">
                                     {isLoading ? '?' : user?.first_name.charAt(0)}
                                 </div>
                             </div>
