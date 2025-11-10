@@ -5,29 +5,33 @@ import AddressListCard from "@/components/AddressListCard"
 import { useEffect, useState } from "react"
 import EditAddressModal from "./EditAddressModal"
 import { getAddresses } from "@/utils/userService"
+import type { Address } from "@/utils/userService"
 
 export default function AddressPage() {
     const [modalEditAddress, setModalEditAddress] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
 
-    const [addresses, setAddresses] = useState<any>()
+    const [addresses, setAddresses] = useState<Address[]>([])
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
+    const fetchAddresses = async () => {
+        setIsLoading(true)
+        await getAddresses()
+            .then((res) => {
+                if (res.success && res.data) {
+                    setAddresses(res.data as Address[])
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }
+
     useEffect(() => {
-        const fetchAddresses = async () => {
-            await getAddresses()
-                .then((res) => {
-                    if (res.success && res.data) {
-                        setAddresses(res.data)
-                    }
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-                    setIsLoading(false)
-                })
-        }
         fetchAddresses()
     }, [])
 
@@ -37,7 +41,7 @@ export default function AddressPage() {
                 <h1 className="text-3xl font-bold text-gray-900">Alamat Kamu</h1>
 
                 <button className="bg-blue-400 px-4 rounded-lg py-2 flex text-gray-50 gap-2 shadow-md transition-all duration-100 hover:-translate-y-0.5"
-                    onClick={() => { setModalEditAddress(true); setIsEdit(false) }}>
+                    onClick={() => { setSelectedAddress(null); setModalEditAddress(true); setIsEdit(false) }}>
                     <CirclePlus /> Tambah Alamat Baru
                 </button>
             </div>
@@ -46,8 +50,8 @@ export default function AddressPage() {
                 {isLoading ? (
                     <p>Loading...</p>
                 ) : (
-                    addresses.length > 0 ? addresses.map((item: any, index: number) => (
-                        <AddressListCard key={index} alamat={item} onEdit={setIsEdit} onOpen={setModalEditAddress} />
+                    addresses.length > 0 ? addresses.map((item: Address, index: number) => (
+                        <AddressListCard key={index} alamat={item} onEdit={setIsEdit} onOpen={setModalEditAddress} onSelect={setSelectedAddress} />
                     )) : (
                         <p className="text-xl text-gray-800">Belum ada alamat tersimpan.</p>
                     )
@@ -55,7 +59,7 @@ export default function AddressPage() {
             </div>
 
             {modalEditAddress && (
-                <EditAddressModal onClose={setModalEditAddress} isEdit={isEdit} />
+                <EditAddressModal onClose={setModalEditAddress} isEdit={isEdit} address={selectedAddress ?? undefined} onSaved={fetchAddresses} />
             )}
         </div>
     )

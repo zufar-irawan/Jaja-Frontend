@@ -1,12 +1,14 @@
 import { Building, House } from "lucide-react";
+import type { Address } from "@/utils/userService";
 
 interface AddressListCardProps {
-    alamat: any;
+    alamat: Address | any;
     onEdit: React.Dispatch<React.SetStateAction<boolean>>;
     onOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    onSelect?: (alamat: Address | any) => void;
 }
 
-export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListCardProps) {
+export default function AddressListCard({ alamat, onEdit, onOpen, onSelect }: AddressListCardProps) {
     const tipeAlamat = (tipe: string) => {
         switch (tipe) {
             case 'home':
@@ -72,7 +74,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                 {/* Footer Actions */}
                 <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50/50 px-5 py-4">
                     <button className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow"
-                        onClick={() => { onOpen(true); onEdit(true); }}>
+                        onClick={() => { onSelect && onSelect(alamat); onOpen(true); onEdit(true); }}>
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
