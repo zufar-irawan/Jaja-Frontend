@@ -2,31 +2,34 @@
 
 import { CirclePlus } from "lucide-react"
 import AddressListCard from "@/components/AddressListCard"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import EditAddressModal from "./EditAddressModal"
+import { getAddresses } from "@/utils/userService"
 
 export default function AddressPage() {
     const [modalEditAddress, setModalEditAddress] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
 
-    const alamat = [
-        {
-            nama: "Rumah",
-            alamat: "Jl. Merdeka No. 123, Jakarta",
-            nomor_hp: "08123456789",
-            tanggal: "20/07/2012",
-            tipe: "home",
-            alamatUtama: true
-        },
-        {
-            nama: "Kantor",
-            alamat: "Jl. Panorama No. 45, Bekasi",
-            nomor_hp: "08123456789",
-            tanggal: "20/12/2012",
-            tipe: "office",
-            alamatUtama: false
+    const [addresses, setAddresses] = useState<any>()
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchAddresses = async () => {
+            await getAddresses()
+                .then((res) => {
+                    if (res.success && res.data) {
+                        setAddresses(res.data)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+                .finally(() => {
+                    setIsLoading(false)
+                })
         }
-    ]
+        fetchAddresses()
+    }, [])
 
     return (
         <div className="flex flex-col w-full gap-4">
@@ -40,9 +43,15 @@ export default function AddressPage() {
             </div>
 
             <div className="flex flex-col gap-4">
-                {alamat.map((item, index) => (
-                    <AddressListCard key={index} alamat={item} onEdit={setIsEdit} onOpen={setModalEditAddress} />
-                ))}
+                {isLoading ? (
+                    <p>Loading...</p>
+                ) : (
+                    addresses.length > 0 ? addresses.map((item: any, index: number) => (
+                        <AddressListCard key={index} alamat={item} onEdit={setIsEdit} onOpen={setModalEditAddress} />
+                    )) : (
+                        <p className="text-xl text-gray-800">Belum ada alamat tersimpan.</p>
+                    )
+                )}
             </div>
 
             {modalEditAddress && (

@@ -18,23 +18,23 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
 
     return (
         <div className="w-full">
-            {alamat.alamatUtama && (
+            {alamat.status_utama === "Y" && (
                 <div className="w-full rounded-t-xl border-t border-r border-l border-gray-200 bg-green-50/50 px-5 py-3 text-xl font-semibold text-green-700">
                     Alamat Utama
                 </div>
             )}
 
-            <div className={`group w-full overflow-hidden ${alamat.alamatUtama ? 'rounded-b-xl' : 'rounded-xl'} border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md`}>
+            <div className={`group w-full overflow-hidden ${alamat.status_utama === "Y" ? 'rounded-b-xl' : 'rounded-xl'} border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-gray-100 bg-linear-to-r from-gray-50 to-gray-100/50 px-5 py-3">
                     <div className="flex items-center gap-3">
-                        <div className={`rounded-lg p-2 ${alamat.tipe === 'home' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
-                            {tipeAlamat(alamat.tipe)}
+                        <div className={`rounded-lg p-2 ${alamat.label === 'Rumah' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
+                            {tipeAlamat(alamat.label)}
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-800">{alamat.nama}</h2>
-                            <p className="text-xs text-gray-500">Ditambahkan {alamat.tanggal}</p>
+                            <p className="text-xs text-gray-500">Ditambahkan {alamat.created_date}</p>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                             </svg>
                             <div className="flex-1">
                                 <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">Alamat Lengkap</p>
-                                <p className="text-sm leading-relaxed text-gray-700">{alamat.alamat}</p>
+                                <p className="text-sm leading-relaxed text-gray-700">{alamat.alamat_lengkap}</p>
                             </div>
                         </div>
                     </div>
@@ -64,7 +64,7 @@ export default function AddressListCard({ alamat, onEdit, onOpen }: AddressListC
                         </div>
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Nomor Telepon</p>
-                            <p className="text-sm font-semibold text-gray-800">{alamat.nomor_hp}</p>
+                            <p className="text-sm font-semibold text-gray-800">{alamat.no_telepon}</p>
                         </div>
                     </div>
                 </div>

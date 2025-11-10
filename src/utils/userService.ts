@@ -135,7 +135,7 @@ export async function getAddresses(): Promise<ApiResponse<Address[]>> {
         const response = await api.get('/main/customer/address')
         return {
             success: true,
-            data: response.data
+            data: response.data.data
         }
     } catch (error: any) {
         return {
