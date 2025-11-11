@@ -1,6 +1,5 @@
 "use server"
 
-import { cookies } from 'next/headers'
 import api from './api'
 
 export interface UserProfile {
@@ -22,7 +21,7 @@ export interface UpdateProfileData {
     nama_lengkap?: string
     username?: string
     telepon?: string
-    jenis_kelamin?: 'pria' | 'wanita'
+    jenis_kelamin?: string
     tgl_lahir?: string
 }
 
@@ -97,6 +96,12 @@ export interface ApiResponse<T> {
     data?: T
 }
 
+export interface ResetPassword {
+    email: string
+    token: string
+    new_password: string
+}
+
 // User Profile
 export async function getUserProfile(): Promise<ApiResponse<UserProfile>> {
     try {
@@ -135,7 +140,7 @@ export async function getAddresses(): Promise<ApiResponse<Address[]>> {
         const response = await api.get('/main/customer/address')
         return {
             success: true,
-            data: response.data
+            data: response.data.data
         }
     } catch (error: any) {
         return {
@@ -264,6 +269,21 @@ export async function getVillages(kecamatanKd: string, page: number = 1, limit: 
         return {
             success: false,
             message: error.response?.data?.message || 'Gagal mengambil data kelurahan'
+        }
+    }
+}
+
+export async function resetPassword(data: ResetPassword): Promise<ApiResponse<void>> {
+    try {
+        await api.post('/main/auth/reset-password', data)
+        return {
+            success: true,
+            message: 'Password berhasil direset'
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal mereset password'
         }
     }
 }
