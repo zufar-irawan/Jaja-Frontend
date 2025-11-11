@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import ClientLayout from "@components/ClientLayout";
+import { Providers } from "./providers";
 // @ts-ignore
 import "@styles/globals.css";
 
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} antialiased bg-gray-100`}
       >
-        <ClientLayout>{children}</ClientLayout>
+        <Providers> 
+          <ClientLayout>{children}</ClientLayout>
+        </Providers>
       </body>
     </html>
   );
