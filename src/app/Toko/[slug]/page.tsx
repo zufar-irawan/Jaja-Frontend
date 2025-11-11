@@ -13,7 +13,7 @@ interface TokoPageProps {
 
 export default async function TokoPage({ params }: TokoPageProps) {
   const { slug } = await params;
-  console.log('🔍 TokoPage - Received slug:', slug);
+  console.log('TokoPage - Received slug:', slug);
 
   const [tokoData, productsResponse, stats] = await Promise.all([
     getTokoBySlug(slug),
@@ -157,7 +157,7 @@ export default async function TokoPage({ params }: TokoPageProps) {
             <div className="flex gap-3">
               <button className="flex items-center gap-2 px-5 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-all">
                 <Filter className="w-5 h-5" />
-                Filter
+                Filter  
                 <ChevronDown className="w-4 h-4" />
               </button>
               

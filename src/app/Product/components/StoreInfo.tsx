@@ -18,16 +18,14 @@ interface StoreInfoProps {
 }
 
 export default function StoreInfo({ storeInfo }: StoreInfoProps) {
-  // 🔍 Debug: Log data yang diterima
-  console.log('🏪 StoreInfo received:', {
+  console.log('StoreInfo received:', {
     slug: storeInfo.slug,
     name: storeInfo.name,
     fullData: storeInfo
   });
 
-  // ⚠️ Validasi slug
   if (!storeInfo.slug || storeInfo.slug === 'undefined') {
-    console.error('❌ Invalid slug in StoreInfo:', storeInfo.slug);
+    console.error('Invalid slug in StoreInfo:', storeInfo.slug);
     return (
       <div style={{ 
         backgroundColor: '#fff3cd', 
@@ -36,7 +34,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
         border: '2px solid #ffc107'
       }}>
         <p style={{ color: '#856404', margin: 0 }}>
-          ⚠️ Slug toko tidak valid. Data: {JSON.stringify(storeInfo)}
+          Slug toko tidak valid. Data: {JSON.stringify(storeInfo)}
         </p>
       </div>
     );
@@ -101,7 +99,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '24px',
-        marginBottom: '16px',
+        marginBottom: '24px',
         paddingTop: '16px',
         borderTop: '1px solid #f3f4f6'
       }}>
@@ -121,18 +119,6 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
           <div style={{ fontSize: '12px', color: '#7f8c8d', marginBottom: '4px' }}>Bergabung</div>
           <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>3 tahun lalu</div>
         </div>
-      </div>
-      
-      {/* 🔍 Debug info - Hapus setelah masalah solved */}
-      <div style={{ 
-        fontSize: '11px', 
-        color: '#666', 
-        marginBottom: '12px',
-        padding: '8px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '8px'
-      }}>
-        🔍 Debug: Slug = "{storeInfo.slug}" | Link = /Toko/{storeInfo.slug}
       </div>
 
       <Link 

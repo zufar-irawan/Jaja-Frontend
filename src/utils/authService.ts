@@ -109,9 +109,11 @@ export async function resetPassword(data: ResetPasswordData): Promise<AuthRespon
     }
 }
 
-export async function loginWithGoogle(token: string): Promise<AuthResponse> {
+export async function loginWithGoogle(credential: string): Promise<AuthResponse> {
     try {
-        const response = await api.post('/main/auth/google', { token })
+        const response = await api.post('/main/auth/google', { 
+            token: credential 
+        })
 
         if (response.data.token) {
             const cookieStore = await cookies()
@@ -125,11 +127,12 @@ export async function loginWithGoogle(token: string): Promise<AuthResponse> {
 
         return {
             success: true,
-            message: response.data.message || 'Login berhasil',
+            message: response.data.message || 'Login dengan Google berhasil',
             data: response.data,
             token: response.data.token
         }
     } catch (error: any) {
+        console.error('Google login error:', error);
         return {
             success: false,
             message: error.response?.data?.message || 'Login dengan Google gagal'
