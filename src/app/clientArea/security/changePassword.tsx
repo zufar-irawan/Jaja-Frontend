@@ -1,13 +1,25 @@
+'use client'
+
 import { useEffect, useState } from "react";
+import { resetPassword } from "@/utils/userService";
+import { useClientArea } from "../ClientAreaContext";
 
 interface ChangePasswordProps {
     onClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ChangePassword({ onClose }: ChangePasswordProps) {
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+
+    const { user } = useClientArea()
 
     // Close modal on Escape key
     useEffect(() => {
@@ -17,6 +29,50 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onClose]);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setError(null);
+        setSuccess(null);
+
+        if (!oldPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+            setError("Semua kolom wajib diisi.");
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            setError("Kata sandi baru minimal 8 karakter.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setError("Konfirmasi kata sandi tidak cocok.");
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const response = await resetPassword({
+                email: user?.email || "",
+                token: "",
+                new_password: newPassword,
+            });
+
+            if (!response.success) {
+                throw new Error(response.message || "Gagal mengubah kata sandi.");
+            }
+
+            setSuccess(response.message || "Kata sandi berhasil diubah.");
+            setOldPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+        } catch (err: any) {
+            setError(err.message || "Terjadi kesalahan.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -43,7 +99,21 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
                 </div>
 
                 {/* Body */}
-                <form className="px-8 py-6 space-y-5">
+                <form
+                    id="changePasswordForm"
+                    className="px-8 py-6 space-y-5"
+                    onSubmit={handleSubmit}
+                >
+                    {error && (
+                        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {error}
+                        </div>
+                    )}
+                    {success && (
+                        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                            {success}
+                        </div>
+                    )}
                     {/* Old Password */}
                     <div className="space-y-2">
                         <label htmlFor="oldPassword" className="text-sm font-medium text-gray-700 flex items-center">
@@ -58,6 +128,8 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
                                 type={showOldPassword ? "text" : "password"}
                                 placeholder="Masukkan kata sandi lama"
                                 className="w-full px-4 py-2.5 pr-12 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={oldPassword}
+                                onChange={(event) => setOldPassword(event.target.value)}
                             />
                             <button
                                 type="button"
@@ -92,6 +164,8 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
                                 type={showNewPassword ? "text" : "password"}
                                 placeholder="Masukkan kata sandi baru"
                                 className="w-full px-4 py-2.5 pr-12 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={newPassword}
+                                onChange={(event) => setNewPassword(event.target.value)}
                             />
                             <button
                                 type="button"
@@ -127,6 +201,8 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Masukkan ulang kata sandi baru"
                                 className="w-full px-4 py-2.5 pr-12 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={confirmPassword}
+                                onChange={(event) => setConfirmPassword(event.target.value)}
                             />
                             <button
                                 type="button"
@@ -155,17 +231,20 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
                         type="button"
                         onClick={() => onClose(false)}
                         className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
+                        disabled={isSubmitting}
                     >
                         Batal
                     </button>
                     <button
                         type="submit"
-                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-70"
+                        form="changePasswordForm"
+                        disabled={isSubmitting}
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 ${isSubmitting ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        Ubah Kata Sandi
+                        {isSubmitting ? 'Memproses...' : 'Ubah Kata Sandi'}
                     </button>
                 </div>
             </div>

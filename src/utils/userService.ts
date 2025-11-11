@@ -1,6 +1,5 @@
 "use server"
 
-import { cookies } from 'next/headers'
 import api from './api'
 
 export interface UserProfile {
@@ -95,6 +94,12 @@ export interface ApiResponse<T> {
     success: boolean
     message?: string
     data?: T
+}
+
+export interface ResetPassword {
+    email: string
+    token: string
+    new_password: string
 }
 
 // User Profile
@@ -264,6 +269,21 @@ export async function getVillages(kecamatanKd: string, page: number = 1, limit: 
         return {
             success: false,
             message: error.response?.data?.message || 'Gagal mengambil data kelurahan'
+        }
+    }
+}
+
+export async function resetPassword(data: ResetPassword): Promise<ApiResponse<void>> {
+    try {
+        await api.post('/main/auth/reset-password', data)
+        return {
+            success: true,
+            message: 'Password berhasil direset'
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal mereset password'
         }
     }
 }
