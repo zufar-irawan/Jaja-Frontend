@@ -16,7 +16,6 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Check if there's a remembered email
     const savedEmail = localStorage.getItem("rememberMe");
     if (savedEmail) {
       setEmail(savedEmail);
@@ -46,14 +45,12 @@ export default function Login() {
       const result = await login({ email, password });
 
       if (result.success) {
-        // Save email if remember me is checked
         if (rememberMe) {
           localStorage.setItem("rememberMe", email);
         } else {
           localStorage.removeItem("rememberMe");
         }
 
-        // Redirect ke dashboard atau home
         router.push("/");
         router.refresh();
       } else {

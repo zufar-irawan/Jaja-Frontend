@@ -653,7 +653,7 @@ const handleRemoveItem = async (id_cart: number) => {
 
                 {/* Checkout Button */}
                 <button 
-                  onClick={() => router.push('/checkout')}
+                  onClick={() => router.push('/Checkout')}
                   style={{ 
                     width: '100%', 
                     padding: '12px', 

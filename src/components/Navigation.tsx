@@ -336,7 +336,7 @@ export default function JajaNavbar() {
                       setShowCategoryMenu(false);
                       setHoveredCategory(null);
                     }}
-                    className="absolute left-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[9999]"
+                    className="absolute left-0 top-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-9999"
                   >
                     {isLoadingCategories ? (
                       <div className="px-8 py-8 text-center w-64">
@@ -569,7 +569,7 @@ export default function JajaNavbar() {
                               (store: Product["tokos"]) => (
                                 <a
                                   key={store.id_toko}
-                                  href={`/store/${store.slug_toko}`}
+                                  href={`/Toko/${store.slug_toko}`}
                                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
