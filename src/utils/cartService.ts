@@ -10,7 +10,6 @@ export interface CartItem {
     warna_variasi?: string
     ukuran_variasi?: string
     produk_cover?: string
-    toko?: string
     pesan_customer?: string
     greeting_card_gift?: string
     status_pilih: boolean | string
@@ -37,7 +36,7 @@ export interface CartItem {
         harga_variasi?: number
         stok_variasi?: number
     }
-    tokos?: {
+    toko?: {
         id_toko: number
         nama_toko: string
         slug_toko: string
@@ -243,7 +242,7 @@ export function calculateDiscountPercentage(originalPrice: number, discountedPri
  * @returns Store name
  */
 export function getStoreName(item: CartItem): string {
-    return item.tokos?.nama_toko || item.toko || 'Toko'
+    return item.toko?.nama_toko || 'Toko'
 }
 
 /**

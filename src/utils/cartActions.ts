@@ -29,36 +29,39 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
         }
 
         // Ensure each item has proper structure and defaults
-        items = items.map(item => ({
-            ...item,
-            status_pilih: item.status_pilih === 'Y', // ubah jadi boolean
-            produk: typeof item.produk === 'object'
-                ? item.produk
-                : {
-                    id_produk: item.id_produk,
-                    nama_produk: item.produk || 'Produk Tidak Diketahui',
-                    harga: item.harga || 0,
-                    diskon: item.diskon || 0,
-                    stok: 0,
-                    slug_produk: item.produk_slug || '',
-                    foto_produk: item.produk_cover || '',
-                    berat: item.berat || '0',
-                    kondisi: 'Baru'
+        items = (items as any[]).map(item => {
+            const { toko, ...rest } = item;
+            return {
+                ...rest,
+                status_pilih: item.status_pilih === 'Y',
+                produk: typeof item.produk === 'object'
+                    ? item.produk
+                    : {
+                        id_produk: item.id_produk,
+                        nama_produk: item.produk || 'Produk Tidak Diketahui',
+                        harga: item.harga || 0,
+                        diskon: item.diskon || 0,
+                        stok: 0,
+                        slug_produk: item.produk_slug || '',
+                        foto_produk: item.produk_cover || '',
+                        berat: item.berat || '0',
+                        kondisi: 'Baru'
+                    },
+                toko: {
+                    id_toko: item.id_toko,
+                    nama_toko: toko || 'Toko Tidak Diketahui',
+                    slug_toko: ''
                 },
-            tokos: {
-                id_toko: item.id_toko,
-                nama_toko: item.toko || 'Toko Tidak Diketahui',
-                slug_toko: ''
-            },
-            variasi: item.id_variasi
-                ? {
-                    id_variasi: item.id_variasi,
-                    nama_variasi: item.model_variasi || '',
-                    harga_variasi: 0,
-                    stok_variasi: 0
-                }
-                : undefined
-        }))
+                variasi: item.id_variasi
+                    ? {
+                        id_variasi: item.id_variasi,
+                        nama_variasi: item.model_variasi || '',
+                        harga_variasi: 0,
+                        stok_variasi: 0
+                    }
+                    : undefined
+            }
+        })
 
         return {
             success: true,
