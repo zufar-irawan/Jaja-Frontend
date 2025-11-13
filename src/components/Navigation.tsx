@@ -255,8 +255,8 @@ export default function JajaNavbar() {
             <button
               onClick={() => handleCategoryClick(child)}
               className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${level === 0
-                  ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
-                  : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+                ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+                : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
                 } rounded-lg`}
             >
               <span className="flex items-center">
@@ -354,8 +354,8 @@ export default function JajaNavbar() {
                                 setHoveredCategory(category.id_kategori)
                               }
                               className={`w-full text-left px-5 py-3.5 transition-all flex items-center justify-between group border-l-4 ${hoveredCategory === category.id_kategori
-                                  ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
-                                  : "border-transparent text-gray-700 hover:bg-white/80"
+                                ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
+                                : "border-transparent text-gray-700 hover:bg-white/80"
                                 }`}
                             >
                               <span className="font-medium text-sm">
@@ -365,8 +365,8 @@ export default function JajaNavbar() {
                                 category.children.length > 0 && (
                                   <ChevronRight
                                     className={`w-4 h-4 transition-all ${hoveredCategory === category.id_kategori
-                                        ? "text-[#55B4E5] translate-x-0.5"
-                                        : "text-gray-400"
+                                      ? "text-[#55B4E5] translate-x-0.5"
+                                      : "text-gray-400"
                                       }`}
                                   />
                                 )}
@@ -840,8 +840,8 @@ export default function JajaNavbar() {
                                   className={`w-5 h-5 transition-transform duration-200 ${expandedMobileCategories.includes(
                                     category.id_kategori
                                   )
-                                      ? "rotate-180"
-                                      : ""
+                                    ? "rotate-180"
+                                    : ""
                                     }`}
                                 />
                               </button>
