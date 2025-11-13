@@ -600,44 +600,6 @@ const handleRemoveItem = async (id_cart: number) => {
                   )}
                 </div>
 
-                {/* Shipping Options */}
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '8px', fontWeight: '600' }}>Pilih Metode Pengiriman</div>
-                  
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', cursor: 'pointer', fontSize: '12px', padding: '8px', backgroundColor: deliveryType === 'standard' ? '#e7f5ff' : 'transparent', borderRadius: '4px' }}>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      checked={deliveryType === 'standard'}
-                      onChange={() => setDeliveryType('standard')}
-                      style={{ accentColor: '#55B4E5' }}
-                    />
-                    <span>Standar - Rp 50.000</span>
-                  </label>
-
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', cursor: 'pointer', fontSize: '12px', padding: '8px', backgroundColor: deliveryType === 'express' ? '#e7f5ff' : 'transparent', borderRadius: '4px' }}>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      checked={deliveryType === 'express'}
-                      onChange={() => setDeliveryType('express')}
-                      style={{ accentColor: '#55B4E5' }}
-                    />
-                    <span>Express - Rp 100.000</span>
-                  </label>
-
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12px', padding: '8px', backgroundColor: deliveryType === 'free' ? '#e7f5ff' : 'transparent', borderRadius: '4px' }}>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      checked={deliveryType === 'free'}
-                      onChange={() => setDeliveryType('free')}
-                      style={{ accentColor: '#55B4E5' }}
-                    />
-                    <span>Gratis Ongkir (Min. Rp 3jt)</span>
-                  </label>
-                </div>
-
                 {/* Total */}
                 <div style={{ 
                   display: 'flex', 
@@ -672,17 +634,6 @@ const handleRemoveItem = async (id_cart: number) => {
                 >
                   Lanjut ke Pembayaran →
                 </button>
-
-                {/* Payment Methods */}
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e9ecef' }}>
-                  <div style={{ fontSize: '11px', color: '#6c757d', marginBottom: '8px', textAlign: 'center' }}>Metode Pembayaran</div>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ padding: '6px 8px', border: '1px solid #dee2e6', borderRadius: '4px', fontSize: '10px', color: '#6c757d' }}>💳 Kartu</div>
-                    <div style={{ padding: '6px 8px', border: '1px solid #dee2e6', borderRadius: '4px', fontSize: '10px', color: '#6c757d' }}>GoPay</div>
-                    <div style={{ padding: '6px 8px', border: '1px solid #dee2e6', borderRadius: '4px', fontSize: '10px', color: '#6c757d' }}>OVO</div>
-                    <div style={{ padding: '6px 8px', border: '1px solid #dee2e6', borderRadius: '4px', fontSize: '10px', color: '#6c757d' }}>Dana</div>
-                  </div>
-                </div>
               </>
             )}
           </div>
