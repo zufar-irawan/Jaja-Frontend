@@ -565,7 +565,7 @@ export default function JajaNavbar() {
                               (store: Product["tokos"]) => (
                                 <a
                                   key={store.id_toko}
-                                  href={`/store/${store.slug_toko}`}
+                                  href={`/Toko/${store.slug_toko}`}
                                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
