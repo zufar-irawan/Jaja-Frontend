@@ -6,9 +6,7 @@ import type { ReviewCheckoutData, ReviewCheckoutResponse, CheckoutData, Checkout
 export async function reviewCheckout(data: ReviewCheckoutData): Promise<ReviewCheckoutResponse> {
   try {
     console.log('Review checkout data:', data)
-
     const response = await api.post('/main/checkout/review', data)
-
     console.log('Review checkout response:', response.data)
 
     return {
@@ -28,9 +26,7 @@ export async function reviewCheckout(data: ReviewCheckoutData): Promise<ReviewCh
 export async function processCheckout(data: CheckoutData): Promise<CheckoutResponse> {
   try {
     console.log('Processing checkout:', data)
-
     const response = await api.post('/main/transaksi/checkout', data)
-
     console.log('Checkout response:', response.data)
 
     return {
@@ -50,9 +46,7 @@ export async function processCheckout(data: CheckoutData): Promise<CheckoutRespo
 export async function processPayment(data: PaymentData): Promise<PaymentResponse> {
   try {
     console.log('Processing payment:', data)
-
     const response = await api.post('/main/transaksi/payment', data)
-
     console.log('Payment response:', response.data)
 
     return {

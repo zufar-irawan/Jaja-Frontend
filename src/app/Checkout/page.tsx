@@ -23,34 +23,22 @@ interface OrderResult {
 const CheckoutPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);``
   const [step, setStep] = useState(1);
-  
-  // Data states
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
   const [shippingOptions, setShippingOptions] = useState<Record<number, any>>({});
   const [selectedShipping, setSelectedShipping] = useState<Record<number, ShippingOption>>({});
-  
-  // Form states
-  const [addressForm, setAddressForm] = useState({
-    nama_penerima: '',
-    telp_penerima: '',
-    alamat_lengkap: '',
-  });
+  const [addressForm, setAddressForm] = useState({ nama_penerima: '', telp_penerima: '', alamat_lengkap: '', });
   const [customerNote, setCustomerNote] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('setiap saat');
-  
-  // Voucher states
   const [voucherCode, setVoucherCode] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(null);
-  
-  // Order result
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
+  
 
-  // Fetch initial data
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -58,8 +46,6 @@ const CheckoutPage = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      
-      // Get cart items
       const cartResponse = await getCart();
       if (cartResponse.success && cartResponse.data?.items) {
         const selected = cartResponse.data.items.filter(item => item.status_pilih);
@@ -78,7 +64,6 @@ const CheckoutPage = () => {
         setCartItems(cartResponse.data.items as CartItem[]);
         setSelectedItems(selected as CartItem[]);
         
-        // Group by store for shipping options
         const groupedByStore = groupItemsByStore(selected as CartItem[]);
         setShippingOptions(groupedByStore);
       }
@@ -103,7 +88,6 @@ const CheckoutPage = () => {
   };
 
   const handleApplyVoucher = () => {
-    // Mock voucher validation
     if (voucherCode.toUpperCase() === 'DISKON10') {
       setAppliedVoucher({
         code: voucherCode,
@@ -145,7 +129,6 @@ const CheckoutPage = () => {
   };
 
   const handleCheckout = async () => {
-    // Validation
     const validation = validateCheckoutData({
       alamat_pengiriman: addressForm.alamat_lengkap,
       nama_penerima: addressForm.nama_penerima,
@@ -163,7 +146,6 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Check if all stores have shipping selected
     const storeIds = Object.keys(shippingOptions);
     const hasAllShipping = storeIds.every(storeId => selectedShipping[Number(storeId)]);
     
@@ -179,8 +161,6 @@ const CheckoutPage = () => {
 
     try {
       setProcessing(true);
-
-      // Prepare checkout data
       const checkoutData = {
         alamat_pengiriman: addressForm.alamat_lengkap,
         nama_penerima: addressForm.nama_penerima,
@@ -193,33 +173,28 @@ const CheckoutPage = () => {
 
       console.log('Checkout data:', checkoutData);
 
-      // Process checkout
       const checkoutResponse = await processCheckout(checkoutData);
-
       if (!checkoutResponse.success || !checkoutResponse.data) {
         throw new Error(checkoutResponse.message || 'Checkout gagal');
       }
 
       const { order_ids, total_tagihan } = checkoutResponse.data;
 
-      // Process payment
       const paymentData = {
         order_ids: Array.isArray(order_ids) ? order_ids.join(',') : order_ids,
         total_tagihan
       };
 
       const paymentResponse = await processPayment(paymentData);
-
       if (!paymentResponse.success) {
         throw new Error(paymentResponse.message || 'Payment gagal');
       }
 
-      // Store result and show success
       setOrderResult({
         order_id: paymentData.order_ids,
         total: total_tagihan
       });
-      
+    
       setStep(2);
 
       await Swal.fire({

@@ -39,12 +39,15 @@ export interface Address {
     kecamatan: string
     kelurahan_id: number
     kelurahan: string
+    kelurahann?: string
     kode_pos: string
     alamat_koordinat?: string
     latitude?: string
     longitude?: string
     nama_alamat: string
     is_primary: boolean
+    status_utama?: string
+    created_date?: string
 }
 
 export interface CreateAddressData {
@@ -59,7 +62,8 @@ export interface CreateAddressData {
     kecamatan_id: number
     kecamatan: string
     kelurahan_id: number
-    kelurahan: string
+    kelurahan?: number
+    kelurahann?: string
     kode_pos: string
     alamat_koordinat?: string
     latitude?: string
@@ -68,26 +72,41 @@ export interface CreateAddressData {
 }
 
 export interface Province {
-    provinsi_kd: number
-    provinsi_nm: string
+    province_id: number
+    province: string
+    province_kd: string
 }
 
 export interface City {
-    kota_kd: number
-    kota_nm: string
-    provinsi_kd: number
+    city_id: number
+    province_id: number
+    province: string
+    city_name: string
+    city_kd: string
+    postal_code: number
+    type: string
 }
 
 export interface District {
+    kecamatan_id: number
+    province_id: number
+    province: string
+    city_id: number
+    city: string
+    kecamatan: string
     kecamatan_kd: string
-    kecamatan_nm: string
-    kota_kd: number
 }
 
 export interface Village {
-    kelurahan_kd: string
-    kelurahan_nm: string
-    kecamatan_kd: string
+    kelurahan_id: number
+    kd_prop: string
+    propinsi: string
+    kd_kab_kota: string
+    kabupaten_kota: string
+    kd_kec: string
+    kecamatan: string
+    kd_kelurahan_desa: string
+    kelurahan_desa: string
 }
 
 export interface ApiResponse<T> {

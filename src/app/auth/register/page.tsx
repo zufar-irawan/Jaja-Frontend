@@ -124,7 +124,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -199,10 +199,10 @@ export default function Register() {
       </div>
 
       {/* Right Side - Register Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <div className="mb-8">
+          <div className="mb-6">
             <img
               src="/images/logo.webp"
               alt="Jaja.id Logo"
@@ -223,7 +223,7 @@ export default function Register() {
           </div>
 
           {/* Welcome Text */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Daftar</h1>
             <p className="text-gray-600">Isikan dengan lengkap</p>
           </div>
@@ -236,7 +236,7 @@ export default function Register() {
           )}
 
           {/* Register Form */}
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
             {/* First Name Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -249,7 +249,7 @@ export default function Register() {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 placeholder="Masukkan nama depan"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
                 disabled={loading}
                 autoComplete="given-name"
               />
@@ -267,7 +267,7 @@ export default function Register() {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 placeholder="Masukkan nama belakang"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
                 disabled={loading}
                 autoComplete="family-name"
               />
@@ -285,7 +285,7 @@ export default function Register() {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 placeholder="Masukkan email Anda"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
                 disabled={loading}
                 autoComplete="email"
               />
@@ -303,7 +303,7 @@ export default function Register() {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 placeholder="08123456789"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition"
                 disabled={loading}
                 autoComplete="tel"
               />
@@ -322,7 +322,7 @@ export default function Register() {
                   onChange={handleChange}
                   onKeyPress={handleKeyPress}
                   placeholder="Masukkan password Anda"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent transition pr-12"
                   disabled={loading}
                   autoComplete="new-password"
                 />
@@ -360,13 +360,13 @@ export default function Register() {
               type="button"
               onClick={handleRegister}
               disabled={loading}
-              className="w-full bg-[#55B4E5] text-white py-3 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#55B4E5] text-white py-2.5 rounded-lg font-medium hover:bg-[#4A9FD0] transition shadow-md hover:shadow-lg mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Memproses..." : "Daftar"}
             </button>
 
             {/* Divider */}
-            <div className="relative my-6">
+            <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
@@ -392,7 +392,7 @@ export default function Register() {
           </form>
 
           {/* Login Link */}
-          <p className="text-center text-gray-600 mt-8">
+          <p className="text-center text-gray-600 mt-6">
             Sudah memiliki akun?{" "}
             <Link
               href="/auth/login"
