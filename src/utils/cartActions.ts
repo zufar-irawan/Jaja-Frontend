@@ -3,12 +3,6 @@
 import api from './api'
 import type { CartResponse, AddCartData, CartItem } from './cartService'
 
-/**
- * Get Cart Items
- * @param page - Page number (default: 1)
- * @param limit - Items per page (default: 100)
- * @returns Cart response with items array
- */
 export async function getCart(page: number = 1, limit: number = 100): Promise<CartResponse> {
     try {
         const response = await api.get('/main/cart/', {
@@ -82,11 +76,6 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
     }
 }
 
-/**
- * Add Item to Cart
- * @param data - Product data to add to cart
- * @returns Cart response
- */
 export async function addToCart(data: AddCartData): Promise<CartResponse> {
     try {
         console.log('Adding to cart:', data)
@@ -122,26 +111,19 @@ export async function addToCart(data: AddCartData): Promise<CartResponse> {
         }
     } catch (error: any) {
         console.error('Add to cart error:', error.response?.data || error)
-
-        // Re-throw error with status for auth check
         const err: any = new Error(error.response?.data?.message || 'Gagal menambahkan ke keranjang')
         err.response = error.response
         throw err
     }
 }
 
-/**
- * Update Cart Item Quantity
- * @param id_cart - Cart item ID
- * @param qty - New quantity
- * @returns Cart response
- */
+
 export async function updateCartQuantity(id_cart: number, qty: number): Promise<CartResponse> {
     try {
         console.log('Updating cart quantity:', { id_cart, qty })
 
         const response = await api.put(`/main/cart/${id_cart}/qty`, { qty })
-
+        
         return {
             success: true,
             message: response.data.message || 'Berhasil mengupdate jumlah',
@@ -156,11 +138,6 @@ export async function updateCartQuantity(id_cart: number, qty: number): Promise<
     }
 }
 
-/**
- * Toggle Cart Item Selection
- * @param id_cart - Cart item ID
- * @returns Cart response
- */
 export async function toggleCartSelection(id_cart: number): Promise<CartResponse> {
     try {
         console.log('Toggling cart selection:', id_cart)
@@ -181,11 +158,6 @@ export async function toggleCartSelection(id_cart: number): Promise<CartResponse
     }
 }
 
-/**
- * Delete Cart Item
- * @param id_cart - Cart item ID
- * @returns Cart response
- */
 export async function deleteCartItem(id_cart: number): Promise<CartResponse> {
     try {
         console.log('Deleting cart item:', id_cart)
@@ -206,10 +178,6 @@ export async function deleteCartItem(id_cart: number): Promise<CartResponse> {
     }
 }
 
-/**
- * Clear All Cart Items
- * @returns Cart response
- */
 export async function clearCart(): Promise<CartResponse> {
     try {
         console.log('Clearing cart')
@@ -230,12 +198,6 @@ export async function clearCart(): Promise<CartResponse> {
     }
 }
 
-/**
- * Batch Toggle Cart Selections (for Select All feature)
- * @param cart_ids - Array of cart item IDs
- * @param select - Whether to select or deselect
- * @returns Cart response
- */
 export async function batchToggleCartSelection(cart_ids: number[], select: boolean): Promise<CartResponse> {
     try {
         const results = await Promise.all(
