@@ -83,89 +83,87 @@ const ShoppingCartPage = () => {
 
   const { fetchCartCount } = useCartStore();
 
-const handleRemoveItem = async (id_cart: number) => {
-  try {
+  const handleRemoveItem = async (id_cart: number) => {
+    try {
+      const confirm = await Swal.fire({
+        title: 'Hapus produk ini?',
+        text: 'Produk akan dihapus dari keranjang Anda.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      const response = await deleteCartItem(id_cart);
+
+      if (response.success) {
+        setCartItems(items => items.filter(item => item.id_cart !== id_cart));
+        await fetchCartCount();
+        await Swal.fire({
+          title: 'Berhasil!',
+          text: 'Produk telah dihapus dari keranjang.',
+          icon: 'success',
+          confirmButtonColor: '#55B4E5',
+        });
+      } else {
+        await Swal.fire({
+          title: 'Gagal',
+          text: response.message || 'Terjadi kesalahan saat menghapus produk.',
+          icon: 'error',
+          confirmButtonColor: '#55B4E5',
+        });
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Terjadi kesalahan tak terduga.',
+        icon: 'error',
+        confirmButtonColor: '#55B4E5',
+      });
+    }
+  };
+
+  const handleClearCart = async () => {
     const confirm = await Swal.fire({
-      title: 'Hapus produk ini?',
-      text: 'Produk akan dihapus dari keranjang Anda.',
+      title: 'Kosongkan keranjang?',
+      text: 'Semua produk akan dihapus dari keranjang Anda.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Ya, hapus!',
+      confirmButtonText: 'Ya, kosongkan!',
       cancelButtonText: 'Batal',
     });
 
     if (!confirm.isConfirmed) return;
 
-    const response = await deleteCartItem(id_cart);
-
-    if (response.success) {
-      setCartItems(items => items.filter(item => item.id_cart !== id_cart));
-      await fetchCartCount();
-      await Swal.fire({
-        title: 'Berhasil!',
-        text: 'Produk telah dihapus dari keranjang.',
-        icon: 'success',
-        confirmButtonColor: '#55B4E5',
-      });
-    } else {
-      await Swal.fire({
-        title: 'Gagal',
-        text: response.message || 'Terjadi kesalahan saat menghapus produk.',
+    try {
+      const response = await clearCart();
+      if (response.success) {
+        setCartItems([]);
+        await fetchCartCount(); 
+        await Swal.fire({
+          title: 'Keranjang dikosongkan!',
+          text: 'Semua produk telah dihapus.',
+          icon: 'success',
+          confirmButtonColor: '#55B4E5',
+        });
+      }
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Terjadi kesalahan saat mengosongkan keranjang.',
         icon: 'error',
         confirmButtonColor: '#55B4E5',
       });
     }
-  } catch (error) {
-    console.error('Error removing item:', error);
-    Swal.fire({
-      title: 'Error!',
-      text: 'Terjadi kesalahan tak terduga.',
-      icon: 'error',
-      confirmButtonColor: '#55B4E5',
-    });
-  }
-};
-
-  const handleClearCart = async () => {
-  const confirm = await Swal.fire({
-    title: 'Kosongkan keranjang?',
-    text: 'Semua produk akan dihapus dari keranjang Anda.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Ya, kosongkan!',
-    cancelButtonText: 'Batal',
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  try {
-    const response = await clearCart();
-    if (response.success) {
-      setCartItems([]);
-      await fetchCartCount(); 
-      await Swal.fire({
-        title: 'Keranjang dikosongkan!',
-        text: 'Semua produk telah dihapus.',
-        icon: 'success',
-        confirmButtonColor: '#55B4E5',
-      });
-    }
-  } catch (error) {
-    console.error('Error clearing cart:', error);
-    Swal.fire({
-      title: 'Error!',
-      text: 'Terjadi kesalahan saat mengosongkan keranjang.',
-      icon: 'error',
-      confirmButtonColor: '#55B4E5',
-    });
-  }
-};
-
-
+  };
 
   const applyCoupon = () => {
     if (couponCode.toLowerCase() === 'discount10') {
@@ -191,7 +189,8 @@ const handleRemoveItem = async (id_cart: number) => {
         minHeight: '100vh', 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center',
+        padding: '16px'
       }}>
         <div style={{ textAlign: 'center' }}>
           <Loader2 size={48} style={{ margin: '0 auto', color: '#55B4E5', animation: 'spin 1s linear infinite' }} />
@@ -209,7 +208,8 @@ const handleRemoveItem = async (id_cart: number) => {
         minHeight: '100vh', 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center' 
+        justifyContent: 'center',
+        padding: '16px'
       }}>
         <div style={{ textAlign: 'center', maxWidth: '400px' }}>
           <ShoppingCart size={64} style={{ margin: '0 auto 16px', color: '#dc3545', opacity: 0.5 }} />
@@ -235,7 +235,7 @@ const handleRemoveItem = async (id_cart: number) => {
   }
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '16px' }}>
+    <div style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '12px' }}>
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
@@ -249,12 +249,56 @@ const handleRemoveItem = async (id_cart: number) => {
         input[type=number] {
           -moz-appearance: textfield;
         }
+        
+        @media (min-width: 768px) {
+          .container-main {
+            padding: 16px !important;
+          }
+        }
+        
+        @media (max-width: 767px) {
+          .header-buttons {
+            flex-direction: column;
+            width: 100%;
+            gap: 8px !important;
+          }
+          .header-buttons button {
+            width: 100%;
+            font-size: 11px !important;
+          }
+          .cart-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .summary-sticky {
+            position: static !important;
+          }
+          .cart-item {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .cart-item-content {
+            width: 100% !important;
+          }
+          .cart-item-image {
+            width: 100% !important;
+            max-width: 200px;
+            margin: 0 auto;
+          }
+          .quantity-controls {
+            justify-content: center !important;
+            flex-wrap: wrap;
+          }
+          .product-info-row {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+        }
       `}</style>
       
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div className="container-main" style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
             <button
               onClick={() => router.push('/')}
               style={{
@@ -267,62 +311,67 @@ const handleRemoveItem = async (id_cart: number) => {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '14px',
-                color: '#6c757d',   
-                marginBottom: '12px'
+                color: '#6c757d',
+                width: 'fit-content'
               }}
             >
               <ArrowLeft size={16} /> Kembali Belanja
             </button>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#333', margin: 0 }}>
-              Keranjang Belanja ({cartItems.length})
-            </h1>
-          </div>
-          
-          {cartItems.length > 0 && (
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={handleSelectAll}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'white',
-                  border: '2px solid #55B4E5',
-                  borderRadius: '6px',
-                  color: '#55B4E5',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                {allSelected ? '✓ Semua Dipilih' : 'Pilih Semua'}
-              </button>
-              <button
-                onClick={handleClearCart}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'white',
-                  border: '2px solid #dc3545',
-                  borderRadius: '6px',
-                  color: '#dc3545',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Trash2 size={14} /> Kosongkan
-              </button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: 'clamp(18px, 5vw, 24px)', fontWeight: '700', color: '#333', margin: 0 }}>
+                Keranjang Belanja ({cartItems.length})
+              </h1>
+              
+              {cartItems.length > 0 && (
+                <div className="header-buttons" style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={handleSelectAll}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: 'white',
+                      border: '2px solid #55B4E5',
+                      borderRadius: '6px',
+                      color: '#55B4E5',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {allSelected ? '✓ Semua Dipilih' : 'Pilih Semua'}
+                  </button>
+                  <button
+                    onClick={handleClearCart}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: 'white',
+                      border: '2px solid #dc3545',
+                      borderRadius: '6px',
+                      color: '#dc3545',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <Trash2 size={14} /> Kosongkan
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px', alignItems: 'start' }}>
+        <div className="cart-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px', alignItems: 'start' }}>
           
           {/* Cart Items Section */}
-          <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '10px', padding: 'clamp(12px, 3vw, 24px)', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
             {cartItems.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#6c757d' }}>
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6c757d' }}>
                 <ShoppingCart size={64} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
                 <p style={{ fontSize: '16px', fontWeight: '500' }}>Keranjang Anda kosong</p>
                 <p style={{ fontSize: '14px', marginTop: '8px' }}>Mulai belanja sekarang!</p>
@@ -352,10 +401,10 @@ const handleRemoveItem = async (id_cart: number) => {
                   const stock = item.variasi?.stok_variasi || product?.stok || 99;
                   
                   return (
-                    <div key={item.id_cart} style={{ 
+                    <div key={item.id_cart} className="cart-item" style={{ 
                       display: 'flex',
                       gap: '12px', 
-                      padding: '16px', 
+                      padding: 'clamp(12px, 2vw, 16px)', 
                       border: '1px solid #e9ecef',
                       borderRadius: '8px',
                       marginBottom: '12px',
@@ -367,11 +416,11 @@ const handleRemoveItem = async (id_cart: number) => {
                         type="checkbox"
                         checked={item.status_pilih === true || item.status_pilih === 'Y'}
                         onChange={() => handleToggleSelection(item.id_cart)}
-                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#55B4E5' }}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#55B4E5', flexShrink: 0 }}
                       />
 
                       {/* Product Image */}
-                      <div style={{ 
+                      <div className="cart-item-image" style={{ 
                         width: '80px', 
                         height: '80px', 
                         backgroundColor: '#f8f9fa', 
@@ -387,28 +436,28 @@ const handleRemoveItem = async (id_cart: number) => {
                       </div>
 
                       {/* Product Info */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
+                      <div className="cart-item-content" style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
                           {product?.nama_produk || 'Nama Produk'}
                         </h3>
                         {item.variasi?.nama_variasi && (
-                          <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '8px' }}>
+                          <div style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d', marginBottom: '8px' }}>
                             Variasi: {item.variasi.nama_variasi}
                           </div>
                         )}
                         
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className="product-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                           <div>
-                            <div style={{ fontSize: '16px', fontWeight: '700', color: '#55B4E5' }}>
+                            <div style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '700', color: '#55B4E5' }}>
                               {formatCurrency(price)}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#6c757d' }}>
+                            <div style={{ fontSize: 'clamp(10px, 2vw, 11px)', color: '#6c757d' }}>
                               Stok: {stock}
                             </div>
                           </div>
 
                           {/* Quantity Controls */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
                             <button
                               onClick={() => handleUpdateQuantity(item.id_cart, item.qty - 1)}
                               disabled={item.qty <= 1}
@@ -422,7 +471,8 @@ const handleRemoveItem = async (id_cart: number) => {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 justifyContent: 'center',
-                                opacity: item.qty <= 1 ? 0.5 : 1
+                                opacity: item.qty <= 1 ? 0.5 : 1,
+                                flexShrink: 0
                               }}
                             >
                               <Minus size={14} />
@@ -446,14 +496,12 @@ const handleRemoveItem = async (id_cart: number) => {
                                   newQuantity = stock;
                                 }
                       
-                                // Clean up the editing state
                                 setEditingQuantities(prev => {
                                   const next = { ...prev };
                                   delete next[item.id_cart];
                                   return next;
                                 });
                                 
-                                // Only update if the quantity is different
                                 if (newQuantity !== item.qty) {
                                   handleUpdateQuantity(item.id_cart, newQuantity);
                                 }
@@ -466,6 +514,7 @@ const handleRemoveItem = async (id_cart: number) => {
                                 border: '1px solid #dee2e6',
                                 borderRadius: '5px',
                                 appearance: 'textfield',
+                                flexShrink: 0
                               }}
                             />
                             <button
@@ -481,7 +530,8 @@ const handleRemoveItem = async (id_cart: number) => {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 justifyContent: 'center',
-                                opacity: item.qty >= stock ? 0.5 : 1
+                                opacity: item.qty >= stock ? 0.5 : 1,
+                                flexShrink: 0
                               }}
                             >
                               <Plus size={14} />
@@ -493,7 +543,8 @@ const handleRemoveItem = async (id_cart: number) => {
                                 border: 'none', 
                                 cursor: 'pointer', 
                                 color: '#dc3545',
-                                padding: '4px'
+                                padding: '4px',
+                                flexShrink: 0
                               }}
                             >
                               <Trash2 size={16} />
@@ -507,7 +558,7 @@ const handleRemoveItem = async (id_cart: number) => {
                           borderTop: '1px solid #e9ecef',
                           textAlign: 'right'
                         }}>
-                          <span style={{ fontSize: '14px', fontWeight: '700', color: '#1a1a1a' }}>
+                          <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '700', color: '#1a1a1a' }}>
                             Subtotal: {formatCurrency(itemTotal)}
                           </span>
                         </div>
@@ -517,14 +568,15 @@ const handleRemoveItem = async (id_cart: number) => {
                 })}
 
                 {/* Coupon Code Section */}
-                <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   <input
                     type="text"
                     placeholder="Kode kupon (coba: discount10)"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     style={{ 
-                      flex: 1, 
+                      flex: '1 1 200px',
+                      minWidth: '0',
                       padding: '10px 12px', 
                       border: '1px solid #dee2e6', 
                       borderRadius: '6px', 
@@ -541,7 +593,8 @@ const handleRemoveItem = async (id_cart: number) => {
                       borderRadius: '6px', 
                       cursor: 'pointer', 
                       fontWeight: '600', 
-                      fontSize: '12px' 
+                      fontSize: '12px',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     Apply
@@ -552,16 +605,16 @@ const handleRemoveItem = async (id_cart: number) => {
           </div>
 
           {/* Order Summary Section */}
-          <div style={{ 
+          <div className="summary-sticky" style={{ 
             backgroundColor: 'white', 
             borderRadius: '10px', 
-            padding: '20px', 
+            padding: 'clamp(16px, 3vw, 20px)', 
             boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
             position: 'sticky',
             top: '20px'
           }}>
             <h2 style={{ 
-              fontSize: '16px', 
+              fontSize: 'clamp(14px, 3vw, 16px)', 
               fontWeight: '600', 
               marginBottom: '16px', 
               color: '#333', 
@@ -581,21 +634,21 @@ const handleRemoveItem = async (id_cart: number) => {
                 {/* Price Summary */}
                 <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', color: '#6c757d' }}>Subtotal ({totals.selectedCount} items)</span>
-                    <span style={{ fontSize: '12px', fontWeight: '600' }}>{formatCurrency(totals.subtotal)}</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Subtotal ({totals.selectedCount} items)</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.subtotal)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', color: '#6c757d' }}>Pengiriman</span>
-                    <span style={{ fontSize: '12px', fontWeight: '600' }}>{formatCurrency(totals.shipping)}</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Pengiriman</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.shipping)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '12px', color: '#6c757d' }}>Pajak (10%)</span>
-                    <span style={{ fontSize: '12px', fontWeight: '600' }}>{formatCurrency(totals.tax)}</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Pajak (10%)</span>
+                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.tax)}</span>
                   </div>
                   {totals.discount > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '12px', color: '#6c757d' }}>Diskon</span>
-                      <span style={{ fontSize: '12px', fontWeight: '600', color: '#28a745' }}>-{formatCurrency(totals.discount)}</span>
+                      <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Diskon</span>
+                      <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600', color: '#28a745' }}>-{formatCurrency(totals.discount)}</span>
                     </div>
                   )}
                 </div>
@@ -607,10 +660,11 @@ const handleRemoveItem = async (id_cart: number) => {
                   marginBottom: '16px', 
                   padding: '12px 0', 
                   borderTop: '2px solid #e9ecef', 
-                  borderBottom: '2px solid #e9ecef'
+                  borderBottom: '2px solid #e9ecef',
+                  alignItems: 'center'
                 }}>
-                  <span style={{ fontSize: '16px', fontWeight: '600' }}>Total</span>
-                  <span style={{ fontSize: '20px', fontWeight: '700', color: '#FBB338' }}>{formatCurrency(totals.total)}</span>
+                  <span style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '600' }}>Total</span>
+                  <span style={{ fontSize: 'clamp(16px, 4vw, 20px)', fontWeight: '700', color: '#FBB338' }}>{formatCurrency(totals.total)}</span>
                 </div>
 
                 {/* Checkout Button */}
@@ -625,7 +679,7 @@ const handleRemoveItem = async (id_cart: number) => {
                     borderRadius: '6px', 
                     cursor: 'pointer', 
                     fontWeight: '600', 
-                    fontSize: '14px', 
+                    fontSize: 'clamp(12px, 2.5vw, 14px)', 
                     marginBottom: '12px',
                     transition: 'all 0.2s'
                   }}
