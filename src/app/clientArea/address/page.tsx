@@ -51,7 +51,14 @@ export default function AddressPage() {
                     <p>Loading...</p>
                 ) : (
                     addresses.length > 0 ? addresses.map((item: Address, index: number) => (
-                        <AddressListCard key={index} alamat={item} onEdit={setIsEdit} onOpen={setModalEditAddress} onSelect={setSelectedAddress} />
+                        <AddressListCard
+                            key={index}
+                            alamat={item}
+                            onEdit={setIsEdit}
+                            onOpen={setModalEditAddress}
+                            onSelect={setSelectedAddress}
+                            onDeleted={fetchAddresses}
+                        />
                     )) : (
                         <p className="text-xl text-gray-800">Belum ada alamat tersimpan.</p>
                     )
