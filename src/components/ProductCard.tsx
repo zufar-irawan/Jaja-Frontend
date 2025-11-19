@@ -26,11 +26,11 @@ export default function ProductCard({ item }: ProductCardProps) {
     return (
         <Link
             href={productUrl}
-            className="block h-full w-50 transform rounded-lg bg-white transition-all will-change-transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="block w-full max-w-[200px] transform rounded-lg bg-white shadow-sm transition-all will-change-transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
             <div className="flex h-full flex-col">
                 {/* Image/Placeholder Section */}
-                <div className="relative h-40 w-full overflow-hidden rounded-t-lg bg-gray-100 sm:h-48">
+                <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg bg-gray-100">
                     {item.image ? (
                         <img
                             src={item.image}
@@ -48,7 +48,7 @@ export default function ProductCard({ item }: ProductCardProps) {
                         />
                     ) : null}
                     {/* Fallback placeholder - always render but hide if image loads */}
-                    <div 
+                    <div
                         className="flex h-full items-center justify-center"
                         style={{ display: item.image ? 'none' : 'flex' }}
                     >
@@ -60,42 +60,39 @@ export default function ProductCard({ item }: ProductCardProps) {
                 </div>
 
                 {/* Product Info Section */}
-                <div className="flex flex-1 flex-col p-4">
-                    <p className="mb-2 h-12 text-start text-sm line-clamp-2 sm:text-base">
+                <div className="flex flex-col gap-2 p-3">
+                    <h3 className="h-10 text-sm font-medium leading-tight line-clamp-2">
                         {item.name}
-                    </p>
+                    </h3>
 
-                    <p className="text-start text-base font-bold text-blue-800">
+                    <p className="text-base font-bold text-blue-800">
                         {formatCurrency(item.price)}
                     </p>
 
-                    {/* Rating Section */}
-                    <div className="mt-auto pt-2">
-                        {/* Rating Section */}
-                        <div className="flex flex-row items-center gap-1">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                height="18px"
-                                viewBox="0 -960 960 960"
-                                width="18px"
-                                fill="#F9DB78">
-                                <path d="m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z" />
-                            </svg>
-                            <p className="items-center text-xs sm:text-sm">
-                                4.9 <span className="text-gray-500">(200+)</span>
-                            </p>
-                        </div>
-
-                        {/* Location Section */}
-                        {item.address && (
-                            <div className="mt-1 flex flex-row items-center gap-1">
-                                <MapPin size={16} className="text-red-500" />
-                                <p className="truncate text-xs text-gray-600 sm:text-sm">
-                                    {item.address}
-                                </p>
-                            </div>
-                        )}
+                    {/* Rating */}
+                    <div className="flex items-center gap-1">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="16px"
+                            viewBox="0 -960 960 960"
+                            width="16px"
+                            fill="#F9DB78">
+                            <path d="m233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z" />
+                        </svg>
+                        <span className="text-xs">
+                            4.9 <span className="text-gray-500">(200+)</span>
+                        </span>
                     </div>
+
+                    {/* Location */}
+                    {item.address && (
+                        <div className="flex items-center gap-1">
+                            <MapPin size={14} className="shrink-0 text-red-500" />
+                            <span className="truncate text-xs text-gray-600">
+                                {item.address}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </Link>
