@@ -7,7 +7,6 @@ import {
     getRecommendedProducts 
 } from '@/utils/productService'
 
-// Home Page - Server Component
 export default async function Home() {
     const [featuredProducts, topProducts, recommendedProducts] = await Promise.all([
         getFeaturedProducts(8),

@@ -33,7 +33,7 @@ export interface AuthResponse {
     token?: string
 }
 
-export async function register(data: RegisterData): Promise<AuthResponse> {
+export async function register(data: RegisterData): Promise<AuthResponse>     {
     try {
         const response = await api.post('/main/auth/register', data)
         return {
@@ -59,7 +59,7 @@ export async function login(data: LoginData): Promise<AuthResponse> {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 7 // 7 days
+                maxAge: 60 * 60 * 24 * 7 
             })
         }
 

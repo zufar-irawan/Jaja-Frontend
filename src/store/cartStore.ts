@@ -21,4 +21,4 @@ export const useCartStore = create<CartStore>((set) => ({
     const result = await getCart();
     set({ cartCount: result.data?.items?.length ?? 0 });
   }
-}));
+})); 

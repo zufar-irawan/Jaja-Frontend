@@ -32,7 +32,6 @@ export default function Login() {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Format email tidak valid");
@@ -53,7 +52,7 @@ export default function Login() {
 
         router.push("/");
         router.refresh();
-      } else {
+      } else {                    
         setError(result.message || "Email atau password salah");
       }
     } catch (err) {
@@ -70,7 +69,6 @@ export default function Login() {
       setError("Gagal mendapatkan credential dari Google");
       return;
     }
-
     setLoading(true);
     setError("");
 
@@ -142,6 +140,8 @@ export default function Login() {
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
+
+          
 
           {/* Login Form */}
           <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
