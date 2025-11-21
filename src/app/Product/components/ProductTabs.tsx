@@ -114,6 +114,47 @@ export default function ProductTabs({
             fontSize: '18px', 
             fontWeight: '600',
             color: '#111',
+            marginBottom: '16px',
+            marginTop: 0
+          }}>
+            Spesifikasi Lengkap
+          </h3>
+
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '0',
+            marginBottom: '32px'
+          }}>
+            {Object.entries(productSpecs).map(([key, value]) => (
+              <div key={key} style={{
+                display: 'flex',
+                padding: '12px 0',
+                borderBottom: '1px solid #f0f0f0'
+              }}>
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: '#111',
+                  width: '180px'
+                }}>
+                  {key}
+                </span>
+                <span style={{
+                  fontSize: '13px',
+                  color: '#666',
+                  flex: 1
+                }}>
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: '600',
+            color: '#111',
             marginBottom: '12px',
             marginTop: 0
           }}>
@@ -173,77 +214,7 @@ export default function ProductTabs({
               </div>
             ))}
           </div>
-
-          <h4 style={{ 
-            fontSize: '16px', 
-            fontWeight: '600',
-            color: '#111',
-            marginBottom: '16px',
-            marginTop: '24px'
-          }}>
-            Spesifikasi Lengkap
-          </h4>
-
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '0'
-          }}>
-            {Object.entries(productSpecs).map(([key, value]) => (
-              <div key={key} style={{
-                display: 'flex',
-                padding: '12px 0',
-                borderBottom: '1px solid #f0f0f0'
-              }}>
-                <span style={{
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  color: '#111',
-                  width: '180px'
-                }}>
-                  {key}
-                </span>
-                <span style={{
-                  fontSize: '13px',
-                  color: '#666',
-                  flex: 1
-                }}>
-                  {value}
-                </span>
-              </div>
-            ))}
           </div>
-
-          <div style={{
-            marginTop: '24px',
-            padding: '16px',
-            backgroundColor: '#fafafa',
-            borderRadius: '4px',
-            border: '1px solid #f0f0f0'
-          }}>
-            <h5 style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#111',
-              marginBottom: '10px',
-              marginTop: 0
-            }}>
-              📦 Informasi Tambahan
-            </h5>
-            <ul style={{
-              margin: 0,
-              paddingLeft: '20px',
-              color: '#666',
-              fontSize: '13px',
-              lineHeight: '1.8'
-            }}>
-              <li>Produk Original dan Berkualitas</li>
-              <li>Pengiriman Cepat dan Aman</li>
-              <li>Garansi Sesuai Ketentuan Toko</li>
-              <li>Proses Pengembalian Mudah</li>
-            </ul>
-          </div>
-        </div>
       )}
 
       {/* Reviews Tab */}
