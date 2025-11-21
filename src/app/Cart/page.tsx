@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2 } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
 import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
 import { useCartStore } from '@/store/cartStore';
+import { getAddresses } from '@/utils/userService';
 import Swal from 'sweetalert2';
 
 const ShoppingCartPage = () => {
@@ -174,6 +175,64 @@ const ShoppingCartPage = () => {
     }
   };
 
+  // Check if user has address before proceeding to checkout
+  const handleProceedToCheckout = async () => {
+    try {
+      // Show loading
+      Swal.fire({
+        title: 'Memeriksa alamat...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const addressResponse = await getAddresses();
+      
+      Swal.close();
+
+      if (!addressResponse.success || !addressResponse.data || addressResponse.data.length === 0) {
+        const result = await Swal.fire({
+          title: 'Alamat Belum Tersedia',
+          html: `
+            <div style="text-align: center;">
+              <div style="font-size: 48px; margin-bottom: 16px;">📍</div>
+              <p style="color: #666; margin-bottom: 8px;">
+                Anda belum memiliki alamat pengiriman.
+              </p>
+              <p style="color: #666;">
+                Silakan tambahkan alamat terlebih dahulu untuk melanjutkan checkout.
+              </p>
+            </div>
+          `,
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonColor: '#55B4E5',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: '<i class="fas fa-map-marker-alt"></i> Tambah Alamat',
+          cancelButtonText: 'Nanti Saja',
+          customClass: {
+            popup: 'swal-wide'
+          }
+        });
+
+        if (result.isConfirmed) {
+          router.push('/clientArea/address');
+        }
+      } else {
+        router.push('/Checkout');
+      }
+    } catch (error) {
+      console.error('Error checking address:', error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Terjadi kesalahan saat memeriksa alamat. Silakan coba lagi.',
+        icon: 'error',
+        confirmButtonColor: '#55B4E5',
+      });
+    }
+  };
+
   const shippingCost = cartItems.filter(item => item.status_pilih).length > 0 
     ? (deliveryType === 'standard' ? 50000 : deliveryType === 'express' ? 100000 : 0)
     : 0;
@@ -250,6 +309,10 @@ const ShoppingCartPage = () => {
           -moz-appearance: textfield;
         }
         
+        .swal-wide {
+          width: 500px !important;
+        }
+        
         @media (min-width: 768px) {
           .container-main {
             padding: 16px !important;
@@ -291,6 +354,9 @@ const ShoppingCartPage = () => {
           .product-info-row {
             flex-direction: column !important;
             gap: 12px !important;
+          }
+          .swal-wide {
+            width: 90% !important;
           }
         }
       `}</style>
@@ -669,7 +735,7 @@ const ShoppingCartPage = () => {
 
                 {/* Checkout Button */}
                 <button 
-                  onClick={() => router.push('/Checkout')}
+                  onClick={handleProceedToCheckout}
                   style={{ 
                     width: '100%', 
                     padding: '12px', 

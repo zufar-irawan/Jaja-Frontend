@@ -10,7 +10,6 @@ const DynamicCategoryPage = () => {
   const params = useParams();
   const router = useRouter();
   const categorySlug = params.slug as string;
-
   const [showFilter, setShowFilter] = useState(false);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [selectedStock, setSelectedStock] = useState<string>('');
@@ -22,10 +21,8 @@ const DynamicCategoryPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalProducts, setTotalProducts] = useState<number>(0);
   const [categoryInfo, setCategoryInfo] = useState<Category | null>(null);
-  
   const itemsPerPage = 15;
 
-  // Fetch products based on category and filters
   useEffect(() => {
     if (categorySlug) {
           fetchProducts();
@@ -115,7 +112,7 @@ const DynamicCategoryPage = () => {
   };
 
   const getPaginationRange = () => {
-    const delta = 1;
+    const delta = 1;  
     const range = [];
     const rangeWithDots = [];
     let l;
