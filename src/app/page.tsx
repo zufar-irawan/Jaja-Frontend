@@ -42,11 +42,11 @@ export default async function Home() {
                     Kategori pilihan
                 </header>
 
-                <div className="flex h-48 w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-5 overflow-x-auto md:flex-wrap md:overflow-y-auto">
+                <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-9 overflow-x-auto">
                     {categories.map((item, index) => (
                         <div
                             key={index}
-                            className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 sm:h-36 sm:w-36 cursor-pointer">
+                            className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 min-w-[100px] sm:min-w-[120px] cursor-pointer">
                             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
                                 <Image
                                     src={item.icon}
@@ -88,7 +88,7 @@ export default async function Home() {
                     </div>
 
                     {/* Product Item grid */}
-                    <div className="w-full grid grid-cols-2 gap-3 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-4">
+                    <div className="w-full grid grid-cols-2 gap-2 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-2">
                         {featuredProducts.map((product) => (
                             <ProductCard 
                                 key={`featured-${product.id_produk}`}
@@ -140,13 +140,13 @@ export default async function Home() {
             </section>
 
             {/* FOR YOU PRODUCTS */}
-            <section className="flex w-full flex-col items-center gap-y-6 py-15 px-4 sm:px-8 lg:px-20 xl:px-32">
+            <section className="flex w-full flex-col items-center gap-y-6 py-15 px-4 sm:px-8 lg:px-20 xl:px-40">
 
                 <header className='text-center text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl'>
                     Mungkin kamu juga suka
                 </header>
 
-                <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-3 xl:grid-cols-6">
+                <div className="grid w-full grid-cols-2 gap-6 sm:grid-cols-3 md:gap-8 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] xl:grid-cols-6">
                     {recommendedProducts.map((product) => (
                         <ProductCard 
                             key={`recommend-${product.id_produk}`}
@@ -162,8 +162,8 @@ export default async function Home() {
                     ))}
                 </div>
 
-                <div className='flex w-full justify-center'>
-                    <div className='w-fit rounded-4xl bg-blue-400 px-8 py-4 text-center font-bold text-gray-50 transition-colors hover:bg-blue-300 cursor-pointer'>
+                <div className='flex w-full justify-center pt-4'>
+                    <div className='w-fit rounded-full bg-blue-400 px-8 py-3 text-center font-bold text-gray-50 transition-colors hover:bg-blue-500 cursor-pointer'>
                         Lihat lainnya
                     </div>
                 </div>
