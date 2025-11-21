@@ -158,7 +158,7 @@ export default function JajaNavbar() {
     setShowCategoryMenu(false);
     setIsMenuOpen(false);
     setHoveredCategory(null);
-    router.push(`/category/${category.slug_kategori}`);
+    router.push(`/Category/${category.slug_kategori}`);
   };
 
   const toggleMobileCategory = (categoryId: number) => {

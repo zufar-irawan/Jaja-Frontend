@@ -16,7 +16,6 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ item }: ProductCardProps) {
-    // If item or slug is not available, don't render the card.
     if (!item?.slug) {
         return null
     }

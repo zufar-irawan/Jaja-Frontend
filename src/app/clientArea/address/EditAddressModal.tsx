@@ -33,6 +33,19 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
         return []
     }
 
+    const normalizePhone = (value?: string | null) => {
+        if (!value) return ""
+        const digits = value.replace(/[^0-9]/g, "")
+        const withoutCountry = digits.startsWith("62") ? digits.slice(2) : digits
+        return withoutCountry.replace(/^0+/, "")
+    }
+
+    const sanitizePhoneInput = (value: string) => {
+        const digits = value.replace(/[^0-9]/g, "")
+        const withoutCountry = digits.startsWith("62") ? digits.slice(2) : digits
+        return withoutCountry.replace(/^0+/, "")
+    }
+
     // Form state
     const [form, setForm] = useState<{
         nama: string
@@ -104,7 +117,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                 setForm(prev => ({
                     ...prev,
                     nama: address.nama,
-                    no_telepon: address.no_telepon,
+                    no_telepon: normalizePhone(address.no_telepon),
                     alamat_lengkap: address.alamat_lengkap,
                     label: resolveInternalLabel(address.label),
                     nama_alamat: address.nama_alamat,
@@ -246,7 +259,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
         return {
             label: labelDisplay,
             nama: form.nama,
-            no_telepon: form.no_telepon,
+            no_telepon: "+62" + form.no_telepon,
             alamat_lengkap: form.alamat_lengkap,
             provinsi_id: Number(form.provinsi_id),
             provinsi: form.provinsi,
@@ -380,14 +393,18 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                         </svg>
                                         Nomor Telepon <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        id="phone"
-                                        type="tel"
-                                        placeholder="08xxxxxxxxxx"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                                        value={form.no_telepon}
-                                        onChange={(e) => updateField('no_telepon', e.target.value)}
-                                    />
+                                    <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all overflow-hidden">
+                                        <span className="flex items-center px-3 text-sm bg-gray-100 text-gray-600 select-none">+62</span>
+                                        <input
+                                            id="phone"
+                                            type="tel"
+                                            inputMode="tel"
+                                            placeholder="812xxxxxxxx"
+                                            className="w-full px-3 py-2.5 text-sm outline-none"
+                                            value={form.no_telepon}
+                                            onChange={(e) => updateField('no_telepon', sanitizePhoneInput(e.target.value))}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label htmlFor="alias" className="text-sm font-medium text-gray-700 flex items-center">

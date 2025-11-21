@@ -14,7 +14,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Jaja ID",
   description: "Jaja id E-Commerce app",
-};
+};  
 
 export default function RootLayout({
   children,
