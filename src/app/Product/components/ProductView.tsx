@@ -254,19 +254,27 @@ export default function ProductView({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                overflowX: "auto",
+                paddingBottom: "8px",
+              }}
+            >
               {relatedProducts.map((prod) => (
-                <ProductCard
-                  key={prod.id_produk}
-                  item={{
-                    id: prod.id_produk,
-                    name: prod.nama_produk,
-                    price: prod.harga,
-                    image: prod.covers?.[0]?.foto || "",
-                    address: prod.tokos?.alamat_toko || "",
-                    slug: prod.slug_produk,
-                  }}
-                />
+                <div key={prod.id_produk} style={{ minWidth: "250px" }}>
+                  <ProductCard
+                    item={{
+                      id: prod.id_produk,
+                      name: prod.nama_produk,
+                      price: prod.harga,
+                      image: prod.covers?.[0]?.foto || "",
+                      address: prod.tokos?.alamat_toko || "",
+                      slug: prod.slug_produk,
+                    }}
+                  />
+                </div>
               ))}
             </div>
           </div>
