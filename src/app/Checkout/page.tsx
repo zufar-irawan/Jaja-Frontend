@@ -94,6 +94,7 @@ const CheckoutPage = () => {
           return;
         }
 
+
         setCartItems(cartResponse.data.items as CartItem[]);
         setSelectedItems(selected as CartItem[]);
 

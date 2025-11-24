@@ -66,7 +66,7 @@ export default function ProductInfo({
   const discount = Math.round(
     ((currentVariant.originalPrice - currentVariant.price) /
       currentVariant.originalPrice) *
-      100,
+    100,
   );
 
   const handleVariantChange = (variantName: string) => {
@@ -83,7 +83,7 @@ export default function ProductInfo({
 
   const handleAddToCart = async () => {
     // Check if user is authenticated
-    if (!isAuthenticated()) {
+    if (!(await isAuthenticated())) {
       const result = await Swal.fire({
         icon: "warning",
         title:
@@ -162,7 +162,7 @@ export default function ProductInfo({
 
   const handleBuyNow = async () => {
     // Check if user is authenticated
-    if (!isAuthenticated()) {
+    if (!(await isAuthenticated())) {
       const result = await Swal.fire({
         icon: "warning",
         title:
