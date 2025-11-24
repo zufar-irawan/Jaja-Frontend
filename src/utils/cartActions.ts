@@ -11,7 +11,6 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
 
         console.log('Cart API Response:', response.data)
 
-        // Handle different response structures
         let items: CartItem[] = []
 
         if (response.data.data) {
@@ -22,7 +21,6 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
             items = response.data
         }
 
-        // Ensure each item has proper structure and defaults
         items = (items as any[]).map(item => {
             const { toko, ...rest } = item;
             return {
@@ -80,13 +78,11 @@ export async function addToCart(data: AddCartData): Promise<CartResponse> {
     try {
         console.log('Adding to cart:', data)
 
-        // Prepare the request body - only include fields that have values
         const requestBody: any = {
             id_produk: data.id_produk,
             qty: data.qty || 1,
         }
 
-        // Add optional fields only if they exist
         if (data.id_variasi) requestBody.id_variasi = data.id_variasi
         if (data.model_variasi) requestBody.model_variasi = data.model_variasi
         if (data.warna_variasi) requestBody.warna_variasi = data.warna_variasi

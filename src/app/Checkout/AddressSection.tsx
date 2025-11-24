@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, } from "react";
 import { MapPin, Plus, Edit2 } from "lucide-react";
 import { getAddresses, type Address } from "@/utils/userService";
 import { useRouter } from "next/navigation";
@@ -69,7 +69,6 @@ export default function AddressSection({
   const selectAddress = (address: Address) => {
     setSelectedAddressId(address.id_alamat);
 
-    // Normalize phone number - remove +62 prefix if exists
     const phoneNumber = address.no_telepon.startsWith("+62")
       ? address.no_telepon.slice(3)
       : address.no_telepon.startsWith("62")

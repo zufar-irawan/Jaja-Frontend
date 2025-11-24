@@ -5,6 +5,7 @@ import { formatNumber } from "@/utils/format";
 import { isAuthenticated } from "@/utils/clientAuth";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import Image from "next/image";
 
 interface StoreInfoProps {
   storeInfo: {
@@ -82,7 +83,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
       }}
     >
       <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <img
+        <Image
           src={storeInfo.image}
           alt={storeInfo.name}
           style={{

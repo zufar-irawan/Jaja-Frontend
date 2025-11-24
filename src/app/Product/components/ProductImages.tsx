@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 
 interface ProductImagesProps {
   images: string[]
@@ -51,7 +52,7 @@ export default function ProductImages({
             {discount}% OFF
           </div>
         )}
-        <img 
+        <Image 
           src={images[selectedImage]} 
           alt="Product"
           style={{ 
@@ -79,7 +80,7 @@ export default function ProductImages({
               transition: 'all 0.2s ease'
             }}
           >
-            <img 
+            <Image
               src={img} 
               alt={`Preview ${idx + 1}`}
               style={{ 

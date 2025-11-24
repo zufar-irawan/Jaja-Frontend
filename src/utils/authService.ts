@@ -56,7 +56,6 @@ export async function login(data: LoginData): Promise<AuthResponse> {
     if (response.data.token) {
       const cookieStore = await cookies();
       
-      // Set httpOnly token for security
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -64,7 +63,6 @@ export async function login(data: LoginData): Promise<AuthResponse> {
         maxAge: 60 * 60 * 24 * 7,
       });
 
-      // Set flag cookie that can be read by client-side JS
       cookieStore.set("is-authenticated", "true", {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production",
@@ -135,7 +133,6 @@ export async function loginWithGoogle(
     if (response.data.token) {
       const cookieStore = await cookies();
       
-      // Set httpOnly token for security
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -143,7 +140,6 @@ export async function loginWithGoogle(
         maxAge: 60 * 60 * 24 * 7,
       });
 
-      // Set flag cookie that can be read by client-side JS
       cookieStore.set("is-authenticated", "true", {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production",

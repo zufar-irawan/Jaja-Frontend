@@ -3,32 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Image from "next/image";
 import { getUserProfile, type UserProfile } from "@/utils/userService";
 import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
-import {
-  performGlobalSearch,
-  type SearchResults,
-  type Product,
-  type Category as SearchCategory,
-} from "@/utils/productService";
-import {
-  ShoppingCart,
-  Mail,
-  Bell,
-  ChevronDown,
-  Menu,
-  X,
-  User,
-  Package,
-  LogOut,
-  ChevronRight,
-  Search,
-  Store,
-  Grid,
-  TrendingUp,
-  Loader2,
-} from "lucide-react";
+import { performGlobalSearch, type SearchResults, type Product, type Category as SearchCategory, } from "@/utils/productService";
+import { ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight, Search, Store, Grid, TrendingUp, Loader2,} from "lucide-react";
 
 interface Category {
   id_kategori: number;
@@ -335,7 +315,7 @@ export default function JajaNavbar() {
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => router.push("/")}
             >
-              <img
+              <Image
                 src="/images/logo.webp"
                 alt="Jaja.id Logo"
                 className="h-17 w-auto object-contain transition-transform group-hover:scale-105"
@@ -546,7 +526,7 @@ export default function JajaNavbar() {
                                 className="flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer"
                                 onClick={() => setIsSearchOpen(false)}
                               >
-                                <img
+                                <Image
                                   src={
                                     product.covers?.[0]?.foto ||
                                     "/api/placeholder/60/60"
@@ -610,7 +590,7 @@ export default function JajaNavbar() {
                                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
-                                  <img
+                                  <Image
                                     src={store.foto || "/api/placeholder/50/50"}
                                     alt={store.nama_toko}
                                     className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
@@ -733,7 +713,7 @@ export default function JajaNavbar() {
                     className="flex items-center space-x-2 hover:bg-gray-50 px-3 py-2 rounded-full transition-all group border-2 border-transparent hover:border-[#55B4E5]/20"
                   >
                     {userProfile.foto_profil ? (
-                      <img
+                      <Image
                         src={userProfile.foto_profil}
                         alt={getUserDisplayName()}
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
