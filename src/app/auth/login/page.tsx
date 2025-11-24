@@ -52,7 +52,7 @@ export default function Login() {
 
         router.push("/");
         router.refresh();
-      } else {                    
+      } else {
         setError(result.message || "Email atau password salah");
       }
     } catch (err) {
@@ -63,7 +63,7 @@ export default function Login() {
   };
 
   const handleGoogleSuccess = async (
-    credentialResponse: CredentialResponse
+    credentialResponse: CredentialResponse,
   ) => {
     if (!credentialResponse.credential) {
       setError("Gagal mendapatkan credential dari Google");
@@ -140,8 +140,6 @@ export default function Login() {
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-
-          
 
           {/* Login Form */}
           <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
