@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -7,8 +6,29 @@ import axios from "axios";
 import { getUserProfile, type UserProfile } from "@/utils/userService";
 import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
-import { performGlobalSearch, type SearchResults, type Product, type Category as SearchCategory, } from "@/utils/productService";
-import { ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight, Search, Store, Grid, TrendingUp, Loader2 } from "lucide-react";
+import {
+  performGlobalSearch,
+  type SearchResults,
+  type Product,
+  type Category as SearchCategory,
+} from "@/utils/productService";
+import {
+  ShoppingCart,
+  Mail,
+  Bell,
+  ChevronDown,
+  Menu,
+  X,
+  User,
+  Package,
+  LogOut,
+  ChevronRight,
+  Search,
+  Store,
+  Grid,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
 
 interface Category {
   id_kategori: number;
@@ -117,6 +137,19 @@ export default function JajaNavbar() {
         if (result.success && result.data) {
           setUserProfile(result.data);
           setIsLoggedIn(true);
+
+          // Sync cookie state - set is-authenticated cookie if not present
+          const cookies = document.cookie.split(";");
+          const hasAuthCookie = cookies.some((cookie) =>
+            cookie.trim().startsWith("is-authenticated="),
+          );
+
+          if (!hasAuthCookie) {
+            // Set cookie with 7 days expiry
+            const maxAge = 60 * 60 * 24 * 7;
+            document.cookie = `is-authenticated=true; path=/; max-age=${maxAge}; SameSite=Lax`;
+            console.log("Auth cookie synced after profile fetch");
+          }
         } else {
           setIsLoggedIn(false);
           setUserProfile(null);
@@ -141,7 +174,7 @@ export default function JajaNavbar() {
       try {
         setIsLoadingCategories(true);
         const res = await axios.get(
-          "https://kb8334ks-3000.asse.devtunnels.ms/main/kategories/mega-menu"
+          "https://kb8334ks-3000.asse.devtunnels.ms/main/kategories/mega-menu",
         );
         const cleanedData = cleanCategoryData(res.data);
         setCategories(cleanedData);
@@ -165,13 +198,18 @@ export default function JajaNavbar() {
     setExpandedMobileCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+        : [...prev, categoryId],
     );
   };
 
   const handleLogout = async () => {
     try {
       await logout();
+
+      // Clear client-side auth cookie
+      document.cookie =
+        "is-authenticated=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
       setIsLoggedIn(false);
       setUserProfile(null);
       setShowUserMenu(false);
@@ -221,7 +259,7 @@ export default function JajaNavbar() {
         </mark>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -254,10 +292,11 @@ export default function JajaNavbar() {
           <div key={child.id_kategori}>
             <button
               onClick={() => handleCategoryClick(child)}
-              className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${level === 0
-                ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
-                : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
-                } rounded-lg`}
+              className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${
+                level === 0
+                  ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+                  : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+              } rounded-lg`}
             >
               <span className="flex items-center">
                 {level > 0 && <span className="mr-2 text-gray-400">•</span>}
@@ -274,8 +313,7 @@ export default function JajaNavbar() {
   };
 
   const hasSearchResults =
-    searchResults.stores.length > 0 ||
-    searchResults.categories.length > 0;
+    searchResults.stores.length > 0 || searchResults.categories.length > 0;
 
   return (
     <nav className="bg-white shadow-lg relative z-50">
@@ -322,8 +360,9 @@ export default function JajaNavbar() {
                     Kategori
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-500 group-hover:text-[#55B4E5] transition-transform ${showCategoryMenu ? "rotate-180" : ""
-                      }`}
+                    className={`w-4 h-4 text-gray-500 group-hover:text-[#55B4E5] transition-transform ${
+                      showCategoryMenu ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
@@ -353,10 +392,11 @@ export default function JajaNavbar() {
                               onMouseEnter={() =>
                                 setHoveredCategory(category.id_kategori)
                               }
-                              className={`w-full text-left px-5 py-3.5 transition-all flex items-center justify-between group border-l-4 ${hoveredCategory === category.id_kategori
-                                ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
-                                : "border-transparent text-gray-700 hover:bg-white/80"
-                                }`}
+                              className={`w-full text-left px-5 py-3.5 transition-all flex items-center justify-between group border-l-4 ${
+                                hoveredCategory === category.id_kategori
+                                  ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
+                                  : "border-transparent text-gray-700 hover:bg-white/80"
+                              }`}
                             >
                               <span className="font-medium text-sm">
                                 {category.kategori}
@@ -364,10 +404,11 @@ export default function JajaNavbar() {
                               {category.children &&
                                 category.children.length > 0 && (
                                   <ChevronRight
-                                    className={`w-4 h-4 transition-all ${hoveredCategory === category.id_kategori
-                                      ? "text-[#55B4E5] translate-x-0.5"
-                                      : "text-gray-400"
-                                      }`}
+                                    className={`w-4 h-4 transition-all ${
+                                      hoveredCategory === category.id_kategori
+                                        ? "text-[#55B4E5] translate-x-0.5"
+                                        : "text-gray-400"
+                                    }`}
                                   />
                                 )}
                             </button>
@@ -378,7 +419,7 @@ export default function JajaNavbar() {
                           {hoveredCategory ? (
                             (() => {
                               const activeCategory = categories.find(
-                                (cat) => cat.id_kategori === hoveredCategory
+                                (cat) => cat.id_kategori === hoveredCategory,
                               );
                               if (
                                 !activeCategory ||
@@ -517,7 +558,7 @@ export default function JajaNavbar() {
                                   <p className="font-medium text-gray-800 text-sm line-clamp-1 group-hover:text-[#55B4E5] transition-colors">
                                     {highlightText(
                                       product.nama_produk,
-                                      searchQuery
+                                      searchQuery,
                                     )}
                                   </p>
                                   <div className="flex items-center gap-2 mt-1">
@@ -578,7 +619,7 @@ export default function JajaNavbar() {
                                     <p className="font-semibold text-gray-800 text-sm group-hover:text-[#FBB338] transition-colors">
                                       {highlightText(
                                         store.nama_toko,
-                                        searchQuery
+                                        searchQuery,
                                       )}
                                     </p>
                                     {store.wilayah && (
@@ -594,7 +635,7 @@ export default function JajaNavbar() {
                                     )}
                                   </div>
                                 </a>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -627,11 +668,11 @@ export default function JajaNavbar() {
                                   <p className="font-medium text-gray-800 text-sm group-hover:text-purple-600 transition-colors">
                                     {highlightText(
                                       category.kategori,
-                                      searchQuery
+                                      searchQuery,
                                     )}
                                   </p>
                                 </a>
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -706,8 +747,9 @@ export default function JajaNavbar() {
                       {getUserDisplayName()}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-600 transition-transform ${showUserMenu ? "rotate-180" : ""
-                        }`}
+                      className={`w-4 h-4 text-gray-600 transition-transform ${
+                        showUserMenu ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
@@ -837,12 +879,13 @@ export default function JajaNavbar() {
                                 className="px-4 py-3.5 text-gray-500 hover:text-[#55B4E5] hover:bg-gray-50 transition-all"
                               >
                                 <ChevronDown
-                                  className={`w-5 h-5 transition-transform duration-200 ${expandedMobileCategories.includes(
-                                    category.id_kategori
-                                  )
-                                    ? "rotate-180"
-                                    : ""
-                                    }`}
+                                  className={`w-5 h-5 transition-transform duration-200 ${
+                                    expandedMobileCategories.includes(
+                                      category.id_kategori,
+                                    )
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
                                 />
                               </button>
                             )}
@@ -851,7 +894,7 @@ export default function JajaNavbar() {
                         {category.children &&
                           category.children.length > 0 &&
                           expandedMobileCategories.includes(
-                            category.id_kategori
+                            category.id_kategori,
                           ) && (
                             <div className="bg-gray-50 px-3 py-3 border-t border-gray-200">
                               {renderSubcategories(category.children)}

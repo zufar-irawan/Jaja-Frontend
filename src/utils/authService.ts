@@ -55,8 +55,18 @@ export async function login(data: LoginData): Promise<AuthResponse> {
 
     if (response.data.token) {
       const cookieStore = await cookies();
+      
+      // Set httpOnly token for security
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      // Set flag cookie that can be read by client-side JS
+      cookieStore.set("is-authenticated", "true", {
+        httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
@@ -124,8 +134,18 @@ export async function loginWithGoogle(
 
     if (response.data.token) {
       const cookieStore = await cookies();
+      
+      // Set httpOnly token for security
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      // Set flag cookie that can be read by client-side JS
+      cookieStore.set("is-authenticated", "true", {
+        httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
@@ -150,11 +170,13 @@ export async function loginWithGoogle(
 export async function logout(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
+  cookieStore.delete("is-authenticated");
 }
 
 export async function clearAuthCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
+  cookieStore.delete("is-authenticated");
 }
 
 export async function checkAuthStatus(): Promise<boolean> {
