@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login, loginWithGoogle } from "@/utils/authService";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
@@ -106,7 +105,7 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-8">
-            <Image
+            <img
               src="/images/logo.webp"
               alt="Jaja.id Logo"
               className="h-16 mb-2"
@@ -276,7 +275,7 @@ export default function Login() {
         <div className="relative z-10 text-center text-white max-w-lg">
           {/* Verified Badge */}
           <div className="flex justify-center mb-8">
-            <Image
+            <img
               src="/images/verified-badge.webp"
               alt="Verified Badge"
               className="w-32 h-32 drop-shadow-2xl"

@@ -5,7 +5,6 @@ import { formatNumber } from "@/utils/format";
 import { isAuthenticated } from "@/utils/clientAuth";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import Image from "next/image";
 
 interface StoreInfoProps {
   storeInfo: {
@@ -33,7 +32,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
   const handleVisitStore = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    if (!(await isAuthenticated())) {
+    if (!isAuthenticated()) {
       const result = await Swal.fire({
         title: "Anda harus login terlebih dahulu untuk mengunjungi toko ini.",
         icon: "warning",
@@ -83,7 +82,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
       }}
     >
       <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <Image
+        <img
           src={storeInfo.image}
           alt={storeInfo.name}
           style={{

@@ -35,7 +35,7 @@ export default function Verification() {
   }, [router]);
 
   const handleTokenChange = (value: string) => {
-    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, "");
     setToken(cleanValue);
   };
 
@@ -53,7 +53,7 @@ export default function Verification() {
       try {
         const { forgotPassword } = await import("@/utils/authService");
         const result = await forgotPassword({ email });
-        
+
         if (result.success) {
           setResendTimer(60);
           alert("Token verifikasi telah dikirim ulang ke email Anda!");
@@ -92,7 +92,7 @@ export default function Verification() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSubmit(e as any);
     }
   };
@@ -242,8 +242,8 @@ export default function Verification() {
 
           <h2 className="text-4xl font-bold mb-4">Verifikasi Email</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Kami telah mengirimkan token verifikasi ke email Anda.
-            Silakan periksa inbox atau folder spam Anda.
+            Kami telah mengirimkan token verifikasi ke email Anda. Silakan
+            periksa inbox atau folder spam Anda.
           </p>
 
           {/* Features */}

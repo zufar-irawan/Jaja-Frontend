@@ -59,6 +59,7 @@ export default function ProductInfo({
   );
   const [quantity, setQuantity] = useState(initialQuantity);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   const router = useRouter();
 
   const currentVariant =
@@ -66,7 +67,7 @@ export default function ProductInfo({
   const discount = Math.round(
     ((currentVariant.originalPrice - currentVariant.price) /
       currentVariant.originalPrice) *
-    100,
+      100,
   );
 
   const handleVariantChange = (variantName: string) => {
@@ -182,7 +183,7 @@ export default function ProductInfo({
     }
 
     try {
-      setIsAddingToCart(true);
+      setIsBuyingNow(true);
 
       const cartData = {
         id_produk: productId,
@@ -235,7 +236,7 @@ export default function ProductInfo({
         });
       }
     } finally {
-      setIsAddingToCart(false);
+      setIsBuyingNow(false);
     }
   };
 
@@ -570,7 +571,7 @@ export default function ProductInfo({
         <div style={{ display: "flex", gap: "12px" }}>
           <button
             onClick={handleBuyNow}
-            disabled={isAddingToCart || productStock === 0}
+            disabled={isBuyingNow || productStock === 0}
             style={{
               flex: 1,
               background:
@@ -584,18 +585,16 @@ export default function ProductInfo({
               fontSize: "14px",
               fontWeight: "700",
               cursor:
-                productStock === 0 || isAddingToCart
-                  ? "not-allowed"
-                  : "pointer",
+                productStock === 0 || isBuyingNow ? "not-allowed" : "pointer",
               transition: "all 0.3s ease",
               boxShadow:
                 productStock === 0
                   ? "none"
                   : "0 4px 12px rgba(251, 179, 56, 0.3)",
-              opacity: isAddingToCart ? 0.7 : 1,
+              opacity: isBuyingNow ? 0.7 : 1,
             }}
           >
-            {isAddingToCart
+            {isBuyingNow
               ? "Memproses..."
               : productStock === 0
                 ? "Stok Habis"

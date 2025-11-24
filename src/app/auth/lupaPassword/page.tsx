@@ -31,7 +31,7 @@ export default function LupaPassword() {
 
     try {
       const result = await forgotPassword({ email });
-      
+
       if (result.success) {
         sessionStorage.setItem("resetEmail", email);
         router.push("/auth/lupaPassword/verification");
@@ -151,10 +151,10 @@ export default function LupaPassword() {
           <div className="flex justify-center mb-8">
             {/* Ikon lingkaran putih dengan SVG user + gembok */}
             <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl">
-              <img 
-                src="/svg/user_lock_icon.svg" 
+              <img
+                src="/svg/user_lock_icon.svg"
                 alt="User Lock Icon"
-                className="w-20 h-20" 
+                className="w-20 h-20"
               />
             </div>
           </div>

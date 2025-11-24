@@ -62,7 +62,7 @@ export default function NewPassword() {
       const result = await resetPassword({
         token: token,
         email: email,
-        newPassword: password
+        newPassword: password,
       });
 
       if (result.success) {
@@ -70,10 +70,15 @@ export default function NewPassword() {
         sessionStorage.removeItem("resetEmail");
         sessionStorage.removeItem("verificationToken");
 
-        alert("Password berhasil diubah! Silakan login dengan password baru Anda.");
+        alert(
+          "Password berhasil diubah! Silakan login dengan password baru Anda.",
+        );
         router.push("/auth/login");
       } else {
-        setError(result.message || "Gagal mengubah password. Token mungkin tidak valid atau sudah kadaluarsa.");
+        setError(
+          result.message ||
+            "Gagal mengubah password. Token mungkin tidak valid atau sudah kadaluarsa.",
+        );
       }
     } catch (err) {
       setError("Terjadi kesalahan. Silakan coba lagi.");
@@ -83,7 +88,7 @@ export default function NewPassword() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSubmit(e as any);
     }
   };
@@ -243,11 +248,14 @@ export default function NewPassword() {
                   ></div>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password)
+                  {password.length >= 8 &&
+                  /[A-Z]/.test(password) &&
+                  /[a-z]/.test(password) &&
+                  /\d/.test(password)
                     ? "Password kuat"
                     : password.length >= 5
-                    ? "Password sedang"
-                    : "Password lemah"}
+                      ? "Password sedang"
+                      : "Password lemah"}
                 </div>
               </div>
             )}

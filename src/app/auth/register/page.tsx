@@ -85,7 +85,7 @@ export default function Register() {
   };
 
   const handleGoogleSuccess = async (
-    credentialResponse: CredentialResponse
+    credentialResponse: CredentialResponse,
   ) => {
     if (!credentialResponse.credential) {
       setError("Gagal mendapatkan credential dari Google");

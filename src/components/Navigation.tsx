@@ -3,12 +3,53 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Image from "next/image";
 import { getUserProfile, type UserProfile } from "@/utils/userService";
 import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
-import { performGlobalSearch, type SearchResults, type Product, type Category as SearchCategory, } from "@/utils/productService";
-import { ShoppingCart, Mail, Bell, ChevronDown, Menu, X, User, Package, LogOut, ChevronRight, Search, Store, Grid, TrendingUp, Loader2,} from "lucide-react";
+import {
+  performGlobalSearch,
+  type SearchResults,
+  type Product,
+  type Category as SearchCategory,
+} from "@/utils/productService";
+import {
+  ShoppingCart,
+  Mail,
+  Bell,
+  ChevronDown,
+  Menu,
+  X,
+  User,
+  Package,
+  LogOut,
+  ChevronRight,
+  Search,
+  Store,
+  Grid,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 interface Category {
   id_kategori: number;
@@ -113,25 +154,12 @@ export default function JajaNavbar() {
     async function fetchUserProfile() {
       try {
         setIsLoadingUser(true);
-        const result = await getUserProfile();
+const result = await getUserProfile();
         if (result.success && result.data) {
           setUserProfile(result.data);
           setIsLoggedIn(true);
-
-          // Sync cookie state - set is-authenticated cookie if not present
-          const cookies = document.cookie.split(";");
-          const hasAuthCookie = cookies.some((cookie) =>
-            cookie.trim().startsWith("is-authenticated="),
-          );
-
-          if (!hasAuthCookie) {
-            // Set cookie with 7 days expiry
-            const maxAge = 60 * 60 * 24 * 7;
-            document.cookie = `is-authenticated=true; path=/; max-age=${maxAge}; SameSite=Lax`;
-            console.log("Auth cookie synced after profile fetch");
-          }
-        } else {
-          setIsLoggedIn(false);
+} else {
+          set,IsLoggedIn(false);
           setUserProfile(null);
         }
       } catch (error) {
@@ -185,12 +213,8 @@ export default function JajaNavbar() {
   const handleLogout = async () => {
     try {
       await logout();
-
-      // Clear client-side auth cookie
-      document.cookie =
-        "is-authenticated=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-      setIsLoggedIn(false);
+      set
+        IsLoggedIn(false);
       setUserProfile(null);
       setShowUserMenu(false);
       router.push("/");
@@ -315,7 +339,7 @@ export default function JajaNavbar() {
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => router.push("/")}
             >
-              <Image
+              <img
                 src="/images/logo.webp"
                 alt="Jaja.id Logo"
                 className="h-17 w-auto object-contain transition-transform group-hover:scale-105"
@@ -526,7 +550,7 @@ export default function JajaNavbar() {
                                 className="flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer"
                                 onClick={() => setIsSearchOpen(false)}
                               >
-                                <Image
+                                <img
                                   src={
                                     product.covers?.[0]?.foto ||
                                     "/api/placeholder/60/60"
@@ -590,7 +614,7 @@ export default function JajaNavbar() {
                                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
-                                  <Image
+                                  <img
                                     src={store.foto || "/api/placeholder/50/50"}
                                     alt={store.nama_toko}
                                     className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
@@ -713,7 +737,7 @@ export default function JajaNavbar() {
                     className="flex items-center space-x-2 hover:bg-gray-50 px-3 py-2 rounded-full transition-all group border-2 border-transparent hover:border-[#55B4E5]/20"
                   >
                     {userProfile.foto_profil ? (
-                      <Image
+                      <img
                         src={userProfile.foto_profil}
                         alt={getUserDisplayName()}
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-md"
