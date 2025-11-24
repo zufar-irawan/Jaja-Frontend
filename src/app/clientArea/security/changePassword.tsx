@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { resetPassword } from "@/utils/userService";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { login, logout, resetPassword } from "@/utils/authService";
 import { useClientArea } from "../ClientAreaContext";
 
 interface ChangePasswordProps {
@@ -20,6 +22,7 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
     const [success, setSuccess] = useState<string | null>(null);
 
     const { user } = useClientArea()
+    const router = useRouter()
 
     // Close modal on Escape key
     useEffect(() => {
@@ -53,20 +56,69 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
         setIsSubmitting(true);
 
         try {
-            const response = await resetPassword({
-                email: user?.email || "",
-                token: "",
-                new_password: newPassword,
-            });
-
-            if (!response.success) {
-                throw new Error(response.message || "Gagal mengubah kata sandi.");
+            if (!user?.email) {
+                throw new Error("Email pengguna tidak ditemukan.");
             }
 
-            setSuccess(response.message || "Kata sandi berhasil diubah.");
+            const loginResponse = await login({
+                email: user.email,
+                password: oldPassword,
+            });
+
+            if (!loginResponse.success || !loginResponse.token) {
+                throw new Error(loginResponse.message || "Kata sandi lama salah.");
+            }
+
+            const resetResponse = await resetPassword({
+                email: user.email,
+                token: loginResponse.token,
+                newPassword,
+            });
+
+            if (!resetResponse.success) {
+                throw new Error(resetResponse.message || "Gagal mengubah kata sandi.");
+            }
+
+            setSuccess(resetResponse.message || "Kata sandi berhasil diubah.");
             setOldPassword("");
             setNewPassword("");
             setConfirmPassword("");
+
+            let timerInterval: ReturnType<typeof setInterval> | null = null;
+            const swalResult = await Swal.fire({
+                icon: "success",
+                title: "Berhasil memperbarui kata sandi",
+                html: 'Anda akan logout <strong>10</strong> detik lagi',
+                showCancelButton: true,
+                confirmButtonText: "Login sekarang",
+                cancelButtonText: "Tunggu",
+                timer: 10000,
+                timerProgressBar: true,
+                allowOutsideClick: false,
+                reverseButtons: true,
+                didOpen: () => {
+                    const strongEl = Swal.getHtmlContainer()?.querySelector("strong")
+                    let remaining = 10
+                    timerInterval = setInterval(() => {
+                        remaining -= 1
+                        if (strongEl) {
+                            strongEl.textContent = String(Math.max(remaining, 0))
+                        }
+                    }, 1000)
+                },
+                willClose: () => {
+                    if (timerInterval) clearInterval(timerInterval)
+                }
+            })
+
+            await logout()
+            onClose(false)
+
+            if (swalResult.isConfirmed) {
+                router.push("/auth/login")
+            } else {
+                router.refresh()
+            }
         } catch (err: any) {
             setError(err.message || "Terjadi kesalahan.");
         } finally {

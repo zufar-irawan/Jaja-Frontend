@@ -24,9 +24,6 @@ export default function SecurityPage() {
                             </div>
                             <div className="space-y-1">
                                 <h2 className="text-xl font-semibold text-gray-800">Password</h2>
-                                <p className="text-sm text-gray-600">
-                                    Terakhir diubah: 18/02/2019
-                                </p>
                                 <p className="text-xs text-gray-500">
                                     Gunakan password yang kuat untuk melindungi akun Anda
                                 </p>
