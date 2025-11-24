@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Plus, Edit2 } from "lucide-react";
 import { getAddresses, type Address } from "@/utils/userService";
 import { useRouter } from "next/navigation";
 
 interface AddressSectionProps {
   addressForm: {
+    id_alamat: number;
     nama_penerima: string;
     telp_penerima: string;
     alamat_lengkap: string;
   };
   setAddressForm: React.Dispatch<
     React.SetStateAction<{
+      id_alamat: number;
       nama_penerima: string;
       telp_penerima: string;
       alamat_lengkap: string;
@@ -22,7 +24,6 @@ interface AddressSectionProps {
   setCustomerNote: (note: string) => void;
 }
 
-// Save this as: app/Checkout/AddressSection.tsx
 export default function AddressSection({
   addressForm,
   setAddressForm,
@@ -69,6 +70,7 @@ export default function AddressSection({
   const selectAddress = (address: Address) => {
     setSelectedAddressId(address.id_alamat);
 
+    // Normalize phone number - remove +62 prefix if exists
     const phoneNumber = address.no_telepon.startsWith("+62")
       ? address.no_telepon.slice(3)
       : address.no_telepon.startsWith("62")
@@ -76,6 +78,7 @@ export default function AddressSection({
         : address.no_telepon;
 
     setAddressForm({
+      id_alamat: address.id_alamat, // Include address ID
       nama_penerima: address.nama,
       telp_penerima: phoneNumber,
       alamat_lengkap: `${address.alamat_lengkap}, ${address.kelurahan || address.kelurahann}, ${address.kecamatan}, ${address.kota}, ${address.provinsi} ${address.kode_pos}`,

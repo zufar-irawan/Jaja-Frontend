@@ -1,4 +1,4 @@
-//TYPES
+// TYPES
 import type { CartItem } from './cartService';
 
 export interface AddressData {
@@ -28,29 +28,96 @@ export interface ReviewCheckoutData {
   isCoin: boolean
 }
 
+// Updated interface to match API response
 export interface ReviewCheckoutResponse {
   success: boolean
   message?: string
   data?: {
-    items: CartItem[]
-    address: AddressData
-    shipping: ShippingOption[]
-    summary: {
-      subtotal: number
-      shipping: number
-      tax: number
-      discount: number
-      total: number
+    address: {
+      label: string
+      receiverName: string
+      phoneNumber: string
+      address: string
+      postalCode: string
+      latitude: string | null
+      longitude: string | null
     }
+    cart: Array<{
+      store: {
+        id: number
+      }
+      totalBelanja: number
+      totalWeight: number
+      products: Array<{
+        productId: number
+        cartId: number
+        image: string
+        badges: string[]
+        variant: string | null
+        qty: number
+        weight: number
+        isDiscount: boolean
+        discount: number
+        price: number
+        priceCurrencyFormat: string
+        priceDiscount: number
+        priceDiscountCurrencyFormat: string
+        subTotal: number
+        subTotalCurrencyFormat: string
+      }>
+      voucherStore: any[]
+      voucherStoreSelected: any | null
+      shippingOptions: any[]
+      shippingSelected: any | null
+      total: number
+      totalDiscount: number
+      voucherDiscount: number
+      totalCurrencyFormat: string
+      totalDiscountCurrencyFormat: string
+      voucherDiscountCurrencyFormat: string
+    }>
+    isGift: boolean
+    isCoin: boolean
+    totalAllProduct: number
+    voucherJaja: any[]
+    voucherJajaSelected: any
+    voucherDiscountJaja: number
+    voucherDiscountJajaCurrencyFormat: string
+    voucherJajaDesc: string
+    voucherJajaType: string
+    subTotal: number
+    subTotalCurrencyFormat: string
+    shippingCost: number
+    shippingCostCurrencyFormat: string
+    fee: number
+    feeCurrencyFormat: string
+    tax: number
+    taxFormat: string
+    taxAmount: number
+    taxAmountCurrencyFormat: string
+    coinRemaining: number
+    coinRemainingFormat: string
+    coinUsed: number
+    coinUsedFormat: string
+    total: number
+    totalCurrencyFormat: string
+    deliveryTimeOptions: Array<{
+      value: string
+      label: string
+      metadata?: any
+    }>
   }
 }
-
 
 export interface CheckoutData {
   alamat_pengiriman: string
   nama_penerima: string
   telp_penerima: string
-  selectedShipping: ShippingOption[]
+  selectedShipping: Array<{
+    storeId: number
+    service: string
+    courier: string
+  }>
   waktu_pengiriman: string
   diskon_voucher_toko: number
   pesan_customer?: string
@@ -60,7 +127,7 @@ export interface CheckoutResponse {
   success: boolean
   message?: string
   data?: {
-    order_ids: string[]
+    order_ids: string[] | string
     total_tagihan: number
     redirect_url?: string
   }
@@ -79,6 +146,132 @@ export interface PaymentResponse {
     order_id: string
     status: string
   }
+}
+
+// Transaction Detail Interfaces
+export interface TransactionDetail {
+  id_detail: number
+  id_data: number
+  id_flashsale: number | null
+  id_lelang: number | null
+  order_id: string
+  invoice: string
+  nama_produk: string
+  qty: string
+  berat: number
+  harga_aktif: string
+  harga_awal: string
+  total: number
+  koin: number
+  ongkir: number
+  expedisi: string
+  etd: string | null
+  waktu_kirim: string
+  tgl_kirim: string | null
+  deskripsi: string | null
+  nama_toko: string
+  logo_toko: string | null
+  status_pickup: string | null
+  status_pengiriman: string | null
+  sub_total: string
+  foto_produk: string | null
+  id_produk: number
+  id_kategori: number
+  id_variasi: number
+  id_toko: number
+  file_ebook: string | null
+  cetak_label: string
+  date_time_cetak_label: string | null
+  date_time_pengiriman: string | null
+  date_time_terima_expired: string | null
+  sudah_kirim: string
+  pesanan_diterima: string | null
+  date_time_pesanan_diterima: string | null
+  status_pesanan: string
+  id_customer: number | null
+  id_voucher_toko: number | null
+  id_package_toko: number | null
+  catatan_package_toko: string | null
+  pesan_customer_toko: string | null
+  greeting_card_gift: string | null
+  notifikasi_admin: string
+  notifikasi_seller: string
+  notifikasi_buyer: string
+  produk_batal: string
+  created_at: string
+  updated_at: string
+}
+
+export interface TransactionData {
+  id_data: number
+  invoice: string
+  billing_id: string
+  faktur: string
+  id_toko: number
+  order_id: string
+  created_date: string
+  created_time: string
+  id_admin: number | null
+  nama_admin: string | null
+  batas_pembayaran: string
+  id_customer: number
+  nama_customer: string
+  id_voucher: number | null
+  kode_voucher: string | null
+  diskon_voucher: number | null
+  diskon_voucher_toko: number
+  id_voucher_toko: number | null
+  alamat_pengiriman: string
+  latitude_receiver: string | null
+  longitude_receiver: string | null
+  postal_code_receiver: string | null
+  nama_penerima: string
+  telp_penerima: string
+  code_pengiriman: string | null
+  type_pengiriman: string | null
+  pengiriman: string
+  desc_pengiriman: string | null
+  waktu_pengiriman: string
+  tgl_pengiriman: string | null
+  status_transaksi: string
+  pesan_customer: string
+  id_package: number | null
+  pesan_package: string | null
+  biaya_package: number | null
+  tgl_pembayaran: string | null
+  jam_pembayaran: string | null
+  metode_pembayaran: string | null
+  koin: number | null
+  biaya_asuransi: number
+  biaya_ongkir: string
+  total_tagihan: string
+  total_pembayaran: string
+  judul_promo: string | null
+  total_ongkir: string
+  link_qrcode: string | null
+  notifikasi_admin: string
+  notifikasi_seller: string
+  notifikasi_buyer: string
+  nama_pengirim_dropship: string | null
+  nomor_telepon_dropship: string | null
+  bank_id: number | null
+  bank_code: string | null
+  estimasi_pengiriman_kurir: string | null
+  status_pembatalan: string | null
+  alasan_pembatalan: string | null
+  alasan_tolak: string | null
+  terima_pesanan: string
+  kendala_toko: string | null
+  confirm_date: string | null
+  status_komplain: string
+  complain_date: string | null
+  details: TransactionDetail[]
+}
+
+export interface TransactionResponse {
+  success: boolean
+  message?: string
+  data?: TransactionData
 }
 
 // HELPER FUNCTIONS
@@ -133,7 +326,6 @@ export function groupItemsByStore(items: CartItem[]) {
     return acc;
   }, {} as Record<number, { id_toko: number; nama_toko: string; items: CartItem[] }>);
 }
-
 
 export function calculateItemTotal(item: CartItem): number {
   const price = (typeof item.produk === 'object' ? item.produk.harga : item.harga) || 0;

@@ -1,7 +1,15 @@
 "use server";
 
 import api from "./api"
-import type { ReviewCheckoutData, ReviewCheckoutResponse, CheckoutData, CheckoutResponse, PaymentData, PaymentResponse } from './checkoutService'
+import type { 
+  ReviewCheckoutData, 
+  ReviewCheckoutResponse, 
+  CheckoutData, 
+  CheckoutResponse, 
+  PaymentData, 
+  PaymentResponse,
+  TransactionResponse 
+} from './checkoutService'
 
 export async function reviewCheckout(data: ReviewCheckoutData): Promise<ReviewCheckoutResponse> {
   try {
@@ -25,9 +33,10 @@ export async function reviewCheckout(data: ReviewCheckoutData): Promise<ReviewCh
 
 export async function processCheckout(data: CheckoutData): Promise<CheckoutResponse> {
   try {
-    console.log('Processing checkout:', data)
+    console.log('Processing checkout with data:', JSON.stringify(data, null, 2))
     const response = await api.post('/main/transaksi/checkout', data)
-    console.log('Checkout response:', response.data)
+    console.log('Checkout response status:', response.status)
+    console.log('Checkout response data:', JSON.stringify(response.data, null, 2))
 
     return {
       success: true,
@@ -35,10 +44,16 @@ export async function processCheckout(data: CheckoutData): Promise<CheckoutRespo
       data: response.data.data || response.data
     }
   } catch (error: any) {
-    console.error('Checkout error:', error.response?.data || error)
+    console.error('Checkout error details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    })
+    
     return {
       success: false,
-      message: error.response?.data?.message || 'Checkout gagal'
+      message: error.response?.data?.message || error.message || 'Checkout gagal'
     }
   }
 }
@@ -63,7 +78,7 @@ export async function processPayment(data: PaymentData): Promise<PaymentResponse
   }
 }
 
-export async function getTransactionDetail(transactionId: string) {
+export async function getTransactionDetail(transactionId: string): Promise<TransactionResponse> {
   try {
     const response = await api.get(`/main/transaksi/${transactionId}`)
 

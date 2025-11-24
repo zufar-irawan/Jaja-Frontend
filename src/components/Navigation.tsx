@@ -30,27 +30,6 @@ import {
   Loader2,
 } from "lucide-react";
 
- 
- 
- 
- 
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
 interface Category {
   id_kategori: number;
   kategori: string;
@@ -154,12 +133,25 @@ export default function JajaNavbar() {
     async function fetchUserProfile() {
       try {
         setIsLoadingUser(true);
-const result = await getUserProfile();
+        const result = await getUserProfile();
         if (result.success && result.data) {
           setUserProfile(result.data);
           setIsLoggedIn(true);
-} else {
-          set,IsLoggedIn(false);
+
+          // Sync cookie state - set is-authenticated cookie if not present
+          const cookies = document.cookie.split(";");
+          const hasAuthCookie = cookies.some((cookie) =>
+            cookie.trim().startsWith("is-authenticated="),
+          );
+
+          if (!hasAuthCookie) {
+            // Set cookie with 7 days expiry
+            const maxAge = 60 * 60 * 24 * 7;
+            document.cookie = `is-authenticated=true; path=/; max-age=${maxAge}; SameSite=Lax`;
+            console.log("Auth cookie synced after profile fetch");
+          }
+        } else {
+          setIsLoggedIn(false);
           setUserProfile(null);
         }
       } catch (error) {
@@ -213,8 +205,12 @@ const result = await getUserProfile();
   const handleLogout = async () => {
     try {
       await logout();
-      set
-        IsLoggedIn(false);
+
+      // Clear client-side auth cookie
+      document.cookie =
+        "is-authenticated=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      setIsLoggedIn(false);
       setUserProfile(null);
       setShowUserMenu(false);
       router.push("/");
