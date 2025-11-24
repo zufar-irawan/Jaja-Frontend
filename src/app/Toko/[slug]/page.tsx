@@ -1,9 +1,10 @@
 import React from 'react';
-import { Store, MapPin, Clock, Star, Package, MessageCircle, Share2, Heart, Award, TrendingUp, Truck, Search, Filter, ChevronDown, Grid, List, ShoppingCart, Zap, BadgeCheck } from 'lucide-react';
+import { Store, MapPin, Clock, Star, Package, MessageCircle, Share2, Heart, Award, TrendingUp, Truck, Search, Filter, ChevronDown, ChevronUp, Grid, List, ShoppingCart, Zap, BadgeCheck } from 'lucide-react';
 import { getTokoBySlug, getTokoProducts, getOperationalDays, getKurirList, getTokoPhotoUrl, isTokoOpen, getTokoStats, parseBukaTokoData } from '@/utils/tokoService';
 import { notFound } from 'next/navigation';
 import TokoClientComponent from './TokoClientComponent';
 import ProductCard from '@/components/ProductCard';
+import ExpandableDescription from './ExpandableDescription';
 
 interface TokoPageProps {
   params: Promise<{
@@ -88,7 +89,12 @@ export default async function TokoPage({ params }: TokoPageProps) {
               </div>
               
               <p className="text-white/90 text-sm mb-2">{tokoData.greating_message}</p>
-              <p className="text-white/80 text-lg mb-4 max-w-2xl">{tokoData.deskripsi_toko}</p>
+              
+              {/* Expandable Description */}
+              <ExpandableDescription 
+                text={tokoData.deskripsi_toko} 
+                maxLength={150}
+              />
 
               {/* Stats Bar */}
               <div className="flex flex-wrap items-center gap-6 mb-4">
