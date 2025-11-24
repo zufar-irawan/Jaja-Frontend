@@ -32,7 +32,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
   const handleVisitStore = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    if (!isAuthenticated()) {
+    if (!(await isAuthenticated())) {
       const result = await Swal.fire({
         title: "Anda harus login terlebih dahulu untuk mengunjungi toko ini.",
         icon: "warning",

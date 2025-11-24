@@ -99,7 +99,7 @@ const OrderCheckout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Payment Deadline Banner */}
-      <div className="bg-gradient-to-r from-orange-400 to-yellow-400">
+      <div className="bg-linear-to-r from-orange-400 to-yellow-400">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-center gap-3">
             <span className="text-white font-semibold text-base">
