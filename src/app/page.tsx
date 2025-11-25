@@ -1,11 +1,24 @@
 // app/page.tsx
 import ProductCard from "@/components/ProductCard";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection";
+import Link from "next/link";
 import {
   getFeaturedProducts,
   getTopProducts,
   getRecommendedProducts,
 } from "@/utils/productService";
+import {
+  BookOpen,
+  Gamepad2,
+  Dumbbell,
+  Music,
+  Gift,
+  Receipt,
+  Shirt,
+  Gavel,
+  Smartphone,
+  MoreHorizontal,
+} from "lucide-react";
 
 export default async function Home() {
   const [featuredProducts, topProducts, recommendedProducts] =
@@ -16,16 +29,17 @@ export default async function Home() {
     ]);
 
   const categories = [
-    { name: "Musik", icon: "/category/Musik.png" },
-    { name: "Seni", icon: "/category/Seni.png" },
-    { name: "Game", icon: "/category/Game.png" },
-    { name: "Buku", icon: "/category/Buku.png" },
-    { name: "Berkebun", icon: "/category/Berkebun.png" },
-    { name: "Mainan", icon: "/category/Mainan.png" },
-    { name: "Olahraga", icon: "/category/Olahraga.png" },
-    { name: "Elektronik", icon: "/category/Electronic.png" },
-    { name: "Fotografi", icon: "/category/Fotografi.png" },
-    { name: "Peliharaan", icon: "/category/Peliharaan.png" },
+    { name: "Books", slug: "novel", Icon: BookOpen },
+    { name: "Toys", slug: "action-figure", Icon: Gamepad2 },
+    { name: "Sports", slug: "sport-tools", Icon: Dumbbell },
+    { name: "Musics", slug: "music-tools", Icon: Music },
+    { name: "Voucher", slug: "voucher", Icon: Receipt },
+    { name: "Gift", slug: "gift", Icon: Gift },
+    { name: "Physical Voucher", slug: "physical-voucher", Icon: Receipt },
+    { name: "Fashion", slug: "fashion", Icon: Shirt },
+    { name: "Lelang", slug: "mobil", Icon: Gavel },
+    { name: "Digital", slug: "Digital", Icon: Smartphone },
+    { name: "Lainnya", slug: "lainnya", Icon: MoreHorizontal },
   ];
 
   return (
@@ -41,23 +55,20 @@ export default async function Home() {
           Kategori pilihan
         </header>
 
-        <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-9 overflow-x-auto">
+        <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-6 overflow-x-auto">
           {categories.map((item, index) => (
-            <div
+            <Link
               key={index}
+              href={`/Category/${item.slug}`}
               className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 min-w-[100px] sm:min-w-[120px] cursor-pointer"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
-                <img
-                  src={item.icon}
-                  alt={item.name}
-                  className="w-full h-full object-contain"
-                />
+                <item.Icon className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-gray-700" />
               </div>
               <p className="py-1 text-xs text-center text-gray-900 sm:text-sm lg:text-base">
                 {item.name}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
