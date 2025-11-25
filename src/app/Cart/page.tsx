@@ -83,6 +83,12 @@ const ShoppingCartPage = () => {
   };
 
   const { fetchCartCount } = useCartStore();
+  
+  const handleNavigateToProduct = (slug: string | undefined) => {
+      if (slug) {
+        router.push(`/Product/${slug}`);
+      }
+    };
 
   const handleRemoveItem = async (id_cart: number) => {
     try {
@@ -486,14 +492,26 @@ const ShoppingCartPage = () => {
                       />
 
                       {/* Product Image */}
-                      <div className="cart-item-image" style={{ 
-                        width: '80px', 
-                        height: '80px', 
-                        backgroundColor: '#f8f9fa', 
-                        borderRadius: '6px', 
-                        overflow: 'hidden',
-                        flexShrink: 0
-                      }}>
+                      <div 
+                        className="cart-item-image" 
+                        onClick={() => handleNavigateToProduct(product?.slug_produk)}
+                        style={{ 
+                          width: '80px', 
+                          height: '80px', 
+                          backgroundColor: '#f8f9fa', 
+                          borderRadius: '6px', 
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          cursor: product?.slug_produk ? 'pointer' : 'default',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (product?.slug_produk) {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }
+                        }}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      >
                         <img 
                           src={imageUrl} 
                           alt={product?.nama_produk || 'Nama Produk'}
@@ -503,7 +521,11 @@ const ShoppingCartPage = () => {
 
                       {/* Product Info */}
                       <div className="cart-item-content" style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', marginBottom: '4px', color: '#333' }}>
+                        <h3 
+                          onClick={() => handleNavigateToProduct(product?.slug_produk)}
+                          style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', marginBottom: '4px', color: '#333' }}
+                          onMouseEnter={(e) => {if (product?.slug_produk) {e.currentTarget.style.color = '#55B4E5';}}}
+                          onMouseLeave={(e) => e.currentTarget.style.color = '#333'}>
                           {product?.nama_produk || 'Nama Produk'}
                         </h3>
                         {item.variasi?.nama_variasi && (

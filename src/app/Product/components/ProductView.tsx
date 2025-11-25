@@ -142,7 +142,7 @@ export default function ProductView({
             <ProductImages
               images={productImages}
               selectedImage={0}
-              setSelectedImage={() => {}}
+              setSelectedImage={() => { }}
               discount={product.diskon || 0}
             />
           </div>
@@ -157,9 +157,9 @@ export default function ProductView({
             <ProductInfo
               variants={variants}
               selectedVariant="Standard"
-              setSelectedVariant={() => {}}
+              setSelectedVariant={() => { }}
               quantity={1}
-              setQuantity={() => {}}
+              setQuantity={() => { }}
               ratingStats={ratingStats}
               productName={product.nama_produk}
               productWeight={product.berat || ""}
@@ -179,7 +179,7 @@ export default function ProductView({
         {/* Product Tabs */}
         <ProductTabs
           activeTab="description"
-          setActiveTab={() => {}}
+          setActiveTab={() => { }}
           features={features}
           productSpecs={productSpecs}
           ratingStats={ratingStats}
@@ -263,7 +263,7 @@ export default function ProductView({
               }}
             >
               {relatedProducts.map((prod) => (
-                <div key={prod.id_produk} style={{ minWidth: "250px" }}>
+                <div key={prod.id_produk} className="flex gap-2 overflow-x-auto">
                   <ProductCard
                     item={{
                       id: prod.id_produk,
