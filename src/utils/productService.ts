@@ -5,7 +5,7 @@ import api from '@/utils/api'
 // Types untuk Product
 export interface Product {
     id_produk: number
-    is_deleted?: boolean 
+    is_deleted?: boolean
     nama_produk: string
     harga: number
     diskon: number
@@ -100,7 +100,7 @@ export interface SearchResults {
 export async function searchProducts(params: SearchProductsParams): Promise<SearchProductsResponse> {
     try {
         const queryParams = new URLSearchParams()
-        
+
         // Add params ke query string
         if (params.nama_produk) queryParams.append('nama_produk', params.nama_produk)
         if (params.id_kategori) queryParams.append('id_kategori', params.id_kategori.toString())
@@ -143,7 +143,7 @@ export async function getAllCategories(): Promise<Category[]> {
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
     try {
         const allCategories = await getAllCategories()
-        
+
         // Recursive function to find category by slug
         const findCategory = (categories: Category[]): Category | null => {
             for (const category of categories) {
@@ -157,7 +157,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
             }
             return null
         }
-        
+
         return findCategory(allCategories)
     } catch (error) {
         console.error('Error fetching category by slug:', error)
@@ -167,12 +167,12 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 
 // NEW: Search in categories recursively
 export async function searchInCategories(
-    categories: Category[], 
+    categories: Category[],
     query: string
 ): Promise<Category[]> {
     const results: Category[] = []
     const lowerQuery = query.toLowerCase()
-    
+
     const searchRecursive = (categoryList: Category[]) => {
         categoryList.forEach(cat => {
             if (cat.kategori.toLowerCase().includes(lowerQuery)) {
@@ -190,7 +190,7 @@ export async function searchInCategories(
 
 // NEW: Perform global search (products, stores, categories)
 export async function performGlobalSearch(
-    query: string, 
+    query: string,
     limit: number = 5
 ): Promise<SearchResults> {
     try {
@@ -206,7 +206,7 @@ export async function performGlobalSearch(
 
         const uniqueStores: Product['tokos'][] = []
         const storeIds = new Set<number>()
-        
+
         if (productResponse.success && productResponse.data) {
             productResponse.data.forEach(product => {
                 if (product.tokos && !storeIds.has(product.tokos.id_toko)) {
@@ -265,10 +265,19 @@ export async function getTopProducts(limit: number = 6): Promise<Product[]> {
 export async function getRecommendedProducts(limit: number = 12): Promise<Product[]> {
     try {
         const response = await searchProducts({
-              limit,
+            limit: limit, // fetch extra to allow randomization
             stok: 'ready'
         })
-        return response.data
+
+        const products = response.data || []
+
+        // Shuffle using Fisher-Yates algorithm
+        for (let i = products.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+                ;[products[i], products[j]] = [products[j], products[i]]
+        }
+
+        return products.slice(0, limit)
     } catch (error) {
         console.error('Error fetching recommended products:', error)
         return []
@@ -276,7 +285,7 @@ export async function getRecommendedProducts(limit: number = 12): Promise<Produc
 }
 
 export async function searchProductsByCategory(
-    categoryId: number, 
+    categoryId: number,
     limit: number = 100
 ): Promise<Product[]> {
     try {

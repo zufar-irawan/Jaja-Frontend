@@ -1,5 +1,6 @@
 // app/page.tsx
 import ProductCard from "@/components/ProductCard";
+import RecommendedProductsSection from "@/components/RecommendedProductsSection";
 import {
   getFeaturedProducts,
   getTopProducts,
@@ -11,7 +12,7 @@ export default async function Home() {
     await Promise.all([
       getFeaturedProducts(8),
       getTopProducts(6),
-      getRecommendedProducts(12),
+      getRecommendedProducts(100),
     ]);
 
   const categories = [
@@ -140,27 +141,7 @@ export default async function Home() {
           Mungkin kamu juga suka
         </header>
 
-        <div className="grid w-full grid-cols-2 gap-6 sm:grid-cols-3 md:gap-8 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] xl:grid-cols-6">
-          {recommendedProducts.map((product) => (
-            <ProductCard
-              key={`recommend-${product.id_produk}`}
-              item={{
-                id: product.id_produk,
-                name: product.nama_produk,
-                price: product.harga,
-                image: product.covers?.[0]?.foto || "",
-                address: product.tokos.wilayah?.kelurahan_desa || "",
-                slug: product.slug_produk,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="flex w-full justify-center pt-4">
-          <div className="w-fit rounded-full bg-blue-400 px-8 py-3 text-center font-bold text-gray-50 transition-colors hover:bg-blue-500 cursor-pointer">
-            Lihat lainnya
-          </div>
-        </div>
+        <RecommendedProductsSection products={recommendedProducts} />
       </section>
     </div>
   );
