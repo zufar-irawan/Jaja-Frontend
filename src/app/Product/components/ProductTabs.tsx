@@ -39,14 +39,14 @@ interface ProductTabsProps {
   description: string
 }
 
-export default function ProductTabs({ 
-  activeTab: initialActiveTab, 
-  setActiveTab: externalSetActiveTab, 
-  features, 
-  productSpecs, 
-  ratingStats, 
+export default function ProductTabs({
+  activeTab: initialActiveTab,
+  setActiveTab: externalSetActiveTab,
+  features,
+  productSpecs,
+  ratingStats,
   reviews,
-  description 
+  description
 }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState(initialActiveTab)
 
@@ -56,7 +56,7 @@ export default function ProductTabs({
   }
 
   return (
-    <div style={{ 
+    <div style={{
       backgroundColor: 'white',
       borderRadius: '8px',
       padding: '24px',
@@ -65,7 +65,7 @@ export default function ProductTabs({
       marginBottom: '32px'
     }}>
       {/* Tabs Header */}
-      <div style={{ 
+      <div style={{
         display: 'flex',
         gap: '24px',
         borderBottom: '1px solid #f0f0f0',
@@ -110,8 +110,8 @@ export default function ProductTabs({
       {/* Description Tab */}
       {activeTab === 'description' && (
         <div>
-          <h3 style={{ 
-            fontSize: '18px', 
+          <h3 style={{
+            fontSize: '18px',
             fontWeight: '600',
             color: '#111',
             marginBottom: '16px',
@@ -120,7 +120,7 @@ export default function ProductTabs({
             Spesifikasi Lengkap
           </h3>
 
-          <div style={{ 
+          <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '0',
@@ -151,8 +151,8 @@ export default function ProductTabs({
             ))}
           </div>
 
-          <h3 style={{ 
-            fontSize: '18px', 
+          <h3 style={{
+            fontSize: '18px',
             fontWeight: '600',
             color: '#111',
             marginBottom: '12px',
@@ -160,8 +160,8 @@ export default function ProductTabs({
           }}>
             Tentang Produk
           </h3>
-          
-          <p style={{ 
+
+          <p style={{
             color: '#666',
             fontSize: '14px',
             lineHeight: '1.7',
@@ -171,7 +171,8 @@ export default function ProductTabs({
             {description}
           </p>
 
-          <h4 style={{ 
+          {/* Features Section */}
+          {/* <h4 style={{ 
             fontSize: '16px', 
             fontWeight: '600',
             color: '#111',
@@ -213,8 +214,8 @@ export default function ProductTabs({
                 </p>
               </div>
             ))}
-          </div>
-          </div>
+          </div> */}
+        </div>
       )}
 
       {/* Reviews Tab */}
@@ -223,7 +224,7 @@ export default function ProductTabs({
           {/* Rating Summary */}
           <div>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <h4 style={{ 
+              <h4 style={{
                 fontSize: '11px',
                 fontWeight: '500',
                 color: '#999',
@@ -232,8 +233,8 @@ export default function ProductTabs({
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
               }}>Rating Rata-rata</h4>
-              <div style={{ 
-                fontSize: '42px', 
+              <div style={{
+                fontSize: '42px',
                 fontWeight: '600',
                 color: '#111',
                 lineHeight: '1',
@@ -241,17 +242,17 @@ export default function ProductTabs({
               }}>
                 {ratingStats.average}<span style={{ fontSize: '20px', color: '#999' }}>/5</span>
               </div>
-              <div style={{ 
-                display: 'flex', 
+              <div style={{
+                display: 'flex',
                 justifyContent: 'center',
                 gap: '3px',
                 marginTop: '8px',
                 marginBottom: '8px'
               }}>
-                {[1,2,3,4,5].map(i => (
-                  <Star 
-                    key={i} 
-                    size={20} 
+                {[1, 2, 3, 4, 5].map(i => (
+                  <Star
+                    key={i}
+                    size={20}
                     fill={i <= Math.floor(ratingStats.average) ? "#000" : "none"}
                     stroke="#000"
                   />
@@ -264,18 +265,18 @@ export default function ProductTabs({
 
             <div style={{ marginBottom: '20px' }}>
               {ratingStats.breakdown.map((item) => (
-                <div key={item.stars} style={{ 
-                  display: 'flex', 
+                <div key={item.stars} style={{
+                  display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
                   marginBottom: '8px'
                 }}>
-                  <span style={{ 
+                  <span style={{
                     fontSize: '12px',
                     color: '#666',
                     width: '55px'
                   }}>{item.stars} bintang</span>
-                  <div style={{ 
+                  <div style={{
                     flex: 1,
                     height: '6px',
                     backgroundColor: '#f0f0f0',
@@ -289,7 +290,7 @@ export default function ProductTabs({
                       transition: 'width 0.3s'
                     }} />
                   </div>
-                  <span style={{ 
+                  <span style={{
                     fontSize: '12px',
                     color: '#666',
                     width: '35px',
@@ -336,7 +337,7 @@ export default function ProductTabs({
             </div>
 
             {reviews.map((review, idx) => (
-              <div key={idx} style={{ 
+              <div key={idx} style={{
                 marginBottom: '20px',
                 paddingBottom: '20px',
                 borderBottom: idx < reviews.length - 1 ? '1px solid #f0f0f0' : 'none'
@@ -361,23 +362,23 @@ export default function ProductTabs({
                     <div style={{ fontSize: '12px', color: '#999' }}>{review.date}</div>
                   </div>
                 </div>
-                
-                <div style={{ 
-                  display: 'flex', 
+
+                <div style={{
+                  display: 'flex',
                   gap: '3px',
                   marginBottom: '8px'
                 }}>
-                  {[1,2,3,4,5].map(i => (
-                    <Star 
-                      key={i} 
-                      size={14} 
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <Star
+                      key={i}
+                      size={14}
                       fill={i <= review.rating ? "#000" : "none"}
                       stroke="#000"
                     />
                   ))}
                 </div>
-                
-                <p style={{ 
+
+                <p style={{
                   color: '#666',
                   fontSize: '13px',
                   lineHeight: '1.6',
@@ -385,9 +386,9 @@ export default function ProductTabs({
                 }}>
                   {review.comment}
                 </p>
-                
+
                 {review.images && review.images.length > 0 && (
-                  <div style={{ 
+                  <div style={{
                     display: 'flex',
                     gap: '8px',
                     marginBottom: '10px'
@@ -409,7 +410,7 @@ export default function ProductTabs({
                     ))}
                   </div>
                 )}
-                
+
                 <button style={{
                   backgroundColor: 'transparent',
                   border: 'none',
