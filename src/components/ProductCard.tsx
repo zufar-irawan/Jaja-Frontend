@@ -3,6 +3,7 @@
 import { formatCurrency } from '@/utils/format'
 import { MapPin } from 'lucide-react'
 import Link from 'next/link'
+import { useRecentlyViewedStore } from '@/store/recentlyViewedStore'
 
 type ProductCardProps = {
     item?: {
@@ -16,15 +17,31 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ item }: ProductCardProps) {
+    const addProduct = useRecentlyViewedStore((state) => state.addProduct);
+
     if (!item?.slug) {
         return null
     }
 
     const productUrl = `/Product/${item.slug}`
 
+    const handleClick = () => {
+        if (item.id && item.slug) {
+            addProduct({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                image: item.image,
+                address: item.address,
+                slug: item.slug,
+            });
+        }
+    };
+
     return (
         <Link
             href={productUrl}
+            onClick={handleClick}
             className="block w-full max-w-[200px] transform rounded-lg bg-white shadow-sm transition-all will-change-transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
             <div className="flex h-full flex-col">

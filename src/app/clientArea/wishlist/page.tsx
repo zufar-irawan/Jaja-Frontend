@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { Heart, Loader2 } from "lucide-react";
+import { Heart, Loader2, Clock } from "lucide-react";
+import { useRecentlyViewedStore } from "@/store/recentlyViewedStore";
 
 interface WishlistItem {
     id_data: number;
@@ -26,6 +27,9 @@ export default function Wishlist() {
     const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [recentProducts, setRecentProducts] = useState<any[]>([]);
+
+    const getRecentProducts = useRecentlyViewedStore((state) => state.getRecentProducts);
 
     useEffect(() => {
         const loadWishlist = async () => {
@@ -62,6 +66,10 @@ export default function Wishlist() {
 
         void loadWishlist();
     }, []);
+
+    useEffect(() => {
+        setRecentProducts(getRecentProducts(8));
+    }, [getRecentProducts]);
 
     const transformToProductCardProps = (item: WishlistItem) => {
         const address = item.produks?.tokos?.nama_toko || item.toko || "Toko";
@@ -142,6 +150,36 @@ export default function Wishlist() {
                     />
                 ))}
             </div>
+
+            {/* Recently Viewed Section */}
+            {recentProducts.length > 0 && (
+                <div className="mt-8 border-t border-gray-200 pt-6">
+                    <div className="mb-4 flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-gray-600" />
+                        <h3 className="text-xl font-semibold text-gray-900">
+                            Terakhir Dilihat
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                            ({recentProducts.length} produk)
+                        </span>
+                    </div>
+                    <div className="w-full grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                        {recentProducts.map((product) => (
+                            <ProductCard
+                                key={`recent-${product.id}-${product.viewedAt}`}
+                                item={{
+                                    id: product.id,
+                                    name: product.name,
+                                    price: product.price,
+                                    image: product.image,
+                                    address: product.address,
+                                    slug: product.slug,
+                                }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
