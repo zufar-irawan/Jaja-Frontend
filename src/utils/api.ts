@@ -13,6 +13,14 @@ const api = axios.create({
   },
 });
 
+const sellerApi = axios.create({
+  baseURL: BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 api.interceptors.request.use(
   async (config) => {
     const cookieStore = await cookies();
@@ -38,4 +46,28 @@ api.interceptors.response.use(
   },
 );
 
+sellerApi.interceptors.request.use(
+  async (config) => {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth-seller-token")?.value;
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+sellerApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      cookies().then((c) => c.delete("auth-seller-token"));
+    }
+    return Promise.reject(error);
+  },
+);
+
+export { sellerApi };
 export default api;

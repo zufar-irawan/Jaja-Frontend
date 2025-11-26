@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { sellerApi } from "./api";
 import {
   Product,
   SearchProductsParams,
@@ -56,6 +56,49 @@ export interface BukaTokoData {
   time_open: string;
   time_close: string;
   time_zone: string;
+}
+
+export interface CreateTokoPayload {
+  nama_toko: string;
+  greating_message: string;
+  deskripsi_toko: string;
+  alamat_toko: string;
+  provinsi: string;
+  kota_kabupaten: string;
+  kecamatan: string;
+  kelurahan: string;
+  kode_pos: string;
+}
+
+export interface BasicApiResponse<T = unknown> {
+  success: boolean;
+  message?: string;
+  data?: T;
+}
+
+export async function createSellerToko(
+  payload: CreateTokoPayload,
+): Promise<BasicApiResponse> {
+  try {
+    const response = await sellerApi.post("/v1/seller/create-toko", payload);
+
+    return {
+      success: true,
+      message: response.data?.message || "Toko berhasil dibuat",
+      data: response.data?.data ?? response.data,
+    };
+  } catch (error: any) {
+    console.error("Error creating seller toko:", {
+      message: error.message,
+      status: error.response?.status,
+    });
+
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal membuat toko",
+      data: error.response?.data,
+    };
+  }
 }
 
 // Service Functions
