@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleUserRound, MapPin, Package2, CreditCard, ShieldCheck, Gem } from 'lucide-react'
+import { CircleUserRound, MapPin, Package2, CreditCard, ShieldCheck, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { useSelectedLayoutSegment } from 'next/navigation'
 
@@ -9,6 +9,7 @@ export default function ClientSidebar() {
 
     const menuItems = [
         { title: 'Profil', route: '/clientArea/profile', icon: <CircleUserRound strokeWidth={1.5} size={30} /> },
+        { title: 'Wishlist', route: '/clientArea/wishlist', icon: <Heart strokeWidth={1.5} size={30} /> },
         { title: 'Pesanan', route: '/clientArea/orders', icon: <Package2 strokeWidth={1.5} size={30} /> },
         { title: 'Alamat', route: '/clientArea/address', icon: <MapPin strokeWidth={1.5} size={30} /> },
         { title: 'Rekening', route: '/clientArea/account', icon: <CreditCard strokeWidth={1.5} size={30} /> },
