@@ -8,7 +8,7 @@ const PrivacyHeader: React.FC = () => {
       width: '100%',
       backgroundColor: '#ffffff',
       borderBottom: '1px solid #e0e0e0',
-      padding: '15px 0',
+      padding: '30px 0',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
     },
     privacyHeaderContent: {
@@ -17,28 +17,17 @@ const PrivacyHeader: React.FC = () => {
       padding: '0 20px',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
     },
     logoSection: {
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
     },
     privacyLogo: {
-      height: '40px',
+      height: '70px',
       width: 'auto',
       objectFit: 'contain' as const,
-    },
-    privacyNav: {
-      display: 'flex',
-      gap: '30px',
-      alignItems: 'center',
-    },
-    navLink: {
-      color: '#333',
-      textDecoration: 'none',
-      fontSize: '15px',
-      fontWeight: 500,
-      transition: 'color 0.3s ease',
     },
   };
 
@@ -52,32 +41,6 @@ const PrivacyHeader: React.FC = () => {
             style={styles.privacyLogo}
           />
         </div>
-        <nav style={styles.privacyNav}>
-          <a 
-            href="/" 
-            style={styles.navLink}
-            onMouseOver={(e) => e.currentTarget.style.color = '#4a90e2'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#333'}
-          >
-            Beranda
-          </a>
-          <a 
-            href="/tentang" 
-            style={styles.navLink}
-            onMouseOver={(e) => e.currentTarget.style.color = '#4a90e2'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#333'}
-          >
-            Tentang
-          </a>
-          <a 
-            href="/kontak" 
-            style={styles.navLink}
-            onMouseOver={(e) => e.currentTarget.style.color = '#4a90e2'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#333'}
-          >
-            Kontak
-          </a>
-        </nav>
       </div>
     </header>
   );
