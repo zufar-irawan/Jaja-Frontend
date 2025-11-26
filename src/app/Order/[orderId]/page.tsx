@@ -7,16 +7,13 @@ import {
   User,
   Clock,
   FileText,
-  MapPin,
   Truck,
   CreditCard,
   Loader2,
   ChevronLeft,
-  CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { getTransactionDetail } from "@/utils/checkoutActions";
+import { getTransactionDetail, processPayment } from "@/utils/checkoutActions";
 import { formatCurrency } from "@/utils/checkoutService";
 import type { TransactionData } from "@/utils/checkoutService";
 import Swal from "sweetalert2";
@@ -24,9 +21,10 @@ import Swal from "sweetalert2";
 const OrderDetailPage = () => {
   const router = useRouter();
   const params = useParams();
-  const orderId = params.orderId as string;
+  const idData = params.orderId as string;
 
   const [loading, setLoading] = useState(true);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const [orderData, setOrderData] = useState<TransactionData | null>(null);
   const [timeRemaining, setTimeRemaining] = useState({
     hours: 0,
@@ -35,10 +33,11 @@ const OrderDetailPage = () => {
   });
 
   useEffect(() => {
-    if (orderId) {
+    if (idData) {
       fetchOrderDetail();
     }
-  }, [orderId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idData]);
 
   useEffect(() => {
     if (orderData?.batas_pembayaran) {
@@ -66,8 +65,8 @@ const OrderDetailPage = () => {
   const fetchOrderDetail = async () => {
     try {
       setLoading(true);
-      const response = await getTransactionDetail(orderId);
-      
+      const response = await getTransactionDetail(idData);
+
       if (response.success && response.data) {
         setOrderData(response.data);
       } else {
@@ -97,17 +96,52 @@ const OrderDetailPage = () => {
     if (!orderData) return;
 
     try {
-      // Redirect to payment gateway or show payment options
-      await Swal.fire({
-        icon: "info",
-        title: "Pilih Metode Pembayaran",
-        text: "Anda akan diarahkan ke halaman pembayaran",
-        confirmButtonColor: "#55B4E5",
+      setProcessingPayment(true);
+
+      // Call payment API
+      const paymentResponse = await processPayment({
+        order_id: orderData.order_id,
+        total_tagihan: parseFloat(orderData.total_tagihan.toString()),
       });
-      // Here you would redirect to payment page
-      // router.push(`/payment/${orderData.order_id}`);
+
+      if (
+        paymentResponse.success &&
+        paymentResponse.provider_payload?.response?.payment?.url
+      ) {
+        const paymentUrl =
+          paymentResponse.provider_payload.response.payment.url;
+
+        await Swal.fire({
+          icon: "success",
+          title: "Mengarahkan ke Pembayaran",
+          text: "Anda akan diarahkan ke halaman pembayaran",
+          confirmButtonColor: "#55B4E5",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        // Redirect to payment URL
+        window.location.href = paymentUrl;
+      } else {
+        throw new Error(
+          paymentResponse.message || "Gagal membuat link pembayaran",
+        );
+      }
     } catch (error) {
       console.error("Payment error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat memproses pembayaran";
+
+      await Swal.fire({
+        icon: "error",
+        title: "Pembayaran Gagal",
+        text: errorMessage,
+        confirmButtonColor: "#55B4E5",
+      });
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -502,12 +536,16 @@ const OrderDetailPage = () => {
               }}
             >
               <User size={20} style={{ color: "#55B4E5" }} />
-              <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+              <h2
+                style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+              >
                 Informasi Pelanggan
               </h2>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+            >
               <div>
                 <label
                   style={{
@@ -521,7 +559,9 @@ const OrderDetailPage = () => {
                 >
                   Nama
                 </label>
-                <p style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}>
+                <p
+                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                >
                   {orderData.nama_penerima}
                 </p>
               </div>
@@ -539,7 +579,9 @@ const OrderDetailPage = () => {
                 >
                   Telepon
                 </label>
-                <p style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}>
+                <p
+                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                >
                   {orderData.telp_penerima}
                 </p>
               </div>
@@ -616,12 +658,16 @@ const OrderDetailPage = () => {
               }}
             >
               <Truck size={20} style={{ color: "#55B4E5" }} />
-              <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+              <h2
+                style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+              >
                 Informasi Pengiriman
               </h2>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+            >
               <div>
                 <label
                   style={{
@@ -635,7 +681,9 @@ const OrderDetailPage = () => {
                 >
                   Kurir
                 </label>
-                <p style={{ fontSize: "13px", fontWeight: "600", color: "#333" }}>
+                <p
+                  style={{ fontSize: "13px", fontWeight: "600", color: "#333" }}
+                >
                   {orderData.pengiriman || "Belum dipilih"}
                 </p>
               </div>
@@ -653,7 +701,9 @@ const OrderDetailPage = () => {
                 >
                   Ongkos Kirim
                 </label>
-                <p style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}>
+                <p
+                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                >
                   {formatCurrency(Number(orderData.biaya_ongkir))}
                 </p>
               </div>
@@ -671,7 +721,9 @@ const OrderDetailPage = () => {
                 >
                   Waktu Pengiriman
                 </label>
-                <p style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}>
+                <p
+                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                >
                   {orderData.waktu_pengiriman}
                 </p>
               </div>
@@ -690,7 +742,13 @@ const OrderDetailPage = () => {
                   >
                     Tanggal Pengiriman
                   </label>
-                  <p style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}>
+                  <p
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: "500",
+                      color: "#333",
+                    }}
+                  >
                     {orderData.tgl_pengiriman}
                   </p>
                 </div>
@@ -739,13 +797,18 @@ const OrderDetailPage = () => {
                 </span>
                 <span style={{ fontSize: "11px", fontWeight: "600" }}>
                   {formatCurrency(
-                    orderData.details.reduce((sum, item) => sum + item.total, 0)
+                    orderData.details.reduce(
+                      (sum, item) => sum + item.total,
+                      0,
+                    ),
                   )}
                 </span>
               </div>
 
               {orderData.diskon_voucher_toko > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span style={{ fontSize: "11px", color: "#6c757d" }}>
                     Diskon Voucher
                   </span>
@@ -762,14 +825,18 @@ const OrderDetailPage = () => {
               )}
 
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "11px", color: "#6c757d" }}>Ongkir</span>
+                <span style={{ fontSize: "11px", color: "#6c757d" }}>
+                  Ongkir
+                </span>
                 <span style={{ fontSize: "11px", fontWeight: "600" }}>
                   {formatCurrency(Number(orderData.biaya_ongkir))}
                 </span>
               </div>
 
               {orderData.biaya_asuransi > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span style={{ fontSize: "11px", color: "#6c757d" }}>
                     Biaya Asuransi
                   </span>
@@ -803,27 +870,46 @@ const OrderDetailPage = () => {
             </div>
 
             {orderData.status_transaksi === "Menunggu Pembayaran" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
                 <button
                   onClick={handlePayment}
+                  disabled={processingPayment}
                   style={{
                     width: "100%",
-                    padding: "14px",
-                    backgroundColor: "#55B4E5",
+                    padding: "13px",
+                    backgroundColor: processingPayment ? "#ccc" : "#55B4E5",
                     color: "white",
                     border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
+                    borderRadius: "6px",
+                    cursor: processingPayment ? "not-allowed" : "pointer",
                     fontWeight: "600",
-                    fontSize: "14px",
+                    fontSize: "13px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
                   }}
                 >
-                  <CreditCard size={18} />
-                  Pilih Pembayaran
+                  {processingPayment ? (
+                    <>
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />
+                      Memproses...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard size={16} />
+                      Bayar Sekarang
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -871,21 +957,23 @@ const OrderDetailPage = () => {
                   flexWrap: "wrap",
                 }}
               >
-                {["💳 Card", "GoPay", "OVO", "Dana", "ShopePay"].map((method) => (
-                  <div
-                    key={method}
-                    style={{
-                      padding: "6px 10px",
-                      border: "1px solid #dee2e6",
-                      borderRadius: "5px",
-                      fontSize: "9px",
-                      color: "#6c757d",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {method}
-                  </div>
-                ))}
+                {["💳 Card", "GoPay", "OVO", "Dana", "ShopePay"].map(
+                  (method) => (
+                    <div
+                      key={method}
+                      style={{
+                        padding: "6px 10px",
+                        border: "1px solid #dee2e6",
+                        borderRadius: "5px",
+                        fontSize: "9px",
+                        color: "#6c757d",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {method}
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -977,7 +1065,13 @@ const OrderDetailPage = () => {
                     style={{ borderBottom: "1px solid #f8f9fa" }}
                   >
                     <td style={{ padding: "16px 8px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
                         <div
                           style={{
                             width: "50px",
@@ -1086,7 +1180,9 @@ const OrderDetailPage = () => {
             </h2>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          >
             <div style={{ display: "flex", gap: "12px" }}>
               <div
                 style={{
@@ -1152,10 +1248,9 @@ const OrderDetailPage = () => {
                 style={{
                   width: "10px",
                   height: "10px",
-                  backgroundColor:
-                    orderData.details[0]?.date_time_pengiriman
-                      ? "#28a745"
-                      : "#dee2e6",
+                  backgroundColor: orderData.details[0]?.date_time_pengiriman
+                    ? "#28a745"
+                    : "#dee2e6",
                   borderRadius: "50%",
                   marginTop: "4px",
                   flexShrink: 0,
@@ -1184,10 +1279,10 @@ const OrderDetailPage = () => {
                 style={{
                   width: "10px",
                   height: "10px",
-                  backgroundColor:
-                    orderData.details[0]?.date_time_pesanan_diterima
-                      ? "#28a745"
-                      : "#dee2e6",
+                  backgroundColor: orderData.details[0]
+                    ?.date_time_pesanan_diterima
+                    ? "#28a745"
+                    : "#dee2e6",
                   borderRadius: "50%",
                   marginTop: "4px",
                   flexShrink: 0,
