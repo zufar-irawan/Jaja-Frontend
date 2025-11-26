@@ -52,10 +52,18 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
 export async function login(data: LoginData): Promise<AuthResponse> {
   try {
     const response = await api.post("/main/auth/login", data);
+    let sellerToken: string | undefined;
+
+    try {
+      const sellerResponse = await api.post("/v1/seller/login", data);
+      sellerToken = sellerResponse.data?.token;
+    } catch (sellerError) {
+      console.error("Seller login error:", sellerError);
+    }
 
     if (response.data.token) {
       const cookieStore = await cookies();
-      
+
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -69,6 +77,15 @@ export async function login(data: LoginData): Promise<AuthResponse> {
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
       });
+
+      if (sellerToken) {
+        cookieStore.set("auth-seller-token", sellerToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        });
+      }
     }
 
     return {
@@ -132,7 +149,7 @@ export async function loginWithGoogle(
 
     if (response.data.token) {
       const cookieStore = await cookies();
-      
+
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -164,14 +181,22 @@ export async function loginWithGoogle(
 }
 
 export async function logout(): Promise<void> {
+  try {
+    await api.post("/v1/seller/logout");
+  } catch (error) {
+    console.error("Seller logout error:", error);
+  }
+
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
+  cookieStore.delete("auth-seller-token");
   cookieStore.delete("is-authenticated");
 }
 
 export async function clearAuthCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
+  cookieStore.delete("auth-seller-token");
   cookieStore.delete("is-authenticated");
 }
 

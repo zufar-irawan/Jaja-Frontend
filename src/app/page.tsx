@@ -75,14 +75,14 @@ export default async function Home() {
 
       {/* Featured Product */}
       <section className="w-full flex flex-col py-10 px-4 sm:px-10 lg:px-40 wave wave-svg">
-        <header className="w-full flex flex-col gap-y-2 pt-5 font-bold">
+        <header className="w-full flex flex-col gap-y-2 pt-5 font-bold mb-4">
           <p className="text-2xl text-gray-50 sm:text-3xl lg:text-4xl">
             Produk terbaru dari Jaja!
           </p>
 
-          <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
+          {/* <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
             Lihat lainnya
-          </p>
+          </p> */}
         </header>
 
         <div className="flex w-full flex-col items-center gap-6 md:flex-row md:items-stretch md:gap-8">
@@ -120,9 +120,9 @@ export default async function Home() {
             Produk paling laris!
           </p>
 
-          <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
+          {/* <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
             Lihat lainnya
-          </p>
+          </p> */}
         </header>
 
         <div className="flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4">
