@@ -776,14 +776,6 @@ export default function JajaNavbar() {
                         <span className="font-medium">Pesanan Saya</span>
                       </button>
 
-                      <button
-                        onClick={() => router.push(`/become-a-seller`)}
-                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
-                      >
-                        <Gem className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        <span className="font-medium">Ayo jadi seller!</span>
-                      </button>
-
                       <div className="border-t border-gray-100 my-2"></div>
 
                       <button
