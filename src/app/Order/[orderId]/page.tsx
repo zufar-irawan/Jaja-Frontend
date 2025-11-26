@@ -366,7 +366,7 @@ const OrderDetailPage = () => {
           <div
             style={{
               backgroundColor: "white",
-              padding: "16px",
+              padding: "20px",
               borderRadius: "10px",
               boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
               display: "flex",
@@ -414,7 +414,7 @@ const OrderDetailPage = () => {
           <div
             style={{
               backgroundColor: "white",
-              padding: "16px",
+              padding: "20px",
               borderRadius: "10px",
               boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
               display: "flex",
@@ -462,7 +462,7 @@ const OrderDetailPage = () => {
           <div
             style={{
               backgroundColor: "white",
-              padding: "16px",
+              padding: "20px",
               borderRadius: "10px",
               boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
               display: "flex",
@@ -511,248 +511,609 @@ const OrderDetailPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 400px",
+            gridTemplateColumns: "1fr 400px",
             gap: "20px",
-            alignItems: "start",
+            alignItems: "stretch",
           }}
         >
-          {/* Customer Info */}
+          {/* Main Content - Left Side */}
           <div
             style={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              padding: "20px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
             }}
           >
+            {/* Top Row - Customer & Shipping Info */}
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "16px",
-                paddingBottom: "12px",
-                borderBottom: "2px solid #55B4E5",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "20px",
               }}
             >
-              <User size={20} style={{ color: "#55B4E5" }} />
-              <h2
-                style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+              {/* Customer Info */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  padding: "20px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  height: "fit-content",
+                }}
               >
-                Informasi Pelanggan
-              </h2>
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
-              <div>
-                <label
+                <div
                   style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "16px",
+                    paddingBottom: "12px",
+                    borderBottom: "2px solid #55B4E5",
                   }}
                 >
-                  Nama
-                </label>
-                <p
-                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
-                >
-                  {orderData.nama_penerima}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Telepon
-                </label>
-                <p
-                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
-                >
-                  {orderData.telp_penerima}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Alamat Pengiriman
-                </label>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    color: "#333",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  {orderData.alamat_pengiriman}
-                </p>
-              </div>
-
-              {orderData.pesan_customer && (
-                <div>
-                  <label
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      display: "block",
-                      marginBottom: "4px",
-                    }}
+                  <User size={20} style={{ color: "#55B4E5" }} />
+                  <h2
+                    style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
                   >
-                    Catatan
-                  </label>
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "#333",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    {orderData.pesan_customer}
-                  </p>
+                    Informasi Pelanggan
+                  </h2>
                 </div>
-              )}
-            </div>
-          </div>
 
-          {/* Shipping Info */}
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              padding: "20px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            }}
-          >
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+                >
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Nama
+                    </label>
+                    <p
+                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                    >
+                      {orderData.nama_penerima}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Telepon
+                    </label>
+                    <p
+                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                    >
+                      {orderData.telp_penerima}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Alamat Pengiriman
+                    </label>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#333",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      {orderData.alamat_pengiriman}
+                    </p>
+                  </div>
+
+                  {orderData.pesan_customer && (
+                    <div>
+                      <label
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: "600",
+                          color: "#6c757d",
+                          textTransform: "uppercase",
+                          display: "block",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Catatan
+                      </label>
+                      <p
+                        style={{
+                          fontSize: "12px",
+                          color: "#333",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {orderData.pesan_customer}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Shipping Info */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  padding: "20px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  height: "fit-content",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "16px",
+                    paddingBottom: "12px",
+                    borderBottom: "2px solid #55B4E5",
+                  }}
+                >
+                  <Truck size={20} style={{ color: "#55B4E5" }} />
+                  <h2
+                    style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+                  >
+                    Informasi Pengiriman
+                  </h2>
+                </div>
+
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+                >
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Kurir
+                    </label>
+                    <p
+                      style={{ fontSize: "13px", fontWeight: "600", color: "#333" }}
+                    >
+                      {orderData.pengiriman || "Belum dipilih"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Ongkos Kirim
+                    </label>
+                    <p
+                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                    >
+                      {formatCurrency(Number(orderData.biaya_ongkir))}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        color: "#6c757d",
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Waktu Pengiriman
+                    </label>
+                    <p
+                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                    >
+                      {orderData.waktu_pengiriman}
+                    </p>
+                  </div>
+
+                  {orderData.tgl_pengiriman && (
+                    <div>
+                      <label
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: "600",
+                          color: "#6c757d",
+                          textTransform: "uppercase",
+                          display: "block",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Tanggal Pengiriman
+                      </label>
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "500",
+                          color: "#333",
+                        }}
+                      >
+                        {orderData.tgl_pengiriman}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row - Order Items & Timeline */}
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "16px",
-                paddingBottom: "12px",
-                borderBottom: "2px solid #55B4E5",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "20px",
+                alignItems: "stretch",
               }}
             >
-              <Truck size={20} style={{ color: "#55B4E5" }} />
-              <h2
-                style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+              {/* Order Items */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  padding: "20px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
-                Informasi Pengiriman
-              </h2>
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
-              <div>
-                <label
+                <div
                   style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "16px",
+                    paddingBottom: "12px",
+                    borderBottom: "2px solid #55B4E5",
                   }}
                 >
-                  Kurir
-                </label>
-                <p
-                  style={{ fontSize: "13px", fontWeight: "600", color: "#333" }}
-                >
-                  {orderData.pengiriman || "Belum dipilih"}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Ongkos Kirim
-                </label>
-                <p
-                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
-                >
-                  {formatCurrency(Number(orderData.biaya_ongkir))}
-                </p>
-              </div>
-
-              <div>
-                <label
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: "#6c757d",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Waktu Pengiriman
-                </label>
-                <p
-                  style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
-                >
-                  {orderData.waktu_pengiriman}
-                </p>
-              </div>
-
-              {orderData.tgl_pengiriman && (
-                <div>
-                  <label
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      display: "block",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    Tanggal Pengiriman
-                  </label>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: "500",
-                      color: "#333",
-                    }}
-                  >
-                    {orderData.tgl_pengiriman}
-                  </p>
+                  <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+                    Item Pesanan
+                  </h2>
                 </div>
-              )}
+
+                <div style={{ overflowX: "auto", flex: 1 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "2px solid #e9ecef" }}>
+                        <th
+                          style={{
+                            textAlign: "left",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#6c757d",
+                            textTransform: "uppercase",
+                            padding: "12px 8px",
+                          }}
+                        >
+                          Produk
+                        </th>
+                        <th
+                          style={{
+                            textAlign: "right",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#6c757d",
+                            textTransform: "uppercase",
+                            padding: "12px 8px",
+                          }}
+                        >
+                          Harga
+                        </th>
+                        <th
+                          style={{
+                            textAlign: "center",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#6c757d",
+                            textTransform: "uppercase",
+                            padding: "12px 8px",
+                          }}
+                        >
+                          Qty
+                        </th>
+                        <th
+                          style={{
+                            textAlign: "right",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            color: "#6c757d",
+                            textTransform: "uppercase",
+                            padding: "12px 8px",
+                          }}
+                        >
+                          Subtotal
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderData.details.map((item) => (
+                        <tr
+                          key={item.id_detail}
+                          style={{ borderBottom: "1px solid #f8f9fa" }}
+                        >
+                          <td style={{ padding: "16px 8px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "12px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "50px",
+                                  height: "50px",
+                                  backgroundColor: "#f8f9fa",
+                                  borderRadius: "6px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  overflow: "hidden",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {item.foto_produk ? (
+                                  <img
+                                    src={item.foto_produk}
+                                    alt={item.nama_produk}
+                                    style={{
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                ) : (
+                                  <Package style={{ color: "#6c757d" }} size={24} />
+                                )}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <p
+                                  style={{
+                                    fontSize: "13px",
+                                    fontWeight: "600",
+                                    color: "#333",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  {item.nama_produk}
+                                </p>
+                                <p style={{ fontSize: "10px", color: "#6c757d" }}>
+                                  {item.nama_toko}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              fontSize: "12px",
+                              color: "#6c757d",
+                              padding: "16px 8px",
+                            }}
+                          >
+                            {formatCurrency(Number(item.harga_aktif))}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "center",
+                              fontSize: "12px",
+                              color: "#6c757d",
+                              padding: "16px 8px",
+                            }}
+                          >
+                            {item.qty}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              fontSize: "13px",
+                              fontWeight: "600",
+                              color: "#333",
+                              padding: "16px 8px",
+                            }}
+                          >
+                            {formatCurrency(item.total)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Order Timeline */}
+              <div
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  padding: "20px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  height: "100%",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "16px",
+                    paddingBottom: "12px",
+                    borderBottom: "2px solid #55B4E5",
+                  }}
+                >
+                  <Clock size={20} style={{ color: "#55B4E5" }} />
+                  <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+                    Timeline Pesanan
+                  </h2>
+                </div>
+
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+                >
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: "#28a745",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        flexShrink: 0,
+                      }}
+                    ></div>
+                    <div style={{ flex: 1 }}>
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          color: "#333",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Waktu Pemesanan
+                      </p>
+                      <p style={{ fontSize: "11px", color: "#6c757d" }}>
+                        {orderData.created_date} {orderData.created_time}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: orderData.tgl_pembayaran
+                          ? "#28a745"
+                          : "#dee2e6",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        flexShrink: 0,
+                      }}
+                    ></div>
+                    <div style={{ flex: 1 }}>
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          color: "#333",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Waktu Pembayaran
+                      </p>
+                      <p style={{ fontSize: "11px", color: "#6c757d" }}>
+                        {orderData.tgl_pembayaran && orderData.jam_pembayaran
+                          ? `${orderData.tgl_pembayaran} ${orderData.jam_pembayaran}`
+                          : "Menunggu pembayaran"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: orderData.details[0]?.date_time_pengiriman
+                          ? "#28a745"
+                          : "#dee2e6",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        flexShrink: 0,
+                      }}
+                    ></div>
+                    <div style={{ flex: 1 }}>
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          color: "#333",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Waktu Pengiriman
+                      </p>
+                      <p style={{ fontSize: "11px", color: "#6c757d" }}>
+                        {orderData.details[0]?.date_time_pengiriman ||
+                          "Belum dikirim"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: orderData.details[0]
+                          ?.date_time_pesanan_diterima
+                          ? "#28a745"
+                          : "#dee2e6",
+                        borderRadius: "50%",
+                        marginTop: "4px",
+                        flexShrink: 0,
+                      }}
+                    ></div>
+                    <div style={{ flex: 1 }}>
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          color: "#333",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Pesanan Selesai
+                      </p>
+                      <p style={{ fontSize: "11px", color: "#6c757d" }}>
+                        {orderData.details[0]?.date_time_pesanan_diterima ||
+                          "Belum selesai"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -763,22 +1124,26 @@ const OrderDetailPage = () => {
               borderRadius: "10px",
               padding: "20px",
               boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-              position: "sticky",
-              top: "20px",
+              height: "fit-content",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <h2
+            <div
               style={{
-                fontSize: "16px",
-                fontWeight: "600",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
                 marginBottom: "16px",
-                color: "#333",
-                borderBottom: "3px solid #55B4E5",
-                paddingBottom: "10px",
+                paddingBottom: "12px",
+                borderBottom: "2px solid #55B4E5",
               }}
             >
-              Ringkasan Pembayaran
-            </h2>
+              <CreditCard size={20} style={{ color: "#55B4E5" }} />
+              <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+                Ringkasan Pembayaran
+              </h2>
+            </div>
 
             <div
               style={{
@@ -938,372 +1303,7 @@ const OrderDetailPage = () => {
                 borderTop: "1px solid #e9ecef",
               }}
             >
-              <div
-                style={{
-                  fontSize: "9px",
-                  color: "#6c757d",
-                  marginBottom: "10px",
-                  textAlign: "center",
-                  fontWeight: "600",
-                }}
-              >
-                METODE PEMBAYARAN TERSEDIA
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "6px",
-                  justifyContent: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                {["💳 Card", "GoPay", "OVO", "Dana", "ShopePay"].map(
-                  (method) => (
-                    <div
-                      key={method}
-                      style={{
-                        padding: "6px 10px",
-                        border: "1px solid #dee2e6",
-                        borderRadius: "5px",
-                        fontSize: "9px",
-                        color: "#6c757d",
-                        fontWeight: "500",
-                      }}
-                    >
-                      {method}
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Order Items */}
-        <div
-          style={{
-            backgroundColor: "white",
-            borderRadius: "10px",
-            padding: "20px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            marginTop: "20px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "16px",
-              paddingBottom: "12px",
-              borderBottom: "2px solid #55B4E5",
-            }}
-          >
-            <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#333" }}>
-              Item Pesanan
-            </h2>
-          </div>
-
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid #e9ecef" }}>
-                  <th
-                    style={{
-                      textAlign: "left",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      padding: "12px 8px",
-                    }}
-                  >
-                    Produk
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "right",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      padding: "12px 8px",
-                    }}
-                  >
-                    Harga
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      padding: "12px 8px",
-                    }}
-                  >
-                    Qty
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "right",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      color: "#6c757d",
-                      textTransform: "uppercase",
-                      padding: "12px 8px",
-                    }}
-                  >
-                    Subtotal
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderData.details.map((item) => (
-                  <tr
-                    key={item.id_detail}
-                    style={{ borderBottom: "1px solid #f8f9fa" }}
-                  >
-                    <td style={{ padding: "16px 8px" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            backgroundColor: "#f8f9fa",
-                            borderRadius: "6px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            overflow: "hidden",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {item.foto_produk ? (
-                            <img
-                              src={item.foto_produk}
-                              alt={item.nama_produk}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                            />
-                          ) : (
-                            <Package style={{ color: "#6c757d" }} size={24} />
-                          )}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p
-                            style={{
-                              fontSize: "13px",
-                              fontWeight: "600",
-                              color: "#333",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            {item.nama_produk}
-                          </p>
-                          <p style={{ fontSize: "10px", color: "#6c757d" }}>
-                            {item.nama_toko}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "right",
-                        fontSize: "12px",
-                        color: "#6c757d",
-                        padding: "16px 8px",
-                      }}
-                    >
-                      {formatCurrency(Number(item.harga_aktif))}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "center",
-                        fontSize: "12px",
-                        color: "#6c757d",
-                        padding: "16px 8px",
-                      }}
-                    >
-                      {item.qty}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "right",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        color: "#333",
-                        padding: "16px 8px",
-                      }}
-                    >
-                      {formatCurrency(item.total)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Order Timeline */}
-        <div
-          style={{
-            backgroundColor: "white",
-            borderRadius: "10px",
-            padding: "20px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            marginTop: "20px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "16px",
-              paddingBottom: "12px",
-              borderBottom: "2px solid #55B4E5",
-            }}
-          >
-            <Clock size={20} style={{ color: "#55B4E5" }} />
-            <h2 style={{ fontSize: "16px", fontWeight: "600", color: "#333" }}>
-              Timeline Pesanan
-            </h2>
-          </div>
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-          >
-            <div style={{ display: "flex", gap: "12px" }}>
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  backgroundColor: "#28a745",
-                  borderRadius: "50%",
-                  marginTop: "4px",
-                  flexShrink: 0,
-                }}
-              ></div>
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#333",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Waktu Pemesanan
-                </p>
-                <p style={{ fontSize: "11px", color: "#6c757d" }}>
-                  {orderData.created_date} {orderData.created_time}
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: "12px" }}>
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  backgroundColor: orderData.tgl_pembayaran
-                    ? "#28a745"
-                    : "#dee2e6",
-                  borderRadius: "50%",
-                  marginTop: "4px",
-                  flexShrink: 0,
-                }}
-              ></div>
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#333",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Waktu Pembayaran
-                </p>
-                <p style={{ fontSize: "11px", color: "#6c757d" }}>
-                  {orderData.tgl_pembayaran && orderData.jam_pembayaran
-                    ? `${orderData.tgl_pembayaran} ${orderData.jam_pembayaran}`
-                    : "Menunggu pembayaran"}
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: "12px" }}>
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  backgroundColor: orderData.details[0]?.date_time_pengiriman
-                    ? "#28a745"
-                    : "#dee2e6",
-                  borderRadius: "50%",
-                  marginTop: "4px",
-                  flexShrink: 0,
-                }}
-              ></div>
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#333",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Waktu Pengiriman
-                </p>
-                <p style={{ fontSize: "11px", color: "#6c757d" }}>
-                  {orderData.details[0]?.date_time_pengiriman ||
-                    "Belum dikirim"}
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: "12px" }}>
-              <div
-                style={{
-                  width: "10px",
-                  height: "10px",
-                  backgroundColor: orderData.details[0]
-                    ?.date_time_pesanan_diterima
-                    ? "#28a745"
-                    : "#dee2e6",
-                  borderRadius: "50%",
-                  marginTop: "4px",
-                  flexShrink: 0,
-                }}
-              ></div>
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#333",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Pesanan Selesai
-                </p>
-                <p style={{ fontSize: "11px", color: "#6c757d" }}>
-                  {orderData.details[0]?.date_time_pesanan_diterima ||
-                    "Belum selesai"}
-                </p>
-              </div>
+              {/* Additional content can go here */}
             </div>
           </div>
         </div>
