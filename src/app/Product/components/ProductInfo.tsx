@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Heart, Share2, Star, ShoppingCart, Plus, Minus } from "lucide-react";
 import Swal from "sweetalert2";
 import { addToCart } from "@/utils/cartActions";
@@ -60,6 +60,9 @@ export default function ProductInfo({
   const [quantity, setQuantity] = useState(initialQuantity);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const router = useRouter();
 
   const currentVariant =
@@ -67,7 +70,7 @@ export default function ProductInfo({
   const discount = Math.round(
     ((currentVariant.originalPrice - currentVariant.price) /
       currentVariant.originalPrice) *
-      100,
+    100,
   );
 
   const handleVariantChange = (variantName: string) => {
@@ -81,6 +84,131 @@ export default function ProductInfo({
   };
 
   const addToCartAndUpdate = useCartStore((state) => state.addToCartAndUpdate);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadWishlist = async () => {
+      if (!(await isAuthenticated())) {
+        if (isMounted) {
+          setIsWishlisted(false);
+        }
+        return;
+      }
+
+      if (isMounted) {
+        setWishlistLoading(true);
+      }
+
+      try {
+        const response = await fetch("/api/wishlist", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch wishlist");
+        }
+
+        const result = await response.json();
+        const wishlistItems: Array<{ id_produk?: number }> = Array.isArray(
+          result?.data,
+        )
+          ? result.data
+          : [];
+
+        if (isMounted) {
+          const isProductWishlisted = wishlistItems.some(
+            (item) => item.id_produk === productId,
+          );
+          setIsWishlisted(isProductWishlisted);
+        }
+      } catch (error) {
+        console.error("Error loading wishlist:", error);
+      } finally {
+        if (isMounted) {
+          setWishlistLoading(false);
+        }
+      }
+    };
+
+    void loadWishlist();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId]);
+
+  const handleToggleWishlist = async () => {
+    if (!(await isAuthenticated())) {
+      const result = await Swal.fire({
+        icon: "warning",
+        title:
+          '<span style="color: #1a1a1a; font-family: Poppins, sans-serif;">Login Diperlukan</span>',
+        text: "Anda harus login terlebih dahulu untuk mengelola wishlist",
+        showCancelButton: true,
+        confirmButtonText: "Login Sekarang",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#55B4E5",
+        cancelButtonColor: "#6c757d",
+      });
+
+      if (result.isConfirmed) {
+        router.push("/auth/login");
+      }
+      return;
+    }
+
+    try {
+      setIsTogglingWishlist(true);
+
+      const response = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_produk: productId }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok && result?.success) {
+        const nextState = !isWishlisted;
+        setIsWishlisted(nextState);
+
+        await Swal.fire({
+          icon: "success",
+          title: nextState ? "Ditambahkan ke Wishlist" : "Dihapus dari Wishlist",
+          text:
+            result?.message ||
+            (nextState
+              ? "Produk berhasil ditambahkan ke wishlist"
+              : "Produk dihapus dari wishlist"),
+          confirmButtonColor: "#55B4E5",
+        });
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: result?.message || "Gagal memperbarui wishlist",
+          confirmButtonColor: "#55B4E5",
+        });
+      }
+    } catch (error) {
+      console.error("Toggle wishlist error:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: "Tidak dapat memperbarui wishlist. Silakan coba lagi.",
+        confirmButtonColor: "#55B4E5",
+      });
+    } finally {
+      setIsTogglingWishlist(false);
+    }
+  };
 
   const handleAddToCart = async () => {
     // Check if user is authenticated
@@ -466,19 +594,32 @@ export default function ProductInfo({
           }}
         >
           <div style={{ display: "flex", gap: "8px" }}>
+            {/* wishlist button */}
             <button
+              onClick={handleToggleWishlist}
+              disabled={wishlistLoading || isTogglingWishlist}
               style={{
-                backgroundColor: "white",
+                backgroundColor: isWishlisted ? "#55B4E5" : "white",
                 border: "2px solid #55B4E5",
                 borderRadius: "8px",
                 padding: "10px",
-                cursor: "pointer",
+                cursor:
+                  wishlistLoading || isTogglingWishlist
+                    ? "not-allowed"
+                    : "pointer",
                 transition: "all 0.2s ease",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                opacity: wishlistLoading || isTogglingWishlist ? 0.6 : 1,
               }}
+              aria-pressed={isWishlisted}
             >
-              <Heart size={16} stroke="#55B4E5" />
+              <Heart
+                size={16}
+                stroke={isWishlisted ? "white" : "#55B4E5"}
+                fill={isWishlisted ? "white" : "none"}
+              />
             </button>
+
             <button
               style={{
                 backgroundColor: "white",
