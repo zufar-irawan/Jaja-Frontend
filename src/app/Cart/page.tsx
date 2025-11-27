@@ -235,7 +235,7 @@ const ShoppingCartPage = () => {
         icon: 'error',
         confirmButtonColor: '#55B4E5',
       });
-    }
+    } 
   };
 
   const totals = calculateCartTotals(cartItems, 0, discount, 0);

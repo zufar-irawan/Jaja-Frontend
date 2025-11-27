@@ -148,6 +148,14 @@ const CheckoutPage = () => {
     cost: number,
     etd: string,
   ) => {
+    const currentSelection = selectedShipping[storeId];
+    if (
+      currentSelection?.courier === courier.toLowerCase() &&
+      currentSelection?.service === service.toUpperCase()
+    ) {
+      handleShippingUnselect(storeId);
+      return;
+    }
     console.log("Selecting shipping:", {
       storeId,
       courier,
@@ -165,6 +173,15 @@ const CheckoutPage = () => {
         etd,
       },
     }));
+  };
+  
+  const handleShippingUnselect = (storeId: number) => {
+    console.log("Unselecting shipping for store:", storeId);
+    setSelectedShipping((prev) => {
+      const newState = { ...prev };
+      delete newState[storeId];
+      return newState;
+    });
   };
 
   const handleApplyVoucher = () => {
