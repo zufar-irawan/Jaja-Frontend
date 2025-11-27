@@ -7,25 +7,22 @@ import Footer from '@components/Footer';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
-  console.log('🔍 Current pathname:', pathname);
-  
-  // Daftar halaman yang TIDAK pakai header/footer default
-  const noLayoutPages = [
-    '/Privacy/Tentang',      // ← TAMBAHKAN INI
-    '/kebijakan-privasi', 
-    '/privacy'
+  const hideLayout = [
+    "/main/auth/login",
+    "/main/auth/register",
+    "/main/auth/lupaPassword",
+    "/main/auth/reset-password",
+    "/Privacy/Tentang",
+    "/kebijakan-privasi",
+    "/privacy"
   ];
-  
-  // Jika halaman ada di list, render tanpa header/footer
-  if (noLayoutPages.includes(pathname)) {
-    console.log('✅ Skipping layout for:', pathname);
+
+  const shouldHideLayout = hideLayout.includes(pathname || "");
+
+  if (shouldHideLayout) {
     return <>{children}</>;
   }
-  
-  console.log('❌ Using default layout for:', pathname);
-  
-  // Render dengan header/footer untuk halaman lain
+
   return (
     <>
       <Header />

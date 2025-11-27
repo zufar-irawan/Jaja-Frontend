@@ -42,7 +42,7 @@ export default function StoreInfo({ storeInfo }: StoreInfoProps) {
       });
 
       if (result.isConfirmed) {
-        router.push("/auth/login");
+        router.push("/main/auth/login");
         return;
       }
 

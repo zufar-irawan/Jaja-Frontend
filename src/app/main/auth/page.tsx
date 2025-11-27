@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 
-export default function Auth() {
+export default function MainAuth() {
     const router = useRouter()
 
-    router.push('/auth/login')
+    router.push('/main/auth/login')
 
     return null
 }

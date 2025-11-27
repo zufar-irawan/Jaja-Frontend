@@ -801,13 +801,13 @@ export default function JajaNavbar() {
             ) : (
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={() => router.push("/auth/login")}
+                  onClick={() => router.push("/main/auth/login")}
                   className="px-4 py-2 text-[#55B4E5] font-semibold hover:bg-[#55B4E5]/10 rounded-lg transition-all border border-[#55B4E5]/30 hover:border-[#55B4E5]/50"
                 >
                   Masuk
                 </button>
                 <button
-                  onClick={() => router.push("/auth/register")}
+                  onClick={() => router.push("/main/auth/register")}
                   className="px-4 py-2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
                 >
                   Daftar
