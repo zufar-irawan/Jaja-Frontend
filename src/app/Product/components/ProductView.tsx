@@ -256,14 +256,21 @@ export default function ProductView({
 
             <div
               style={{
-                display: "flex",
-                gap: "12px",
-                overflowX: "auto",
-                paddingBottom: "8px",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: "16px",
+                width: "100%",
               }}
             >
               {relatedProducts.map((prod) => (
-                <div key={prod.id_produk} className="flex gap-2 overflow-x-auto">
+                <div 
+                  key={prod.id_produk}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    minHeight: "350px",
+                  }}
+                >
                   <ProductCard
                     item={{
                       id: prod.id_produk,
