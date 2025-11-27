@@ -55,7 +55,7 @@ export default async function Home() {
           Kategori pilihan
         </header>
 
-        <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-6 overflow-x-auto">
+        <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-6 overflow-hidden">
           {categories.map((item, index) => (
             <Link
               key={index}
