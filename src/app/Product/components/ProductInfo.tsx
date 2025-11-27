@@ -157,7 +157,7 @@ export default function ProductInfo({
       });
 
       if (result.isConfirmed) {
-        router.push("/auth/login");
+        router.push("/main/auth/login");
       }
       return;
     }
@@ -226,7 +226,7 @@ export default function ProductInfo({
       });
 
       if (result.isConfirmed) {
-        router.push("/auth/login");
+        router.push("/main/auth/login");
       }
       return;
     }
@@ -305,7 +305,7 @@ export default function ProductInfo({
       });
 
       if (result.isConfirmed) {
-        router.push("/auth/login");
+        router.push("/main/auth/login");
       }
       return;
     }
@@ -353,7 +353,7 @@ export default function ProductInfo({
         });
 
         if (result.isConfirmed) {
-          router.push("/auth/login");
+          router.push("/main/auth/login");
         }
       } else {
         await Swal.fire({

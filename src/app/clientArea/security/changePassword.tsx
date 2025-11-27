@@ -115,7 +115,7 @@ export default function ChangePassword({ onClose }: ChangePasswordProps) {
             onClose(false)
 
             if (swalResult.isConfirmed) {
-                router.push("/auth/login")
+                router.push("/main/auth/login")
             } else {
                 router.refresh()
             }
