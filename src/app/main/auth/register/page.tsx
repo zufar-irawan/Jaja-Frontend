@@ -73,7 +73,7 @@ export default function Register() {
 
       if (result.success) {
         alert("Registrasi berhasil! Silakan login dengan akun Anda.");
-        router.push("/auth/login");
+        router.push("/main/auth/login");
       } else {
         setError(result.message || "Registrasi gagal");
       }
@@ -395,7 +395,7 @@ export default function Register() {
           <p className="text-center text-gray-600 mt-6">
             Sudah memiliki akun?{" "}
             <Link
-              href="/auth/login"
+              href="/main/auth/login"
               className="text-[#FBB338] hover:text-[#E5A031] font-medium"
             >
               Masuk

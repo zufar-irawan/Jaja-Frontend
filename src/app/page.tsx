@@ -106,6 +106,7 @@ export default async function Home() {
                   image: product.covers?.[0]?.foto || "",
                   address: product.tokos.wilayah?.kelurahan_desa || "",
                   slug: product.slug_produk,
+                  free_ongkir: product.free_ongkir || "",
                 }}
               />
             ))}
@@ -139,6 +140,7 @@ export default async function Home() {
                   image: product.covers?.[0]?.foto || "",
                   address: product.tokos.wilayah?.kelurahan_desa || "",
                   slug: product.slug_produk,
+                  free_ongkir: product.free_ongkir || "",
                 }}
               />
             </div>

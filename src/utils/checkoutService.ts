@@ -52,6 +52,7 @@ export interface ReviewCheckoutResponse {
       products: Array<{
         productId: number;
         cartId: number;
+        name: string;
         image: string;
         badges: string[];
         variant: string | null;

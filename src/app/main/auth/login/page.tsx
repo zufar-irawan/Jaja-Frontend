@@ -206,7 +206,7 @@ export default function Login() {
                 <span className="ml-2 text-sm text-gray-600">Ingat saya</span>
               </label>
               <Link
-                href="/auth/lupaPassword"
+                href="/main/auth/lupaPassword"
                 className="text-sm text-[#55B4E5] hover:text-[#4A9FD0] font-medium"
               >
                 Lupa Password?
@@ -253,7 +253,7 @@ export default function Login() {
           <p className="text-center text-gray-600 mt-8">
             Belum punya akun?{" "}
             <Link
-              href="/auth/register"
+              href="/main/auth/register"
               className="text-[#FBB338] hover:text-[#E5A031] font-medium"
             >
               Daftar sekarang
