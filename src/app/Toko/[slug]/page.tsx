@@ -1,10 +1,11 @@
 import React from 'react';
-import { Store, MapPin, Clock, Star, Package, MessageCircle, Share2, Heart, Award, TrendingUp, Truck, Search, Filter, ChevronDown, ChevronUp, Grid, List, ShoppingCart, Zap, BadgeCheck } from 'lucide-react';
+import { Store, MapPin, Clock, Star, Package, Award, TrendingUp, Truck, BadgeCheck } from 'lucide-react';
 import { getTokoBySlug, getTokoProducts, getOperationalDays, getKurirList, getTokoPhotoUrl, isTokoOpen, getTokoStats, parseBukaTokoData } from '@/utils/tokoService';
 import { notFound } from 'next/navigation';
 import TokoClientComponent from './TokoClientComponent';
 import ProductCard from '@/components/ProductCard';
 import ExpandableDescription from './ExpandableDescription';
+import ProductFilter from './ProductFilter';
 
 interface TokoPageProps {
   params: Promise<{
@@ -41,9 +42,9 @@ export default async function TokoPage({ params }: TokoPageProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-cyan-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-orange-50">
       {/* Modern Minimalist Header */}
-      <div className="bg-linear-to-r from-[#55B4E5] via-[#4DA8DC] to-[#FBB338] border-b-4 border-white/20">
+      <div className="bg-gradient-to-r from-[#55B4E5] via-[#4DA8DC] to-[#FBB338] border-b-4 border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Shop Avatar & Badge */}
@@ -56,7 +57,7 @@ export default async function TokoPage({ params }: TokoPageProps) {
                     className="w-full h-full rounded-3xl object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-linear-to-br from-[#55B4E5] to-[#FBB338] rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#55B4E5] to-[#FBB338] rounded-3xl flex items-center justify-center">
                     <Store className="w-16 h-16 text-white" />
                   </div>
                 )}
@@ -146,67 +147,37 @@ export default async function TokoPage({ params }: TokoPageProps) {
         </div>
       </div>
 
-      {/* Main Content with Products */}
+      {/* Main Content with Sidebar Layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Cari produk di toko ini..."
-                className="w-full pl-12 pr-4 py-3.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-indigo-600 transition-all text-slate-900 placeholder:text-slate-400"
-              />
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filter Sidebar */}
+          <ProductFilter />
+
+          {/* Products Section */}
+          <div className="flex-1">
+            {/* Section Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">Semua Produk</h2>
+              <p className="text-gray-600">Menampilkan {productsResponse.meta.total}+ produk tersedia</p>
             </div>
             
-            <div className="flex gap-3">
-              <button className="flex items-center gap-2 px-5 py-3.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-all">
-                <Filter className="w-5 h-5" />
-                Filter  
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              
-              <select className="px-5 py-3.5 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 focus:outline-none focus:border-indigo-600 cursor-pointer transition-all appearance-none bg-white pr-10">
-                <option>Terbaru</option>
-                <option>Terlaris</option>
-                <option>Harga Terendah</option>
-                <option>Harga Tertinggi</option>
-              </select>
+            {/* Products Grid - Using ProductCard */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {transformedProducts.map((product) => (
+                <ProductCard key={product.id} item={product} />
+              ))}
+            </div>
 
-              <div className="flex bg-gray-100 rounded-xl p-1">
-                <button className="p-2 rounded-lg transition-all bg-white shadow-sm text-[#55B4E5]">
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button className="p-2 rounded-lg transition-all text-gray-500">
-                  <List className="w-5 h-5" />
+            {/* Load More */}
+            {productsResponse.meta.total > productsResponse.data.length && (
+              <div className="text-center mt-12">
+                <button className="px-8 py-4 bg-white border-2 border-[#55B4E5] rounded-xl font-bold text-[#55B4E5] hover:bg-gradient-to-r hover:from-[#55B4E5] hover:to-[#FBB338] hover:text-white hover:border-transparent transition-all duration-200 shadow-lg">
+                  Muat Lebih Banyak Produk
                 </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
-
-        {/* Section Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Semua Produk</h2>
-          <p className="text-gray-600">Menampilkan {productsResponse.meta.total}+ produk tersedia</p>
-        </div>
-        
-        {/* Products Grid - Using ProductCard */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-          {transformedProducts.map((product) => (
-            <ProductCard key={product.id} item={product} />
-          ))}
-        </div>
-
-        {/* Load More */}
-        {productsResponse.meta.total > productsResponse.data.length && (
-          <div className="text-center mt-12">
-            <button className="px-8 py-4 bg-white border-2 border-[#55B4E5] rounded-xl font-bold text-[#55B4E5] hover:bg-linear-to-r hover:from-[#55B4E5] hover:to-[#FBB338] hover:text-white hover:border-transparent transition-all duration-200 shadow-lg">
-              Muat Lebih Banyak Produk
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
