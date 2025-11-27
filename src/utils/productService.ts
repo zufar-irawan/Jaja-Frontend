@@ -15,6 +15,7 @@ export interface Product {
     merek?: number | string
     kode_sku?: string
     berat?: string
+    free_ongkir?: string
     ukuran_paket_panjang?: string
     ukuran_paket_lebar?: string
     ukuran_paket_tinggi?: string

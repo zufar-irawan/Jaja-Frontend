@@ -1,7 +1,7 @@
 'use client'
 
 import { formatCurrency } from '@/utils/format'
-import { MapPin } from 'lucide-react'
+import { MapPin, Truck } from 'lucide-react'
 import Link from 'next/link'
 import { useRecentlyViewedStore } from '@/store/recentlyViewedStore'
 
@@ -13,6 +13,7 @@ type ProductCardProps = {
         image: string
         address: string
         slug?: string
+        free_ongkir?: string
     }
 }
 
@@ -86,7 +87,7 @@ export default function ProductCard({ item }: ProductCardProps) {
                     </p>
 
                     {/* Rating */}
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             height="16px"
@@ -98,7 +99,7 @@ export default function ProductCard({ item }: ProductCardProps) {
                         <span className="text-xs">
                             4.9 <span className="text-gray-500">(200+)</span>
                         </span>
-                    </div>
+                    </div> */}
 
                     {/* Location */}
                     {item.address && (
@@ -107,6 +108,18 @@ export default function ProductCard({ item }: ProductCardProps) {
                             <span className="truncate text-xs text-gray-600">
                                 {item.address}
                             </span>
+                        </div>
+                    )}
+
+                    {/* Free Ongkir Badge */}
+                    {item.free_ongkir && item.free_ongkir === "T" && (
+                        <div className='flex items-center gap-1'>
+                            <Truck size={14} className="shrink-0 text-green-500" />
+                            <div className="rounded-full bg-green-100 px-2 py-0.5">
+                                <span className="text-xs font-medium text-green-700">
+                                    Free Ongkir
+                                </span>
+                            </div>
                         </div>
                     )}
                 </div>
