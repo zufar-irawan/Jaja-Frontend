@@ -107,49 +107,49 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
     }, [onClose]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            {/* Backdrop */}
-            <div className="absolute inset-0" onClick={() => onClose(false)}></div>
+        <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/50 sm:backdrop-blur-sm">
+            {/* Backdrop (desktop only) */}
+            <div className="absolute inset-0 hidden sm:block" onClick={() => onClose(false)}></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden z-10">
+            <div className="relative z-10 flex w-full flex-col bg-white rounded-none shadow-none sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
+                <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Edit Profil</h1>
-                        <p className="text-sm text-gray-600 mt-1">Perbarui informasi personal Anda</p>
+                        <h1 className="text-lg sm:text-2xl font-bold text-gray-900">Edit Profil</h1>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">Perbarui informasi personal Anda</p>
                     </div>
                     <button
                         onClick={() => onClose(false)}
-                        className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-all"
+                        className="p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-all"
                         aria-label="Tutup modal"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="flex flex-col lg:flex-row overflow-y-auto max-h-[calc(90vh-180px)]">
+                <div className="overflow-y-auto overscroll-contain">
                     {/* Left Section - Form */}
                     <form
                         id="profile-edit-form"
-                        className="flex-1 px-8 py-6 space-y-6"
+                        className="px-4 py-4 sm:px-8 sm:py-6 space-y-4 sm:space-y-6"
                         onSubmit={handleSubmit}
                     >
                         {/* Biodata Section */}
-                        <div className="space-y-4">
-                            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                                <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="space-y-3 sm:space-y-4">
+                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 Biodata
                             </h2>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="firstName" className="text-xs sm:text-sm font-medium text-gray-700">
                                         Nama Depan <span className="text-red-500">*</span>
                                     </label>
                                     <input
@@ -159,12 +159,12 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         value={formData.first_name}
                                         onChange={handleInputChange("first_name")}
                                         disabled={isLoading || loading}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="lastName" className="text-xs sm:text-sm font-medium text-gray-700">
                                         Nama Belakang
                                     </label>
                                     <input
@@ -174,13 +174,13 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                         value={formData.last_name}
                                         onChange={handleInputChange("last_name")}
                                         disabled={isLoading || loading}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="birthDate" className="text-sm font-medium text-gray-700">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="birthDate" className="text-xs sm:text-sm font-medium text-gray-700">
                                     Tanggal Lahir
                                 </label>
                                 <input
@@ -189,13 +189,13 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                     value={formData.tgl_lahir}
                                     onChange={handleInputChange("tgl_lahir")}
                                     disabled={isLoading || loading}
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Jenis Kelamin</label>
-                                <div className="flex gap-6 mt-3">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label className="text-xs sm:text-sm font-medium text-gray-700">Jenis Kelamin</label>
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 mt-2 sm:mt-3">
                                     <label htmlFor="pria" className="flex items-center cursor-pointer group">
                                         <input
                                             type="radio"
@@ -207,7 +207,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                             disabled={isLoading || loading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Pria</span>
+                                        <span className="ml-2 text-xs sm:text-sm text-gray-700 group-hover:text-gray-900">Pria</span>
                                     </label>
 
                                     <label htmlFor="wanita" className="flex items-center cursor-pointer group">
@@ -221,13 +221,13 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                             disabled={isLoading || loading}
                                             className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Wanita</span>
+                                        <span className="ml-2 text-xs sm:text-sm text-gray-700 group-hover:text-gray-900">Wanita</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="phone" className="text-xs sm:text-sm font-medium text-gray-700">
                                     Nomor HP <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -237,7 +237,7 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                                     value={formData.telepon}
                                     onChange={handleInputChange("telepon")}
                                     disabled={isLoading || loading}
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                 />
                             </div>
 
@@ -246,11 +246,13 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 px-8 py-5 border-t border-gray-200 bg-gray-50">
+                <div
+                    className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 px-4 py-3 sm:px-8 sm:py-5 border-t border-gray-200 bg-gray-50"
+                >
                     <button
                         type="button"
                         onClick={() => onClose(false)}
-                        className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
+                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all h-9 sm:h-auto"
                     >
                         Batalkan
                     </button>
@@ -258,12 +260,12 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
                         type="submit"
                         form="profile-edit-form"
                         disabled={loading}
-                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-60 disabled:cursor-not-allowed h-9 sm:h-auto whitespace-nowrap"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        Simpan Perubahan
+                        Simpan
                     </button>
                 </div>
             </div>
