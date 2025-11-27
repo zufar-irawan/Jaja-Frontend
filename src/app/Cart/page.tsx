@@ -15,7 +15,6 @@ const ShoppingCartPage = () => {
   const [loading, setLoading] = useState(true);
   const [editingQuantities, setEditingQuantities] = useState<Record<number, string>>({});
   const [couponCode, setCouponCode] = useState('');
-  const [deliveryType, setDeliveryType] = useState<'standard' | 'express' | 'free'>('standard');
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -239,11 +238,7 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const shippingCost = cartItems.filter(item => item.status_pilih).length > 0 
-    ? (deliveryType === 'standard' ? 50000 : deliveryType === 'express' ? 100000 : 0)
-    : 0;
-
-  const totals = calculateCartTotals(cartItems, shippingCost, discount);
+  const totals = calculateCartTotals(cartItems, 0, discount, 0);
   const allSelected = cartItems.length > 0 && cartItems.every(item => item.status_pilih);
 
   if (loading) {
@@ -720,39 +715,46 @@ const ShoppingCartPage = () => {
             ) : (
               <>
                 {/* Price Summary */}
-                <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Subtotal ({totals.selectedCount} items)</span>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.subtotal)}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Pengiriman</span>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.shipping)}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Pajak (10%)</span>
-                    <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600' }}>{formatCurrency(totals.tax)}</span>
+                <div style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#6c757d' }}>Subtotal ({totals.selectedCount} items)</span>
+                    <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600' }}>{formatCurrency(totals.subtotal)}</span>
                   </div>
                   {totals.discount > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d' }}>Diskon</span>
-                      <span style={{ fontSize: 'clamp(11px, 2vw, 12px)', fontWeight: '600', color: '#28a745' }}>-{formatCurrency(totals.discount)}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#6c757d' }}>Diskon</span>
+                      <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', color: '#28a745' }}>-{formatCurrency(totals.discount)}</span>
                     </div>
                   )}
+                  <div style={{ 
+                    marginTop: '12px', 
+                    paddingTop: '12px', 
+                    borderTop: '1px dashed #dee2e6',
+                    fontSize: 'clamp(11px, 2vw, 12px)',
+                    color: '#6c757d',
+                    fontStyle: 'italic'
+                  }}>
+                  </div>
                 </div>
 
                 {/* Total */}
                 <div style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
-                  marginBottom: '16px', 
-                  padding: '12px 0', 
-                  borderTop: '2px solid #e9ecef', 
-                  borderBottom: '2px solid #e9ecef',
+                  marginBottom: '20px', 
+                  padding: '16px', 
+                  backgroundColor: '#fff3cd',
+                  border: '2px solid #FBB338',
+                  borderRadius: '8px',
                   alignItems: 'center'
                 }}>
-                  <span style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '600' }}>Total</span>
-                  <span style={{ fontSize: 'clamp(16px, 4vw, 20px)', fontWeight: '700', color: '#FBB338' }}>{formatCurrency(totals.total)}</span>
+                  <div>
+                    <div style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '600', marginBottom: '4px' }}>Total</div>
+                    <div style={{ fontSize: 'clamp(10px, 2vw, 11px)', color: '#666' }}>Belum termasuk ongkir</div>
+                  </div>
+                  <span style={{ fontSize: 'clamp(18px, 4.5vw, 22px)', fontWeight: '700', color: '#FBB338' }}>
+                    {formatCurrency(totals.total)}
+                  </span>
                 </div>
 
                 {/* Checkout Button */}

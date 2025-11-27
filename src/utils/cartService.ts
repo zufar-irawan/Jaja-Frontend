@@ -86,15 +86,20 @@ export interface CartTotals {
 
 // ==================== HELPER FUNCTIONS (CLIENT-SIDE) ====================
 export function getProductPrice(item: CartItem): number {
-    const productPrice = typeof item.produk === 'object' && item.produk ? item.produk.harga : 0
-    const basePrice = item.variasi?.harga_variasi || productPrice || 0
-    
-    if (typeof item.produk === 'object' && item.produk && item.produk.diskon && item.produk.diskon > 0) {
-        const discount = item.produk.diskon / 100
-        return Math.round(basePrice * (1 - discount))
+    if(item.harga !== undefined && item.harga !== null) {
+      return item.harga
     }
-    
-    return basePrice
+    if(item.variasi?.harga_variasi) {
+      return item.variasi.harga_variasi;
+    }
+    if(typeof item.produk === 'object' && item.produk?.harga) {
+      if(item.produk.diskon && item.produk.diskon > 0) {
+        const discount = item.produk.diskon / 100;
+        return Math.round(item.produk.harga * (1 - discount));
+      }
+      return item.produk.harga;
+    }
+    return 0;
 }
 
 export function getProductImageUrl(item: CartItem): string {
