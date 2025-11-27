@@ -86,7 +86,7 @@ export default function Wishlist() {
 
     if (loading) {
         return (
-            <div className="flex min-h-[400px] items-center justify-center">
+            <div className="flex min-h-[400px] w-full items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-500" />
                     <p className="mt-4 text-gray-600">Memuat wishlist...</p>
@@ -97,7 +97,7 @@ export default function Wishlist() {
 
     if (error) {
         return (
-            <div className="flex min-h-[400px] items-center justify-center">
+            <div className="flex min-h-[400px] w-full items-center justify-center">
                 <div className="text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                         <Heart className="h-8 w-8 text-red-500" />
@@ -113,7 +113,7 @@ export default function Wishlist() {
 
     if (wishlistItems.length === 0) {
         return (
-            <div className="flex min-h-[400px] items-center justify-center">
+            <div className="flex min-h-[400px] w-full items-center justify-center">
                 <div className="text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                         <Heart className="h-8 w-8 text-gray-400" />

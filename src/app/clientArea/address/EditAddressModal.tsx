@@ -325,31 +325,31 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            {/* Backdrop */}
-            <div className="absolute inset-0" onClick={() => onClose(false)}></div>
+        <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/50 sm:backdrop-blur-sm">
+            {/* Backdrop (desktop only) */}
+            <div className="absolute inset-0 hidden sm:block" onClick={() => onClose(false)}></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden z-10">
+            <div className="relative z-10 flex min-h-full w-full flex-col bg-white rounded-none shadow-none sm:h-auto sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:max-h-[90vh] sm:overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
+                <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-8 sm:py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">{isEdit ? 'Edit Alamat' : 'Tambah Alamat'}</h1>
-                        <p className="text-sm text-gray-600 mt-1">Lengkapi informasi alamat pengiriman Anda</p>
+                        <h1 className="text-lg sm:text-2xl font-bold text-gray-900">{isEdit ? 'Edit Alamat' : 'Tambah Alamat'}</h1>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">Lengkapi informasi alamat pengiriman Anda</p>
                     </div>
                     <button
                         onClick={() => onClose(false)}
-                        className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-all"
+                        className="p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-all"
                         aria-label="Tutup modal"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
+                <div className="flex-1 overflow-y-auto overscroll-contain">
                     {initializing ? (
                         <div className="flex h-[420px] flex-col items-center justify-center text-gray-500">
                             <svg className="h-10 w-10 animate-spin text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -358,7 +358,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             <p className="mt-4 text-sm">Memuat data alamat...</p>
                         </div>
                     ) : (
-                        <form id="addressForm" onSubmit={handleSubmit} className="px-8 py-6 space-y-5">
+                        <form id="addressForm" onSubmit={handleSubmit} className="px-4 py-4 sm:px-8 sm:py-6 space-y-4 sm:space-y-5">
                             {/* Feedback */}
                             {error && (
                                 <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
@@ -367,8 +367,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             )}
 
                             {/* Recipient Name */}
-                            <div className="space-y-2">
-                                <label htmlFor="recipientName" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="recipientName" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                     <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
@@ -378,36 +378,36 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     id="recipientName"
                                     type="text"
                                     placeholder="Masukkan nama penerima"
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     value={form.nama}
                                     onChange={(e) => updateField('nama', e.target.value)}
                                 />
                             </div>
 
                             {/* Phone Number and Address Alias */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="phone" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="phone" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
                                         Nomor Telepon <span className="text-red-500">*</span>
                                     </label>
                                     <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all overflow-hidden">
-                                        <span className="flex items-center px-3 text-sm bg-gray-100 text-gray-600 select-none">+62</span>
+                                        <span className="flex items-center px-2 sm:px-3 text-xs sm:text-sm bg-gray-100 text-gray-600 select-none">+62</span>
                                         <input
                                             id="phone"
                                             type="tel"
                                             inputMode="tel"
                                             placeholder="812xxxxxxxx"
-                                            className="w-full px-3 py-2.5 text-sm outline-none"
+                                            className="w-full px-3 py-2 sm:py-2.5 text-xs sm:text-sm outline-none"
                                             value={form.no_telepon}
                                             onChange={(e) => updateField('no_telepon', sanitizePhoneInput(e.target.value))}
                                         />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="alias" className="text-sm font-medium text-gray-700 flex items-center">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="alias" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                         </svg>
@@ -417,7 +417,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                         id="alias"
                                         type="text"
                                         placeholder="Contoh: Rumah, Kantor"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                         value={form.nama_alamat}
                                         onChange={(e) => updateField('nama_alamat', e.target.value)}
                                     />
@@ -425,9 +425,9 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             </div>
 
                             {/* Province and City */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="province" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="province" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -436,7 +436,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     </label>
                                     <select
                                         id="province"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
                                         value={form.provinsi_id ?? ''}
                                         onChange={(e) => onProvinceChange(Number(e.target.value))}
                                     >
@@ -447,8 +447,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     </select>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label htmlFor="city" className="text-sm font-medium text-gray-700 flex items-center">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="city" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
@@ -456,7 +456,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     </label>
                                     <select
                                         id="city"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
                                         value={form.kota_id ?? ''}
                                         onChange={(e) => onCityChange(Number(e.target.value))}
                                         disabled={!hasRegionSelected.province}
@@ -470,9 +470,9 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             </div>
 
                             {/* District and Village */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="district" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="district" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         </svg>
@@ -480,7 +480,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     </label>
                                     <select
                                         id="district"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
                                         value={form.kecamatan_id ?? ''}
                                         onChange={(e) => onDistrictChange(Number(e.target.value))}
                                         disabled={!hasRegionSelected.city}
@@ -491,8 +491,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                         ))}
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="village" className="text-sm font-medium text-gray-700 flex items-center">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="village" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         </svg>
@@ -500,7 +500,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     </label>
                                     <select
                                         id="village"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
                                         value={form.kelurahan_id ?? ''}
                                         onChange={(e) => onVillageChange(Number(e.target.value))}
                                         disabled={!hasRegionSelected.district}
@@ -514,8 +514,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             </div>
 
                             {/* Address Detail */}
-                            <div className="space-y-2">
-                                <label htmlFor="addressDetail" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="addressDetail" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                     <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
@@ -525,7 +525,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     id="addressDetail"
                                     rows={3}
                                     placeholder="Masukkan detail alamat lengkap (nama jalan, nomor rumah, RT/RW, dll)"
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none resize-none"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none resize-none"
                                     value={form.alamat_lengkap}
                                     onChange={(e) => updateField('alamat_lengkap', e.target.value)}
                                 />
@@ -533,8 +533,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
 
                             {/* Coordinate & Reference */}
                             <div className="space-y-3">
-                                <div className="space-y-2">
-                                    <label htmlFor="addressReference" className="text-sm font-medium text-gray-700 flex items-center">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="addressReference" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                         <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c1.657 0 3-1.567 3-3.5S13.657 1 12 1 9 2.567 9 4.5 10.343 8 12 8zm0 3c-3.866 0-7 2.358-7 5.263V20h14v-3.737C19 13.358 15.866 11 12 11z" />
                                         </svg>
@@ -544,30 +544,30 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                         id="addressReference"
                                         type="text"
                                         placeholder="Contoh: Sebelah minimarket A"
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                         value={form.alamat_koordinat}
                                         onChange={(e) => updateField('alamat_koordinat', e.target.value)}
                                     />
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="latitude" className="text-sm font-medium text-gray-700">Latitude (opsional)</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                                    <div className="space-y-1.5 sm:space-y-2">
+                                        <label htmlFor="latitude" className="text-xs sm:text-sm font-medium text-gray-700">Latitude (opsional)</label>
                                         <input
                                             id="latitude"
                                             type="text"
                                             placeholder="-6.47..."
-                                            className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                            className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                             value={form.latitude}
                                             onChange={(e) => updateField('latitude', e.target.value)}
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="longitude" className="text-sm font-medium text-gray-700">Longitude (opsional)</label>
+                                    <div className="space-y-1.5 sm:space-y-2">
+                                        <label htmlFor="longitude" className="text-xs sm:text-sm font-medium text-gray-700">Longitude (opsional)</label>
                                         <input
                                             id="longitude"
                                             type="text"
                                             placeholder="106.81..."
-                                            className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                            className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                             value={form.longitude}
                                             onChange={(e) => updateField('longitude', e.target.value)}
                                         />
@@ -576,8 +576,8 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                             </div>
 
                             {/* Postal Code */}
-                            <div className="space-y-2">
-                                <label htmlFor="postalCode" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="postalCode" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                     <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                                     </svg>
@@ -587,15 +587,15 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                     id="postalCode"
                                     type="text"
                                     placeholder="Masukkan kode pos"
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                                     value={form.kode_pos}
                                     onChange={(e) => updateField('kode_pos', e.target.value)}
                                 />
                             </div>
 
                             {/* Address Type */}
-                            <div className="space-y-2">
-                                <label htmlFor="addressType" className="text-sm font-medium text-gray-700 flex items-center">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <label htmlFor="addressType" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
                                     <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                     </svg>
@@ -603,7 +603,7 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                                 </label>
                                 <select
                                     id="addressType"
-                                    className="w-full px-4 py-2.5 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white cursor-pointer"
+                                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white cursor-pointer"
                                     value={form.label}
                                     onChange={(e) => updateField('label', e.target.value)}
                                 >
@@ -635,11 +635,14 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 px-8 py-5 border-t border-gray-200 bg-gray-50">
+                <div
+                    className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 px-4 py-3 sm:px-8 sm:py-5 border-t border-gray-200 bg-gray-50"
+                    style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}
+                >
                     <button
                         type="button"
                         onClick={() => onClose(false)}
-                        className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
+                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all h-9 sm:h-auto"
                         disabled={saving}
                     >
                         Batal
@@ -647,10 +650,10 @@ export default function EditAddressModal({ onClose, isEdit, address, onSaved }: 
                     <button
                         type="submit"
                         form="addressForm"
-                        className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-70"
+                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-70 h-9 sm:h-auto whitespace-nowrap"
                         disabled={saving || initializing}
                     >
-                        <svg className={`w-5 h-5 ${saving ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${saving ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         {saving ? 'Menyimpan...' : 'Simpan Alamat'}

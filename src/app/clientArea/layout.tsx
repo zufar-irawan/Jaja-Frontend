@@ -36,10 +36,10 @@ export default function ClientAreaLayout(
     }, [fetchUserProfile])
 
     const headerCard = [
-        { title: 'Belum bayar', value: 0, icon: (<Wallet color="#000000" size={40} strokeWidth={1.5} />) },
-        { title: 'Diproses', value: 0, icon: (<Package2 color="#000000" size={40} strokeWidth={1.5} />) },
-        { title: 'Dikirim', value: 0, icon: (<Truck color="#000000" size={40} strokeWidth={1.5} />) },
-        { title: 'Selesai', value: 0, icon: (<MapPinCheck color="#000000" size={40} strokeWidth={1.5} />) },
+        { title: 'Belum bayar', value: 0, icon: (<Wallet color="#000000" size={28} strokeWidth={1.5} className="sm:w-8 sm:h-8 md:w-10 md:h-10" />) },
+        { title: 'Diproses', value: 0, icon: (<Package2 color="#000000" size={28} strokeWidth={1.5} className="sm:w-8 sm:h-8 md:w-10 md:h-10" />) },
+        { title: 'Dikirim', value: 0, icon: (<Truck color="#000000" size={28} strokeWidth={1.5} className="sm:w-8 sm:h-8 md:w-10 md:h-10" />) },
+        { title: 'Selesai', value: 0, icon: (<MapPinCheck color="#000000" size={28} strokeWidth={1.5} className="sm:w-8 sm:h-8 md:w-10 md:h-10" />) },
     ]
 
     return (
@@ -71,7 +71,7 @@ export default function ClientAreaLayout(
                     <div className="flex w-full max-w-4xl flex-col gap-3 px-2 text-gray-50">
                         <p className="text-lg sm:text-xl lg:text-2xl font-semibold">Aktivitas</p>
 
-                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:gap-3 md:grid-cols-4">
                             {headerCard.map((item, index) => (
                                 <DashboardCard key={index} item={item} />
                             ))}
@@ -80,11 +80,11 @@ export default function ClientAreaLayout(
                 </header>
 
                 <main className="flex w-full flex-col gap-4 px-3 py-6 sm:px-8 sm:py-8 lg:flex-row lg:gap-6 lg:px-20">
-                    <div className="w-full lg:w-auto lg:max-w-sm shrink-0">
+                    <div className="w-full lg:w-auto lg:max-w-sm lg:shrink-0">
                         <ClientSidebar />
                     </div>
 
-                    <div className="flex w-full rounded-lg bg-white px-4 py-6 sm:px-6 sm:py-8 lg:px-10 shadow-md">
+                    <div className="flex w-full rounded-lg bg-white px-4 py-6 sm:px-6 sm:py-8 lg:px-10 shadow-md lg:flex-1">
                         {children}
                     </div>
                 </main>
