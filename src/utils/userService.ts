@@ -13,6 +13,7 @@ export interface UserProfile {
     jenis_kelamin?: 'pria' | 'wanita'
     tgl_lahir?: string
     foto_profil?: string
+    koin?: number | null
 }
 
 export interface UpdateProfileData {
