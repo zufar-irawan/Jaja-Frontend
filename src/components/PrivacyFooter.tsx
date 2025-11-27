@@ -8,7 +8,7 @@ const PrivacyFooter: React.FC = () => {
       width: '100%',
       backgroundColor: '#ffffff',
       borderTop: '1px solid #e0e0e0',
-      padding: '20px 0',
+      padding: '30px 0',
     },
     footerContent: {
       maxWidth: '1200px',
@@ -26,7 +26,7 @@ const PrivacyFooter: React.FC = () => {
       margin: 0,
     },
     logo: {
-      height: '40px',
+      height: '55px',
       width: 'auto',
     },
     links: {
