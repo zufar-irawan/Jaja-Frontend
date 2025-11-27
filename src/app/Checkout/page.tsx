@@ -42,6 +42,7 @@ const CheckoutPage = () => {
   const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(
     null,
   );
+  const [productNames, setProductNames] = useState<Record<number, string>>({});
 
   useEffect(() => {
     fetchInitialData();
@@ -92,11 +93,13 @@ const CheckoutPage = () => {
     try {
       setLoading(true);
       const cartResponse = await getCart();
+      
       if (cartResponse.success && cartResponse.data?.items) {
         const selected = cartResponse.data.items.filter(
           (item) => item.status_pilih,
         );
-
+  
+        console.log("Selected items:", selected);
         if (selected.length === 0) {
           await Swal.fire({
             icon: "warning",
@@ -107,6 +110,23 @@ const CheckoutPage = () => {
           router.push("/Cart");
           return;
         }
+  
+        const nameMapping: Record<number, string> = {};
+        selected.forEach((item) => {
+          console.log("Processing item:", {
+            id_produk: item.id_produk,
+            produk: item.produk,
+            nama: typeof item.produk === 'object' ? item.produk?.nama_produk : null
+          });
+          
+          if (typeof item.produk === 'object' && item.produk?.nama_produk) {
+            nameMapping[item.id_produk] = item.produk.nama_produk;
+          }
+        });
+        
+        console.log("=== PRODUCT NAME MAPPING ===");
+        console.log(nameMapping);
+        setProductNames(nameMapping);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -478,6 +498,7 @@ const CheckoutPage = () => {
                           cartId: number;
                           image: string;
                           productId: number;
+                          name: string;
                           variant: string | null;
                           qty: number;
                           priceCurrencyFormat: string;
@@ -537,7 +558,7 @@ const CheckoutPage = () => {
                                   textOverflow: "ellipsis",
                                 }}
                               >
-                                Product ID: {product.productId}
+                                {productNames[product.productId] || `Produk #${product.productId}`}
                               </p>
                               {product.variant && (
                                 <p
