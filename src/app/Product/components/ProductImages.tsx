@@ -9,6 +9,8 @@ interface ProductImagesProps {
   discount: number;
 }
 
+const PRODUCT_IMAGE_BASE_URL = "https://seller.jaja.id/asset/images/products/"
+
 export default function ProductImages({
   images,
   selectedImage: initialSelectedImage,
@@ -16,6 +18,9 @@ export default function ProductImages({
   discount,
 }: ProductImagesProps) {
   const [selectedImage, setSelectedImage] = useState(initialSelectedImage);
+
+  const resolveImageSrc = (imagePath: string) =>
+    imagePath.startsWith("http") ? imagePath : `${PRODUCT_IMAGE_BASE_URL}${imagePath}`
 
   const handleImageSelect = (index: number) => {
     setSelectedImage(index);
@@ -56,7 +61,7 @@ export default function ProductImages({
           </div>
         )}
         <img
-          src={images[selectedImage]}
+          src={resolveImageSrc(images[selectedImage])}
           alt="Product"
           style={{
             width: "100%",
@@ -67,7 +72,15 @@ export default function ProductImages({
         />
       </div>
 
-      <div style={{ display: "flex", gap: "12px" }}>
+      {/* Image Preview */}
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+          overflowX: "auto",
+          paddingBottom: "6px",
+        }}
+      >
         {images.map((img, idx) => (
           <div
             key={idx}
@@ -85,12 +98,13 @@ export default function ProductImages({
                 selectedImage === idx
                   ? "0 4px 12px rgba(85, 180, 229, 0.3)"
                   : "0 2px 8px rgba(0,0,0,0.04)",
-              flex: 1,
+              flex: "0 0 90px",
+              minWidth: "90px",
               transition: "all 0.2s ease",
             }}
           >
             <img
-              src={img}
+              src={resolveImageSrc(img)}
               alt={`Preview ${idx + 1}`}
               style={{
                 width: "100%",
