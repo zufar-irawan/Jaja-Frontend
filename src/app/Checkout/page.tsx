@@ -13,6 +13,7 @@ import {
 } from "@/utils/checkoutService";
 import AddressSection from "./AddressSection";
 import Swal from "sweetalert2";
+import { useOrderNotificationStore } from "@/store/orderNotificationStore";
 
 interface AppliedVoucher {
   code: string;
@@ -24,9 +25,9 @@ const CheckoutPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [reviewData, setReviewData] = useState<
-    ReviewCheckoutResponse["data"] | null
-  >(null);
+  const [reviewData, setReviewData] = useState<ReviewCheckoutResponse | null>(
+    null,
+  );
   const [selectedShipping, setSelectedShipping] = useState<
     Record<number, ShippingOption>
   >({});
@@ -37,12 +38,16 @@ const CheckoutPage = () => {
     alamat_lengkap: "",
   });
   const [customerNote, setCustomerNote] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("setiap saat");
+  const [deliveryTime, setDeliveryTime] = useState("normal");
   const [voucherCode, setVoucherCode] = useState("");
   const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(
     null,
   );
+
   const [productNames, setProductNames] = useState<Record<number, string>>({});
+
+  // Order notification store
+  const addPendingOrder = useOrderNotificationStore((state) => state.addPendingOrder);
 
   useEffect(() => {
     fetchInitialData();
@@ -93,12 +98,12 @@ const CheckoutPage = () => {
     try {
       setLoading(true);
       const cartResponse = await getCart();
-      
+
       if (cartResponse.success && cartResponse.data?.items) {
         const selected = cartResponse.data.items.filter(
           (item) => item.status_pilih,
         );
-  
+
         console.log("Selected items:", selected);
         if (selected.length === 0) {
           await Swal.fire({
@@ -110,7 +115,7 @@ const CheckoutPage = () => {
           router.push("/Cart");
           return;
         }
-  
+
         const nameMapping: Record<number, string> = {};
         selected.forEach((item) => {
           console.log("Processing item:", {
@@ -118,12 +123,12 @@ const CheckoutPage = () => {
             produk: item.produk,
             nama: typeof item.produk === 'object' ? item.produk?.nama_produk : null
           });
-          
+
           if (typeof item.produk === 'object' && item.produk?.nama_produk) {
             nameMapping[item.id_produk] = item.produk.nama_produk;
           }
         });
-        
+
         console.log("=== PRODUCT NAME MAPPING ===");
         console.log(nameMapping);
         setProductNames(nameMapping);
@@ -174,7 +179,7 @@ const CheckoutPage = () => {
       },
     }));
   };
-  
+
   const handleShippingUnselect = (storeId: number) => {
     console.log("Unselecting shipping for store:", storeId);
     setSelectedShipping((prev) => {
@@ -342,6 +347,26 @@ const CheckoutPage = () => {
       if (!idData) {
         throw new Error("ID transaksi tidak ditemukan dalam response");
       }
+
+      const transaksi = checkoutResponse.data.transaksi;
+      const products = reviewData?.data?.cart?.flatMap((storeCart)=>
+        storeCart.products.map((product) => ({
+          nama_produk: product.name || productNames[product.productId] || `Produk ${product.productId}`,
+          qty: product.qty,
+          harga: product.price || 0,
+          gambar: product.image || '',
+        }))
+      ) || [];
+
+      addPendingOrder({
+        id_data: idData,
+        order_number: transaksi.no_transaksi || idData,
+        total: transaksi.total,
+        created_at: new Date().toISOString(),
+        batas_pembayaran: transaksi.batas_pembayaran,
+        status: 'pending',
+        products: products,
+      });
 
       await Swal.fire({
         icon: "success",

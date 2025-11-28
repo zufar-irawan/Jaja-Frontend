@@ -17,6 +17,7 @@ import { getTransactionDetail, processPayment } from "@/utils/checkoutActions";
 import { formatCurrency } from "@/utils/checkoutService";
 import type { TransactionData } from "@/utils/checkoutService";
 import Swal from "sweetalert2";
+import { useOrderNotificationStore } from "@/store/orderNotificationStore";
 
 const OrderDetailPage = () => {
   const router = useRouter();
@@ -31,6 +32,8 @@ const OrderDetailPage = () => {
     minutes: 0,
     seconds: 0,
   });
+
+  const markOrderAsPaid = useOrderNotificationStore((state) => state.markOrderAsPaid);
 
   useEffect(() => {
     if (idData) {
@@ -98,7 +101,6 @@ const OrderDetailPage = () => {
     try {
       setProcessingPayment(true);
 
-      // Call payment API
       const paymentResponse = await processPayment({
         order_id: orderData.order_id,
         total_tagihan: parseFloat(orderData.total_tagihan.toString()),
@@ -110,6 +112,7 @@ const OrderDetailPage = () => {
       ) {
         const paymentUrl =
           paymentResponse.provider_payload.response.payment.url;
+        markOrderAsPaid(idData);
 
         await Swal.fire({
           icon: "success",
@@ -120,7 +123,6 @@ const OrderDetailPage = () => {
           showConfirmButton: false,
         });
 
-        // Redirect to payment URL
         window.location.href = paymentUrl;
       } else {
         throw new Error(
@@ -199,6 +201,15 @@ const OrderDetailPage = () => {
   }
 
   if (!orderData) return null;
+  
+  const isPaymentExpired = () => {
+      if (!orderData?.batas_pembayaran) return false;
+      const now = new Date().getTime();
+      const deadline = new Date(orderData.batas_pembayaran).getTime();
+      return now > deadline;
+    }
+  
+  const paymentExpired = isPaymentExpired();
 
   const statusColor =
     orderData.status_transaksi === "Menunggu Pembayaran"
@@ -226,65 +237,117 @@ const OrderDetailPage = () => {
 
       {/* Payment Deadline Banner */}
       {orderData.status_transaksi === "Menunggu Pembayaran" && (
-        <div
-          style={{
-            background: "linear-gradient(135deg, #FBB338 0%, #F59E0B 100%)",
-            padding: "12px 0",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: "1400px",
-              margin: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "16px",
-              padding: "0 20px",
-            }}
-          >
-            <span
+        <>
+          {paymentExpired ? (
+            <div
               style={{
-                color: "white",
-                fontWeight: "600",
-                fontSize: "14px",
+                background: "linear-gradient(135deg, #dc3545 0%, #c82333 100%)",
+                padding: "16px 0",
+                boxShadow: "0 4px 6px rgba(220, 53, 69, 0.3)",
               }}
             >
-              Batas Pembayaran
-            </span>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {[
-                { label: "h", value: timeRemaining.hours },
-                { label: "m", value: timeRemaining.minutes },
-                { label: "s", value: timeRemaining.seconds },
-              ].map((time, index) => (
-                <div
-                  key={index}
+              <div
+                style={{
+                  maxWidth: "1400px",
+                  margin: "0 auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "12px",
+                  padding: "0 20px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <Clock
+                    size={24}
+                    style={{ color: "white" }}
+                  />
+                  <span
+                    style={{
+                      color: "white",
+                      fontWeight: "700",
+                      fontSize: "18px",
+                      textAlign: "center",
+                    }}
+                  >
+                    Waktu Pembayaran Habis
+                  </span>
+                </div>
+                <p
                   style={{
-                    backgroundColor: "white",
-                    borderRadius: "8px",
-                    padding: "6px 10px",
-                    minWidth: "50px",
+                    color: "rgba(255, 255, 255, 0.9)",
+                    fontSize: "14px",
+                    margin: 0,
                     textAlign: "center",
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      fontWeight: "700",
-                      color: "#333",
-                    }}
-                  >
-                    {time.value.toString().padStart(2, "0")}
-                  </div>
-                  <div style={{ fontSize: "9px", color: "#6c757d" }}>
-                    {time.label}
-                  </div>
-                </div>
-              ))}
+                  Mohon maaf, batas waktu pembayaran untuk pesanan ini telah berakhir.
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
+          ) : (
+            <div
+              style={{
+                background: "linear-gradient(135deg, #FBB338 0%, #F59E0B 100%)",
+                padding: "12px 0",
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: "1400px",
+                  margin: "0 auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "16px",
+                  padding: "0 20px",
+                }}
+              >
+                <span
+                  style={{
+                    color: "white",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                  }}
+                >
+                  Batas Pembayaran
+                </span>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {[
+                    { label: "h", value: timeRemaining.hours },
+                    { label: "m", value: timeRemaining.minutes },
+                    { label: "s", value: timeRemaining.seconds },
+                  ].map((time, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: "8px",
+                        padding: "6px 10px",
+                        minWidth: "50px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "700",
+                          color: "#333",
+                        }}
+                      >
+                        {time.value.toString().padStart(2, "0")}
+                      </div>
+                      <div style={{ fontSize: "9px", color: "#6c757d" }}>
+                        {time.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Header */}
@@ -1244,24 +1307,30 @@ const OrderDetailPage = () => {
               >
                 <button
                   onClick={handlePayment}
-                  disabled={processingPayment}
+                  disabled={processingPayment || paymentExpired}
                   style={{
                     width: "100%",
                     padding: "13px",
-                    backgroundColor: processingPayment ? "#ccc" : "#55B4E5",
+                    backgroundColor: processingPayment || paymentExpired ? "#ccc" : "#55B4E5",
                     color: "white",
                     border: "none",
                     borderRadius: "6px",
-                    cursor: processingPayment ? "not-allowed" : "pointer",
+                    cursor: processingPayment || paymentExpired ? "not-allowed" : "pointer",
                     fontWeight: "600",
                     fontSize: "13px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
+                    opacity: paymentExpired ? 0.6 : 1,
                   }}
                 >
-                  {processingPayment ? (
+                  {paymentExpired ? (
+                    <>
+                      <Clock size={16} />
+                      Waktu Pembayaran Habis
+                    </>
+                  ) : processingPayment ? (
                     <>
                       <Loader2
                         size={16}
@@ -1303,7 +1372,6 @@ const OrderDetailPage = () => {
                 borderTop: "1px solid #e9ecef",
               }}
             >
-              {/* Additional content can go here */}
             </div>
           </div>
         </div>

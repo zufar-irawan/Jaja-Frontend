@@ -6,6 +6,7 @@ import axios from "axios";
 import { getUserProfile, type UserProfile } from "@/utils/userService";
 import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
+import OrderNotificationDropdown from "./OrderNotificationDropdown";
 import {
   performGlobalSearch,
   type SearchResults,
@@ -718,12 +719,9 @@ export default function JajaNavbar() {
                   </span>
                 </button>
 
-                <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
-                  <Bell className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
-                  <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                    0
-                  </span>
-                </button>
+                <div className="hidden md:block">
+                  <OrderNotificationDropdown />
+                </div>
 
                 <div className="relative">
                   <button
@@ -801,13 +799,13 @@ export default function JajaNavbar() {
             ) : (
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={() => router.push("/main/auth/login")}
+                  onClick={() => router.push("/auth/login")}
                   className="px-4 py-2 text-[#55B4E5] font-semibold hover:bg-[#55B4E5]/10 rounded-lg transition-all border border-[#55B4E5]/30 hover:border-[#55B4E5]/50"
                 >
                   Masuk
                 </button>
                 <button
-                  onClick={() => router.push("/main/auth/register")}
+                  onClick={() => router.push("/auth/register")}
                   className="px-4 py-2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105"
                 >
                   Daftar
