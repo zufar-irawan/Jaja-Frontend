@@ -1,26 +1,48 @@
 // app/page.tsx
 import HeroCarousel from "@/components/HeroCarousel";
 import ProductCard from "@/components/ProductCard";
+import TopProductCard from "@/components/TopProductCard";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection";
 import Link from "next/link";
 import {
   getFeaturedProducts,
-  getTopProducts,
   getRecommendedProducts,
+  getProductBySlug,
+  type Product,
 } from "@/utils/productService";
 import { getLanding } from "@/utils/landingService";
 
 export default async function Home() {
-  const [landingData, featuredProducts, topProducts, recommendedProducts] =
+  const [landingData, featuredProducts, recommendedProducts] =
     await Promise.all([
       getLanding(),
       getFeaturedProducts(6),
-      getTopProducts(12),
       getRecommendedProducts(100),
     ]);
 
   const heroBanners = landingData?.data?.banners ?? [];
   const categories = (landingData?.data?.categories ?? []).slice(0, 12);
+  const mostViewedProducts = landingData?.data?.most_viewed_products ?? [];
+
+  const topProducts = (
+    await Promise.all(
+      mostViewedProducts.map(async (item) => {
+        try {
+          const detail = await getProductBySlug(item.slug_produk);
+          if (detail?.success && detail.data?.product) {
+            const { ratings: _ratings, ...productData } = detail.data.product;
+            return productData as Product;
+          }
+        } catch (error) {
+          console.error(
+            `Failed to load most viewed product with slug ${item.slug_produk}`,
+            error
+          );
+        }
+        return null;
+      })
+    )
+  ).filter((product): product is Product => Boolean(product));
 
   return (
     <div className="flex flex-col gap-y-10">
@@ -79,32 +101,23 @@ export default async function Home() {
           </p> */}
         </header>
 
-        <div className="flex w-full flex-col items-center gap-6 md:flex-row md:items-stretch md:gap-8">
-          {/* Div Cover */}
-          {/* <div className="hidden h-175 w-full max-w-sm flex-col items-center justify-center rounded-lg bg-linear-to-t from-blue-500 to-blue-800 shadow-lg md:flex lg:max-w-none lg:w-130">
-            <p className="rounded-full bg-white px-5 py-10 text-center text-2xl font-bold text-blue-400">
-              Jaja
-              <span className="text-orange-400">ID</span>
-            </p>
-          </div> */}
-
-          {/* Product Item grid */}
-          <div className="w-full grid grid-cols-2 gap-2 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] lg:gap-2">
-            {topProducts.map((product) => (
-              <ProductCard
-                key={`featured-${product.id_produk}`}
-                item={{
-                  id: product.id_produk,
-                  name: product.nama_produk,
-                  price: product.harga,
-                  image: product.covers?.[0]?.foto || "",
-                  address: product.tokos.wilayah?.kelurahan_desa || "",
-                  slug: product.slug_produk,
-                  free_ongkir: product.free_ongkir || "",
-                }}
+        <div className="flex w-full gap-4 overflow-x-auto px-1 pb-2 scrollbar-hide">
+          {topProducts.length > 0 ? (
+            topProducts.map((product) => (
+              <TopProductCard
+                key={`most-viewed-${product.id_produk}`}
+                className="shrink-0"
+                product={product}
+                views={mostViewedProducts.find(
+                  (p) => p.slug_produk === product.slug_produk
+                )?.jumlah_view}
               />
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="flex min-h-[220px] w-full items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white/80 p-10 text-center text-gray-500">
+              Produk terlaris belum tersedia saat ini.
+            </div>
+          )}
         </div>
       </section>
 

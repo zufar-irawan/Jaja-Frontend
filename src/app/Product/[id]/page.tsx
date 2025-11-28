@@ -19,7 +19,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         // Fetch product by slug
         const response = await getProductBySlug(slug)
-        
+
         if (!response.success || !response.data?.product) {
             console.warn(`Product with slug "${slug}" not found or failed to load. API response:`, response)
             notFound()
@@ -27,13 +27,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         const { product, otherProduct } = response.data
 
-        // Transform data for components
-        const images = [
-            'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=500&fit=crop',
-            'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop',
-            'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500&h=500&fit=crop',
-            'https://images.unsplash.com/photo-1602080858428-57174f9431cf?w=500&h=500&fit=crop'
-        ]
+        // const images = [
+        //     'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&h=500&fit=crop',
+        //     'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop',
+        //     'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500&h=500&fit=crop',
+        //     'https://images.unsplash.com/photo-1602080858428-57174f9431cf?w=500&h=500&fit=crop'
+        // ]
 
         // Calculate discount
         const discount = product.diskon || 0
@@ -132,6 +131,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
             ]
         }
 
+        const productImageBaseUrl = 'https://seller.jaja.id/asset/images/products/'
+        const placeholderImage = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'
+
+        const productImages = Array.isArray(product.covers)
+            ? product.covers
+                .map(img => (img?.foto ? `${productImageBaseUrl}${img.foto}` : null))
+                .filter((src): src is string => Boolean(src))
+            : []
+
+        const resolvedImages = productImages.length > 0 ? productImages : [placeholderImage]
+
         return (
             <ProductView
                 product={product}
@@ -142,7 +152,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 reviews={reviews}
                 ratingStats={ratingStats}
                 categories={categories}
-                images={images}
+                images={resolvedImages}
                 variants={variants}
             />
         )

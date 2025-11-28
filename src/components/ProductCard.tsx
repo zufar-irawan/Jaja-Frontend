@@ -1,7 +1,7 @@
 'use client'
 
 import { formatCurrency } from '@/utils/format'
-import { MapPin, Truck } from 'lucide-react'
+import { Eye, MapPin, Truck } from 'lucide-react'
 import Link from 'next/link'
 import { useRecentlyViewedStore } from '@/store/recentlyViewedStore'
 
@@ -14,11 +14,27 @@ type ProductCardProps = {
         address: string
         slug?: string
         free_ongkir?: string
+        views?: number
     }
 }
 
 export default function ProductCard({ item }: ProductCardProps) {
     const addProduct = useRecentlyViewedStore((state) => state.addProduct);
+
+    const renderViewsBadge = () => {
+        if (!item?.views) return null
+
+        const formattedViews = item.views >= 1000
+            ? `${(item.views / 1000).toFixed(1)}k`
+            : item.views.toString()
+
+        return (
+            <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-blue-700 shadow-lg">
+                <Eye size={14} className="text-blue-500" />
+                <span>{formattedViews} views</span>
+            </div>
+        )
+    }
 
     if (!item?.slug) {
         return null
@@ -48,6 +64,7 @@ export default function ProductCard({ item }: ProductCardProps) {
             <div className="flex h-full flex-col">
                 {/* Image/Placeholder Section */}
                 <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg bg-gray-100">
+                    {renderViewsBadge()}
                     {item.image ? (
                         <img
                             src={item.image}
