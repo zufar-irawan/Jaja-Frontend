@@ -42,22 +42,22 @@ export default async function TokoPage({ params }: TokoPageProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-orange-50">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-cyan-50 to-orange-50">
       {/* Modern Minimalist Header */}
-      <div className="bg-gradient-to-r from-[#55B4E5] via-[#4DA8DC] to-[#FBB338] border-b-4 border-white/20">
+      <div className="bg-linear-to-r from-[#55B4E5] via-[#4DA8DC] to-[#FBB338] border-b-4 border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Shop Avatar & Badge */}
             <div className="relative">
               <div className="w-32 h-32 rounded-3xl bg-white p-1 shadow-2xl overflow-hidden">
                 {tokoData.foto ? (
-                  <img 
-                    src={storePhotoUrl} 
+                  <img
+                    src={storePhotoUrl}
                     alt={tokoData.nama_toko}
                     className="w-full h-full rounded-3xl object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#55B4E5] to-[#FBB338] rounded-3xl flex items-center justify-center">
+                  <div className="w-full h-full bg-linear-to-br from-[#55B4E5] to-[#FBB338] rounded-3xl flex items-center justify-center">
                     <Store className="w-16 h-16 text-white" />
                   </div>
                 )}
@@ -88,12 +88,12 @@ export default async function TokoPage({ params }: TokoPageProps) {
                   </span>
                 )}
               </div>
-              
+
               <p className="text-white/90 text-sm mb-2">{tokoData.greating_message}</p>
-              
+
               {/* Expandable Description */}
-              <ExpandableDescription 
-                text={tokoData.deskripsi_toko} 
+              <ExpandableDescription
+                text={tokoData.deskripsi_toko}
                 maxLength={150}
               />
 
@@ -106,7 +106,7 @@ export default async function TokoPage({ params }: TokoPageProps) {
                   </div>
                   <span className="text-sm text-white/80">({stats.totalReviews.toLocaleString()} ulasan)</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-white">
                   <Package className="w-5 h-5" />
                   <span className="font-semibold">{stats.totalProducts}+</span>
@@ -160,7 +160,7 @@ export default async function TokoPage({ params }: TokoPageProps) {
               <h2 className="text-2xl font-bold text-gray-900 mb-1">Semua Produk</h2>
               <p className="text-gray-600">Menampilkan {productsResponse.meta.total}+ produk tersedia</p>
             </div>
-            
+
             {/* Products Grid - Using ProductCard */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {transformedProducts.map((product) => (
@@ -171,7 +171,7 @@ export default async function TokoPage({ params }: TokoPageProps) {
             {/* Load More */}
             {productsResponse.meta.total > productsResponse.data.length && (
               <div className="text-center mt-12">
-                <button className="px-8 py-4 bg-white border-2 border-[#55B4E5] rounded-xl font-bold text-[#55B4E5] hover:bg-gradient-to-r hover:from-[#55B4E5] hover:to-[#FBB338] hover:text-white hover:border-transparent transition-all duration-200 shadow-lg">
+                <button className="px-8 py-4 bg-white border-2 border-[#55B4E5] rounded-xl font-bold text-[#55B4E5] hover:bg-linear-to-r hover:from-[#55B4E5] hover:to-[#FBB338] hover:text-white hover:border-transparent transition-all duration-200 shadow-lg">
                   Muat Lebih Banyak Produk
                 </button>
               </div>
