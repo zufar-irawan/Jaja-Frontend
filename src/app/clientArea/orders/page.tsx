@@ -13,11 +13,81 @@ import {
   Truck,
   PackageCheck,
   Ban,
+  MapPin,
 } from "lucide-react";
-import { getAllTransactions } from "@/utils/checkoutActions";
-import type { TransactionData } from "@/utils/checkoutService";
+
+// Simulasi fungsi API
+const getAllTransactions = async () => {
+  // Mock data untuk demo
+  return {
+    success: true,
+    data: [
+      {
+        id_data: 1,
+        invoice: "INV-2024-001",
+        status_transaksi: "Paid",
+        created_date: "2024-11-27",
+        created_time: "10:00:00",
+        total_tagihan: "250000",
+        batas_pembayaran: "2024-11-30 23:59:59",
+        resi_pengiriman: "MT685U91", // Nomor resi untuk tracking
+        kurir: "Wahana",
+        details: [
+          {
+            id_detail: 1,
+            nama_produk: "Produk A",
+            qty: 2,
+            harga_aktif: "100000",
+            foto_produk: "https://via.placeholder.com/150",
+            nama_toko: "Toko ABC",
+          },
+        ],
+      },
+      {
+        id_data: 2,
+        invoice: "INV-2024-002",
+        status_transaksi: "Menunggu Pembayaran",
+        created_date: "2024-11-28",
+        created_time: "14:30:00",
+        total_tagihan: "150000",
+        batas_pembayaran: "2024-11-29 23:59:59",
+        resi_pengiriman: null,
+        kurir: null,
+        details: [
+          {
+            id_detail: 2,
+            nama_produk: "Produk B",
+            qty: 1,
+            harga_aktif: "150000",
+            foto_produk: "https://via.placeholder.com/150",
+            nama_toko: "Toko XYZ",
+          },
+        ],
+      },
+    ],
+  };
+};
 
 type OrderTab = "unpaid" | "processing" | "completed" | "cancelled";
+type TransactionData = {
+  id_data: number;
+  invoice: string;
+  status_transaksi: string;
+  created_date: string;
+  created_time: string;
+  total_tagihan: string;
+  batas_pembayaran: string;
+  resi_pengiriman?: string | null;
+  kurir?: string | null;
+  details: Array<{
+    id_detail: number;
+    nama_produk: string;
+    qty: number;
+    harga_aktif: string;
+    foto_produk: string;
+    nama_toko: string;
+  }>;
+};
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -26,12 +96,10 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load orders dari API
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Auto-refresh saat tab/window kembali aktif (setelah payment gateway)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -67,7 +135,6 @@ export default function OrdersPage() {
           ? response.data
           : [response.data];
 
-        // Sort by date (newest first)
         ordersData.sort((a, b) => {
           const dateA = new Date(
             `${a.created_date} ${a.created_time}`,
@@ -80,7 +147,7 @@ export default function OrdersPage() {
 
         setOrders(ordersData);
       } else {
-        setError(response.message || "Gagal memuat pesanan");
+        setError("Gagal memuat pesanan");
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -152,11 +219,9 @@ export default function OrdersPage() {
     }
   };
 
-  // Helper untuk mapping status order ke tab
   const getOrdersByStatus = (status: OrderTab) => {
     switch (status) {
       case "unpaid":
-        // Belum Bayar: status menunggu pembayaran dan belum kadaluarsa
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
           const isUnpaid =
@@ -168,7 +233,6 @@ export default function OrdersPage() {
         });
 
       case "processing":
-        // Diproses: sudah dibayar (Paid) atau dalam proses pengiriman
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
           return (
@@ -183,7 +247,6 @@ export default function OrdersPage() {
         });
 
       case "completed":
-        // Selesai: pesanan selesai atau diterima
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
           return (
@@ -196,7 +259,6 @@ export default function OrdersPage() {
         });
 
       case "cancelled":
-        // Dibatalkan: dibatalkan atau kadaluarsa
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
           const isCancelled =
@@ -221,7 +283,11 @@ export default function OrdersPage() {
     router.push(`/Order/${orderId}`);
   };
 
-  // Helper untuk mendapatkan status badge
+  const handleTrackingClick = (e: React.MouseEvent, resi: string) => {
+    e.stopPropagation();
+    router.push(`/tracking/${resi}`);
+  };
+
   const getStatusBadge = (status: string, expired: boolean) => {
     const statusLower = status?.toLowerCase() || "";
 
@@ -356,7 +422,6 @@ export default function OrdersPage() {
         </button>
       </div>
 
-      {/* 4 Tabs */}
       <div className="flex space-x-2 md:space-x-4 border-b border-gray-200 overflow-x-auto pb-0">
         <button
           className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
@@ -423,7 +488,6 @@ export default function OrdersPage() {
         </button>
       </div>
 
-      {/* Orders List */}
       <div className="flex flex-col w-full gap-4">
         {currentOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
@@ -449,6 +513,7 @@ export default function OrdersPage() {
             const expired =
               tab === "unpaid" ? isExpired(order.batas_pembayaran) : false;
             const statusBadge = getStatusBadge(order.status_transaksi, expired);
+            const hasTracking = order.resi_pengiriman && order.kurir;
 
             return (
               <div
@@ -456,7 +521,6 @@ export default function OrdersPage() {
                 className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => handleOrderClick(order.id_data)}
               >
-                {/* Order Header */}
                 <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${statusBadge.bg}`}>
@@ -478,7 +542,33 @@ export default function OrdersPage() {
                   </span>
                 </div>
 
-                {/* Products (show up to 2) */}
+                {/* Tracking Info - Tampil jika ada resi */}
+                {hasTracking && (
+                  <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-blue-600" />
+                        <div>
+                          <p className="text-xs text-gray-600">Nomor Resi</p>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {order.resi_pengiriman}
+                          </p>
+                          <p className="text-xs text-gray-500">{order.kurir}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) =>
+                          handleTrackingClick(e, order.resi_pengiriman!)
+                        }
+                        className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <Truck className="w-4 h-4" />
+                        Lacak
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3 mb-4">
                   {order.details &&
                     order.details.slice(0, 2).map((detail, index) => (
@@ -519,7 +609,6 @@ export default function OrdersPage() {
                   )}
                 </div>
 
-                {/* Footer - Total & Timer (untuk unpaid) */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Total Belanja</p>
@@ -542,7 +631,6 @@ export default function OrdersPage() {
                   )}
                 </div>
 
-                {/* Action Button */}
                 {tab === "unpaid" && !expired && (
                   <button
                     onClick={(e) => {
