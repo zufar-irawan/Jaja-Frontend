@@ -1,4 +1,5 @@
 // app/page.tsx
+import HeroCarousel from "@/components/HeroCarousel";
 import ProductCard from "@/components/ProductCard";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import {
   getTopProducts,
   getRecommendedProducts,
 } from "@/utils/productService";
+import { getLanding } from "@/utils/landingService";
 import {
   BookOpen,
   Gamepad2,
@@ -21,12 +23,15 @@ import {
 } from "lucide-react";
 
 export default async function Home() {
-  const [featuredProducts, topProducts, recommendedProducts] =
+  const [landingData, featuredProducts, topProducts, recommendedProducts] =
     await Promise.all([
+      getLanding(),
       getFeaturedProducts(8),
       getTopProducts(6),
       getRecommendedProducts(100),
     ]);
+
+  const heroBanners = landingData?.data?.banners ?? [];
 
   const categories = [
     { name: "Books", slug: "novel", Icon: BookOpen },
@@ -45,9 +50,8 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-y-10">
       {/* Hero Banner */}
-      <section className="flex w-full min-h-80 items-center justify-center bg-gray-900 px-4 text-center text-3xl text-gray-50 sm:min-h-[360px] sm:px-8 sm:text-4xl lg:min-h-[400px] lg:px-20 lg:text-5xl">
-        Welcome to JajaID!
-      </section>
+
+      <HeroCarousel banners={heroBanners} />
 
       {/* Category Section */}
       <section className="flex w-full flex-col gap-y-5 px-4 sm:px-8 lg:px-20 xl:px-40">
