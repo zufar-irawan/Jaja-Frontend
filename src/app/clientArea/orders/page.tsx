@@ -359,11 +359,10 @@ export default function OrdersPage() {
       {/* 4 Tabs */}
       <div className="flex space-x-2 md:space-x-4 border-b border-gray-200 overflow-x-auto pb-0">
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
-            tab === "unpaid"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "unpaid"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setTab("unpaid")}
         >
           Belum Bayar
@@ -375,11 +374,10 @@ export default function OrdersPage() {
         </button>
 
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
-            tab === "processing"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "processing"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setTab("processing")}
         >
           Diproses
@@ -391,11 +389,10 @@ export default function OrdersPage() {
         </button>
 
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
-            tab === "completed"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "completed"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setTab("completed")}
         >
           Selesai
@@ -407,11 +404,10 @@ export default function OrdersPage() {
         </button>
 
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
-            tab === "cancelled"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "cancelled"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
+            }`}
           onClick={() => setTab("cancelled")}
         >
           Dibatalkan
@@ -549,7 +545,7 @@ export default function OrdersPage() {
                       e.stopPropagation();
                       handleOrderClick(order.id_data);
                     }}
-                    className="w-full mt-4 bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                    className="w-full mt-4 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                   >
                     Bayar Sekarang
                     <ChevronRight className="w-5 h-5" />
