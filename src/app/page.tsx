@@ -2,6 +2,7 @@
 import HeroCarousel from "@/components/HeroCarousel";
 import ProductCard from "@/components/ProductCard";
 import TopProductCard from "@/components/TopProductCard";
+import VoucherTicket from "@/components/VoucherTicket";
 import RecommendedProductsSection from "@/components/RecommendedProductsSection";
 import Link from "next/link";
 import {
@@ -23,6 +24,7 @@ export default async function Home() {
   const heroBanners = landingData?.data?.banners ?? [];
   const categories = (landingData?.data?.categories ?? []).slice(0, 12);
   const mostViewedProducts = landingData?.data?.most_viewed_products ?? [];
+  const promos = landingData?.data?.promos ?? [];
 
   const topProducts = (
     await Promise.all(
@@ -122,7 +124,7 @@ export default async function Home() {
       </section>
 
       {/* FEATURED PRODUCT */}
-      <section className="w-full flex flex-col gap-y-5 py-15 px-4 sm:px-10 lg:px-40">
+      <section className="w-full flex flex-col gap-y-5 py-10 px-4 sm:px-10 lg:px-40">
         <header className="flex w-full flex-col gap-y-2 font-bold">
           <p className="text-2xl text-gray-900 sm:text-3xl lg:text-4xl">
             Produk terbaru
@@ -133,7 +135,7 @@ export default async function Home() {
           </p> */}
         </header>
 
-        <div className="flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4">
+        <div className="flex flex-row gap-x-3 overflow-x-auto sm:gap-x-4">
           {featuredProducts.map((product) => (
             <div
               key={`top-${product.id_produk}`}
@@ -155,8 +157,36 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* VOUCHER SECTION */}
+      <section className="w-full flex flex-col gap-y-5 py-5 px-4 sm:px-10 lg:px-40">
+        <header className="flex w-full flex-col gap-y-2 font-bold">
+          <p className="text-2xl text-gray-900 sm:text-3xl lg:text-4xl">
+            Voucher Promo Spesial
+          </p>
+          <p className="text-sm font-normal text-gray-600">
+            Gunakan kode voucher untuk mendapatkan diskon menarik
+          </p>
+        </header>
+
+        <div className="flex w-full gap-4 overflow-x-auto px-1 pb-2 scrollbar-hide">
+          {promos.length > 0 ? (
+            promos.map((promo) => (
+              <VoucherTicket
+                key={promo.id_promo}
+                promo={promo}
+                className="shrink-0"
+              />
+            ))
+          ) : (
+            <div className="flex min-h-[200px] w-full items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-gray-500">
+              Belum ada voucher tersedia saat ini.
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* FOR YOU PRODUCTS */}
-      <section className="flex w-full flex-col items-center gap-y-6 py-15 px-4 sm:px-8 lg:px-20 xl:px-40">
+      <section className="flex w-full flex-col items-center gap-y-6 py-10 px-4 sm:px-8 lg:px-20 xl:px-40">
         <header className="text-center text-2xl font-bold text-gray-900 sm:text-3xl lg:text-4xl">
           Mungkin kamu juga suka
         </header>
