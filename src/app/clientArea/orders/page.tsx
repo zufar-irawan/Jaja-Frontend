@@ -26,7 +26,6 @@ export default function OrdersPage() {
             console.log('Orders API Response:', response)
             
             if (response.success && response.data) {
-                // Handle if data is array or single object
                 const ordersData = Array.isArray(response.data) ? response.data : [response.data]
                 setOrders(ordersData)
             } else {
