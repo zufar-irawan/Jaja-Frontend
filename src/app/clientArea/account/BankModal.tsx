@@ -1,11 +1,41 @@
-import { useEffect } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { addRekening, editRekening, type AddRekeningData, type Rekening } from "@/utils/userService";
+
+const emptyForm: AddRekeningData = {
+    name: "",
+    bank_code: "",
+    bank_name: "",
+    account: "",
+    alias_name: "",
+    branch_office: "",
+    city: ""
+}
 
 interface BankModalProps {
     onClose: React.Dispatch<React.SetStateAction<boolean>>;
     isEdit: boolean;
+    rekening?: Rekening | null;
+    onSuccess?: () => void;
 }
 
-export default function BankModal({ onClose, isEdit }: BankModalProps) {
+export default function BankModal({ onClose, isEdit, rekening, onSuccess }: BankModalProps) {
+    const bankOptions = [
+        { code: "014", name: "PT. BANK CENTRAL ASIA Tbk." },
+        { code: "008", name: "PT. BANK MANDIRI (Persero) Tbk." },
+        { code: "009", name: "PT. BANK NEGARA INDONESIA (Persero) Tbk." },
+        { code: "002", name: "PT. BANK RAKYAT INDONESIA (Persero) Tbk." },
+        { code: "022", name: "PT. BANK CIMB NIAGA Tbk." },
+        { code: "011", name: "PT. BANK DANAMON INDONESIA Tbk." },
+        { code: "013", name: "PT. BANK PERMATA Tbk." },
+        { code: "200", name: "PT. BANK TABUNGAN NEGARA (Persero) Tbk." },
+        { code: "custom", name: "Lainnya (isi manual)" }
+    ]
+
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [isCustomBank, setIsCustomBank] = useState(false)
+    const [form, setForm] = useState<AddRekeningData>({ ...emptyForm })
+
     // Close modal on Escape key
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -14,6 +44,99 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onClose]);
+
+    useEffect(() => {
+        if (isEdit && rekening) {
+            setForm({
+                name: rekening.name || "",
+                bank_code: rekening.bank_code || "",
+                bank_name: rekening.bank_name || "",
+                account: rekening.account || "",
+                alias_name: rekening.alias_name || "",
+                branch_office: rekening.branch_office || "",
+                city: rekening.city || "",
+            })
+            const exists = bankOptions.some((bank) => bank.code === rekening.bank_code)
+            setIsCustomBank(!exists)
+        } else {
+            setForm({ ...emptyForm })
+            setIsCustomBank(false)
+        }
+    }, [isEdit, rekening])
+
+    const handleInputChange = (field: keyof AddRekeningData) => (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        const value = event.target.value;
+        setForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleBankChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        const selectedCode = event.target.value
+        if (selectedCode === "custom") {
+            setIsCustomBank(true)
+            setForm(prev => ({ ...prev, bank_code: "", bank_name: "" }))
+            return
+        }
+
+        setIsCustomBank(false)
+        const selectedBank = bankOptions.find(bank => bank.code === selectedCode)
+        setForm(prev => ({
+            ...prev,
+            bank_code: selectedBank?.code || "",
+            bank_name: selectedBank?.name || ""
+        }))
+    }
+
+    const validateForm = () => {
+        if (!form.name.trim()) return "Nama pemilik rekening wajib diisi"
+        if (!form.bank_name.trim() || !form.bank_code.trim()) return "Silakan pilih atau isi nama bank dan kode bank"
+        if (!form.account.trim()) return "Nomor rekening wajib diisi"
+        if (!form.alias_name.trim()) return "Nama alias rekening wajib diisi"
+        if (!form.branch_office.trim()) return "Kantor cabang wajib diisi"
+        if (!form.city.trim()) return "Kota/kabupaten wajib diisi"
+        return null
+    }
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        if (loading) return
+        const validationMessage = validateForm()
+        if (validationMessage) {
+            setError(validationMessage)
+            return
+        }
+
+        setError(null)
+        setLoading(true)
+
+        try {
+            const payload: AddRekeningData = {
+                ...form,
+                name: form.name.trim(),
+                alias_name: form.alias_name.trim(),
+                account: form.account.trim(),
+                branch_office: form.branch_office.trim(),
+                city: form.city.trim(),
+                bank_name: form.bank_name.trim(),
+                bank_code: form.bank_code.trim()
+            }
+            const result = (isEdit && rekening)
+                ? await editRekening(rekening.id_data, payload)
+                : await addRekening(payload)
+            if (!result.success) {
+                setError(result.message || "Gagal menyimpan rekening")
+                return
+            }
+            onSuccess?.()
+            onClose(false)
+        } catch (err) {
+            console.error("Failed to add rekening", err)
+            setError("Terjadi kesalahan saat menyimpan rekening")
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/50 sm:backdrop-blur-sm">
@@ -41,7 +164,16 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto overscroll-contain">
-                    <form className="px-4 py-4 sm:px-8 sm:py-6 space-y-4 sm:space-y-5">
+                    <form
+                        id="bank-form"
+                        onSubmit={handleSubmit}
+                        className="px-4 py-4 sm:px-8 sm:py-6 space-y-4 sm:space-y-5"
+                    >
+                        {error && (
+                            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs sm:text-sm text-red-700">
+                                {error}
+                            </div>
+                        )}
                         {/* Bank Name */}
                         <div className="space-y-1.5 sm:space-y-2">
                             <label htmlFor="bankName" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
@@ -53,19 +185,47 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                             <select
                                 id="bankName"
                                 className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white cursor-pointer"
+                                onChange={handleBankChange}
+                                value={isCustomBank ? 'custom' : form.bank_code || ''}
+                                disabled={loading}
                             >
                                 <option value="">Pilih bank</option>
-                                <option value="bca">Bank Central Asia (BCA)</option>
-                                <option value="mandiri">Bank Mandiri</option>
-                                <option value="bni">Bank Negara Indonesia (BNI)</option>
-                                <option value="bri">Bank Rakyat Indonesia (BRI)</option>
-                                <option value="cimb">CIMB Niaga</option>
-                                <option value="danamon">Bank Danamon</option>
-                                <option value="permata">Bank Permata</option>
-                                <option value="btn">Bank Tabungan Negara (BTN)</option>
-                                <option value="other">Lainnya</option>
+                                {bankOptions.map((bank) => (
+                                    <option key={bank.code} value={bank.code}>
+                                        {bank.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
+
+                        {isCustomBank && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="customBankName" className="text-xs sm:text-sm font-medium text-gray-700">Nama Bank Custom <span className="text-red-500">*</span></label>
+                                    <input
+                                        id="customBankName"
+                                        type="text"
+                                        value={form.bank_name}
+                                        onChange={handleInputChange('bank_name')}
+                                        placeholder="Contoh: PT. BANK ABC"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        disabled={loading}
+                                    />
+                                </div>
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <label htmlFor="customBankCode" className="text-xs sm:text-sm font-medium text-gray-700">Kode Bank Custom <span className="text-red-500">*</span></label>
+                                    <input
+                                        id="customBankCode"
+                                        type="text"
+                                        value={form.bank_code}
+                                        onChange={handleInputChange('bank_code')}
+                                        placeholder="Contoh: 123"
+                                        className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {/* Account Holder Name */}
                         <div className="space-y-1.5 sm:space-y-2">
@@ -80,8 +240,30 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                                 type="text"
                                 placeholder="Masukkan nama sesuai rekening"
                                 className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={form.name}
+                                onChange={handleInputChange('name')}
+                                disabled={loading}
                             />
                             <p className="text-xs text-gray-500 mt-1">Pastikan nama sesuai dengan yang tertera di rekening bank</p>
+                        </div>
+
+                        {/* Alias Name */}
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <label htmlFor="aliasName" className="text-xs sm:text-sm font-medium text-gray-700 flex items-center">
+                                <svg className="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Nama Alias Rekening <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                id="aliasName"
+                                type="text"
+                                placeholder="Contoh: BCA Pribadi"
+                                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={form.alias_name}
+                                onChange={handleInputChange('alias_name')}
+                                disabled={loading}
+                            />
                         </div>
 
                         {/* Account Number */}
@@ -97,6 +279,9 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                                 type="text"
                                 placeholder="Masukkan nomor rekening"
                                 className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                value={form.account}
+                                onChange={handleInputChange('account')}
+                                disabled={loading}
                             />
                         </div>
 
@@ -114,6 +299,9 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                                     type="text"
                                     placeholder="Contoh: Sudirman"
                                     className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    value={form.branch_office}
+                                    onChange={handleInputChange('branch_office')}
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -130,6 +318,9 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                                     type="text"
                                     placeholder="Contoh: Jakarta"
                                     className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                                    value={form.city}
+                                    onChange={handleInputChange('city')}
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -145,17 +336,20 @@ export default function BankModal({ onClose, isEdit }: BankModalProps) {
                         type="button"
                         onClick={() => onClose(false)}
                         className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all h-9 sm:h-auto"
+                        disabled={loading}
                     >
                         Batal
                     </button>
                     <button
                         type="submit"
-                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-auto whitespace-nowrap"
+                        form="bank-form"
+                        disabled={loading}
+                        className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center gap-1.5 sm:gap-2 h-9 sm:h-auto whitespace-nowrap disabled:opacity-60"
                     >
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        Simpan Rekening
+                        {loading ? 'Menyimpan...' : 'Simpan Rekening'}
                     </button>
                 </div>
             </div>
