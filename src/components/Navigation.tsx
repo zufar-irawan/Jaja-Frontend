@@ -711,12 +711,13 @@ export default function JajaNavbar() {
                   )}
                 </button>
 
-                <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
+                {/* Mail button */}
+                {/* <button className="hidden md:block relative p-2 hover:bg-[#55B4E5]/10 rounded-full transition-all group">
                   <Mail className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
                   <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                     0
                   </span>
-                </button>
+                </button> */}
 
                 <div className="hidden md:block">
                   <OrderNotificationDropdown />

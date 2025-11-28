@@ -72,6 +72,30 @@ export interface CreateAddressData {
     nama_alamat: string
 }
 
+export interface AddRekeningData {
+    name: string
+    bank_name: string
+    bank_code: string
+    account: string
+    alias_name: string
+    branch_office: string
+    city: string
+}
+
+export interface Rekening {
+    id_data: number
+    name: string
+    bank_name: string
+    bank_code: string
+    account: string
+    alias_name: string
+    branch_office: string
+    city: string
+    is_primary: boolean
+    id_customer: number
+    verified: boolean
+}
+
 export interface Province {
     province_id: number
     province: string
@@ -228,6 +252,84 @@ export async function setPrimaryAddress(addressId: number): Promise<ApiResponse<
         return {
             success: false,
             message: error.response?.data?.message || 'Gagal mengubah alamat utama'
+        }
+    }
+}
+
+// Bank Account
+export async function addRekening(data: AddRekeningData): Promise<ApiResponse<any>> {
+    try {
+        const response = await api.post('/main/rekening', data)
+        return {
+            success: true,
+            message: 'Rekening berhasil ditambahkan',
+            data: response.data
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal menambahkan rekening'
+        }
+    }
+}
+
+export async function editRekening(id: number, data: AddRekeningData): Promise<ApiResponse<any>> {
+    try {
+        const response = await api.put(`/main/rekening/${id}`, data)
+        return {
+            success: true,
+            message: 'Rekening berhasil diperbarui',
+            data: response.data
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal memperbarui rekening'
+        }
+    }
+}
+
+export async function getListRekening(): Promise<ApiResponse<Rekening[]>> {
+    try {
+        const response = await api.get('/main/rekening')
+        return {
+            success: true,
+            data: response.data?.data
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal mengambil daftar rekening'
+        }
+    }
+}
+
+export async function deleteRekening(id: number): Promise<ApiResponse<void>> {
+    try {
+        await api.delete(`/main/rekening/${id}`)
+        return {
+            success: true,
+            message: 'Rekening berhasil dihapus'
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal menghapus rekening'
+        }
+    }
+}
+
+export async function setPrimaryRekening(id: number): Promise<ApiResponse<void>> {
+    try {
+        await api.post(`/main/rekening/${id}/primary`)
+        return {
+            success: true,
+            message: 'Rekening utama berhasil diperbarui'
+        }
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Gagal mengatur rekening utama'
         }
     }
 }
