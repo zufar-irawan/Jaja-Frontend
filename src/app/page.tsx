@@ -9,43 +9,18 @@ import {
   getRecommendedProducts,
 } from "@/utils/productService";
 import { getLanding } from "@/utils/landingService";
-import {
-  BookOpen,
-  Gamepad2,
-  Dumbbell,
-  Music,
-  Gift,
-  Receipt,
-  Shirt,
-  Gavel,
-  Smartphone,
-  MoreHorizontal,
-} from "lucide-react";
 
 export default async function Home() {
   const [landingData, featuredProducts, topProducts, recommendedProducts] =
     await Promise.all([
       getLanding(),
-      getFeaturedProducts(8),
-      getTopProducts(6),
+      getFeaturedProducts(6),
+      getTopProducts(12),
       getRecommendedProducts(100),
     ]);
 
   const heroBanners = landingData?.data?.banners ?? [];
-
-  const categories = [
-    { name: "Books", slug: "novel", Icon: BookOpen },
-    { name: "Toys", slug: "action-figure", Icon: Gamepad2 },
-    { name: "Sports", slug: "sport-tools", Icon: Dumbbell },
-    { name: "Musics", slug: "music-tools", Icon: Music },
-    { name: "Voucher", slug: "voucher", Icon: Receipt },
-    { name: "Gift", slug: "gift", Icon: Gift },
-    { name: "Physical Voucher", slug: "physical-voucher", Icon: Receipt },
-    { name: "Fashion", slug: "fashion", Icon: Shirt },
-    { name: "Lelang", slug: "mobil", Icon: Gavel },
-    { name: "Digital", slug: "Digital", Icon: Smartphone },
-    { name: "Lainnya", slug: "lainnya", Icon: MoreHorizontal },
-  ];
+  const categories = (landingData?.data?.categories ?? []).slice(0, 12);
 
   return (
     <div className="flex flex-col gap-y-10">
@@ -59,29 +34,44 @@ export default async function Home() {
           Kategori pilihan
         </header>
 
-        <div className="flex w-full px-3 py-4 rounded-lg bg-white shadow-md items-center gap-6 overflow-hidden">
-          {categories.map((item, index) => (
-            <Link
-              key={index}
-              href={`/Category/${item.slug}`}
-              className="flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 min-w-[100px] sm:min-w-[120px] cursor-pointer"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 sm:h-16 sm:w-16 lg:h-20 lg:w-20">
-                <item.Icon className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-gray-700" />
-              </div>
-              <p className="py-1 text-xs text-center text-gray-900 sm:text-sm lg:text-base">
-                {item.name}
-              </p>
-            </Link>
-          ))}
+        <div className="relative w-full">
+          <div className="flex w-full gap-4 overflow-x-auto px-3 py-6 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 shadow-lg scrollbar-hide scroll-smooth">
+            {categories.map((item) => (
+              <Link
+                key={item.id_kategori}
+                href={`/Category/${item.slug_kategori}`}
+                className="group flex flex-col items-center justify-center gap-3 transition-all hover:scale-105 min-w-[90px] sm:min-w-[110px] lg:min-w-[120px] cursor-pointer"
+              >
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md transition-all group-hover:shadow-xl sm:h-20 sm:w-20 lg:h-24 lg:w-24 overflow-hidden">
+                  {item.icon ? (
+                    <img
+                      src={`https://nimda.jaja.id/asset/front/images/file/${item.icon}`}
+                      alt={item.kategori}
+                      className="h-full w-full object-contain p-2"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400">
+                      {item.kategori.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-center font-medium text-gray-800 sm:text-sm lg:text-base max-w-[90px] sm:max-w-[110px] lg:max-w-[120px] line-clamp-2">
+                  {item.kategori}
+                </p>
+              </Link>
+            ))}
+          </div>
+
+          {/* Scroll indicators */}
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-linear-to-l from-white to-transparent pointer-events-none" />
         </div>
       </section>
 
-      {/* Featured Product */}
+      {/* TOP Product */}
       <section className="w-full flex flex-col py-10 px-4 sm:px-10 lg:px-40 wave wave-svg">
         <header className="w-full flex flex-col gap-y-2 pt-5 font-bold mb-4">
           <p className="text-2xl text-gray-50 sm:text-3xl lg:text-4xl">
-            Produk terbaru dari Jaja!
+            Produk paling laris di Jaja!
           </p>
 
           {/* <p className="mb-2 flex justify-end pr-5 text-sm text-blue-100 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
@@ -91,16 +81,16 @@ export default async function Home() {
 
         <div className="flex w-full flex-col items-center gap-6 md:flex-row md:items-stretch md:gap-8">
           {/* Div Cover */}
-          <div className="hidden h-175 w-full max-w-sm flex-col items-center justify-center rounded-lg bg-linear-to-t from-blue-500 to-blue-800 shadow-lg md:flex lg:max-w-none lg:w-130">
+          {/* <div className="hidden h-175 w-full max-w-sm flex-col items-center justify-center rounded-lg bg-linear-to-t from-blue-500 to-blue-800 shadow-lg md:flex lg:max-w-none lg:w-130">
             <p className="rounded-full bg-white px-5 py-10 text-center text-2xl font-bold text-blue-400">
               Jaja
               <span className="text-orange-400">ID</span>
             </p>
-          </div>
+          </div> */}
 
           {/* Product Item grid */}
-          <div className="w-full grid grid-cols-2 gap-2 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] lg:gap-2">
-            {featuredProducts.map((product) => (
+          <div className="w-full grid grid-cols-2 gap-2 sm:grid-cols-3 lg:ml-5 lg:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] lg:gap-2">
+            {topProducts.map((product) => (
               <ProductCard
                 key={`featured-${product.id_produk}`}
                 item={{
@@ -118,11 +108,11 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* TOP PRODUCT */}
+      {/* FEATURED PRODUCT */}
       <section className="w-full flex flex-col gap-y-5 py-15 px-4 sm:px-10 lg:px-40">
         <header className="flex w-full flex-col gap-y-2 font-bold">
           <p className="text-2xl text-gray-900 sm:text-3xl lg:text-4xl">
-            Produk paling laris!
+            Produk terbaru
           </p>
 
           {/* <p className="mb-2 flex justify-end pr-5 text-sm text-blue-900 transition-transform hover:-translate-y-1 sm:text-base lg:text-xl cursor-pointer">
@@ -131,7 +121,7 @@ export default async function Home() {
         </header>
 
         <div className="flex flex-row gap-x-3 overflow-x-auto pb-2 sm:gap-x-4">
-          {topProducts.map((product) => (
+          {featuredProducts.map((product) => (
             <div
               key={`top-${product.id_produk}`}
               className="min-w-[180px] sm:min-w-[200px]"
