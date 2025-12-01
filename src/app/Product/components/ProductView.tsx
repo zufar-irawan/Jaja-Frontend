@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import ProductImages from "@/app/Product/components/ProductImages";
 import ProductInfo from "@/app/Product/components/ProductInfo";
 import StoreInfo from "@/app/Product/components/StoreInfo";
@@ -7,6 +8,11 @@ import ProductTabs from "@/app/Product/components/ProductTabs";
 import ProductCard from "@/components/ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "@/utils/productService";
+import {
+  useRecentlyViewedStore,
+  type RecentlyViewedProduct,
+} from "@/store/recentlyViewedStore";
+import { isAuthenticated } from "@/utils/clientAuth";
 
 interface StoreInfo {
   slug: string;
@@ -55,6 +61,7 @@ interface Variant {
 interface ProductViewProps {
   product: Product;
   otherProduct: Product[];
+  recommendedProducts: Product[];
   storeInfo: StoreInfo;
   productSpecs: Record<string, string>;
   features: Feature[];
@@ -68,6 +75,7 @@ interface ProductViewProps {
 export default function ProductView({
   product,
   otherProduct,
+  recommendedProducts,
   storeInfo,
   productSpecs,
   features,
@@ -77,10 +85,34 @@ export default function ProductView({
   images,
   variants,
 }: ProductViewProps) {
+  const getRecentProducts = useRecentlyViewedStore(
+    (state) => state.getRecentProducts,
+  );
+  const [recentProducts, setRecentProducts] = useState<RecentlyViewedProduct[]>(
+    [],
+  );
+  const [showRecentSection, setShowRecentSection] = useState(false);
+
+  useEffect(() => {
+    const auth = isAuthenticated();
+    if (!auth) {
+      setShowRecentSection(false);
+      return;
+    }
+
+    const recents = getRecentProducts(8);
+    setRecentProducts(recents);
+    setShowRecentSection(recents.length > 0);
+  }, [getRecentProducts]);
+
   // Filter and transform other products
   const relatedProducts = otherProduct
     .filter((p: Product) => !p.is_deleted && p.id_produk !== product.id_produk)
     .slice(0, 8);
+
+  const highlightedRecommendations = recommendedProducts
+    .filter((p: Product) => !p.is_deleted)
+    .slice(0, 12);
 
   // Use covers from product if images array is empty
   const productImages =
@@ -254,21 +286,13 @@ export default function ProductView({
               </div>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                gap: "16px",
-                width: "100%",
-              }}
-            >
+            <div className="flex overflow-x-auto gap-4">
               {relatedProducts.map((prod) => (
-                <div 
+                <div
                   key={prod.id_produk}
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    minHeight: "350px",
+                    width: "200px",
+                    flex: "0 0 200px",
                   }}
                 >
                   <ProductCard
@@ -279,6 +303,128 @@ export default function ProductView({
                       image: prod.covers?.[0]?.foto || "",
                       address: prod.tokos?.alamat_toko || "",
                       slug: prod.slug_produk,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recommended Products */}
+        {highlightedRecommendations.length > 0 && (
+          <div style={{ marginBottom: "60px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "24px",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "700",
+                  color: "#1a1a1a",
+                  margin: 0,
+                  fontFamily: "'Poppins', sans-serif",
+                }}
+              >
+                Produk
+                <span
+                  style={{
+                    color: "#6b7280",
+                    fontWeight: "400",
+                    fontFamily: "'Poppins', sans-serif",
+                    marginLeft: "8px",
+                  }}
+                >
+                  Rekomendasi Untukmu
+                </span>
+              </h2>
+            </div>
+
+            <div className="flex overflow-x-auto gap-4">
+              {highlightedRecommendations.map((recommendation) => (
+                <div
+                  key={`recommended-${recommendation.id_produk}`}
+                  style={{
+                    width: "200px",
+                    flex: "0 0 200px",
+                  }}
+                >
+                  <ProductCard
+                    item={{
+                      id: recommendation.id_produk,
+                      name: recommendation.nama_produk,
+                      price: recommendation.harga,
+                      image: recommendation.covers?.[0]?.foto || "",
+                      address:
+                        recommendation.tokos?.alamat_toko ||
+                        recommendation.tokos?.wilayah?.kelurahan_desa ||
+                        "",
+                      slug: recommendation.slug_produk,
+                      free_ongkir: recommendation.free_ongkir,
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recently Viewed */}
+        {showRecentSection && recentProducts.length > 0 && (
+          <div style={{ marginBottom: "60px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "24px",
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "700",
+                  color: "#1a1a1a",
+                  margin: 0,
+                  fontFamily: "'Poppins', sans-serif",
+                }}
+              >
+                Terakhir
+                <span
+                  style={{
+                    color: "#6b7280",
+                    fontWeight: "400",
+                    fontFamily: "'Poppins', sans-serif",
+                    marginLeft: "8px",
+                  }}
+                >
+                  Dilihat
+                </span>
+              </h2>
+            </div>
+
+            <div className="flex overflow-x-auto gap-4">
+              {recentProducts.map((recent) => (
+                <div
+                  key={`recent-${recent.id}-${recent.viewedAt}`}
+                  style={{
+                    width: "200px",
+                    flex: "0 0 200px",
+                  }}
+                >
+                  <ProductCard
+                    item={{
+                      id: recent.id,
+                      name: recent.name,
+                      price: recent.price,
+                      image: recent.image,
+                      address: recent.address,
+                      slug: recent.slug,
                     }}
                   />
                 </div>
