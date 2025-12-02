@@ -156,7 +156,6 @@ export default function OrdersPage() {
             statusLower.includes("cancel") ||
             statusLower.includes("rejected");
 
-          // Jangan tampilkan order yang sudah dibatalkan
           if (isCancelled) return false;
 
           const isUnpaid =
@@ -165,7 +164,6 @@ export default function OrdersPage() {
             statusLower.includes("belum bayar") ||
             statusLower === "unpaid";
 
-          // Jangan tampilkan order yang sudah kadaluarsa
           return isUnpaid && !isExpired(o.batas_pembayaran);
         });
 
@@ -173,7 +171,6 @@ export default function OrdersPage() {
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
 
-          // Jangan tampilkan order yang dibatalkan
           const isCancelled =
             statusLower.includes("batal") ||
             statusLower.includes("cancel") ||

@@ -89,8 +89,6 @@ export default function ResetPasswordPage() {
 
       if (result.success) {
         setSuccess(true);
-
-        // Redirect to login after 3 seconds
         setTimeout(() => {
           router.push("/main/auth/login");
         }, 3000);
@@ -109,7 +107,7 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +133,7 @@ export default function ResetPasswordPage() {
 
   if (!token || !email) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +351,7 @@ export default function ResetPasswordPage() {
       </div>
 
       {/* Right Side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#55B4E5] to-[#4A9FD0] items-center justify-center p-12 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
