@@ -20,22 +20,20 @@ export default function Footer() {
     };
 
     const paymentMethods = [
-        { name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/2560px-Bank_Central_Asia.svg.png' },
-        { name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/2560px-Bank_Mandiri_logo_2016.svg.png' },
-        { name: 'CIMB Niaga', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/CIMB_Niaga.svg/2560px-CIMB_Niaga.svg.png' },
-        { name: 'BNI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/2560px-BNI_logo.svg.png' },
-        { name: 'Visa', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png' },
-        { name: 'Gopay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/2560px-Gopay_logo.svg.png' },
-        { name: 'Mastercard', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png' }
+        { name: 'BCA', logo: '/images/BCA.png' },
+        { name: 'Mandiri', logo: '/images/Mandiri.png' },
+        { name: 'Gopay', logo: '/images/gopay.png' },
+        { name: 'Visa', logo: '/images/VISA.png' },
+        { name: 'Mastercard', logo: '/images/mastercard.png' }
     ];
 
     const shippingPartners = [
-        { name: 'J&T Express', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/New_Logo_JT_express.png/2560px-New_Logo_JT_express.png' },
-        { name: 'SiCepat', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SiCepat_Ekspres_logo.png/2560px-SiCepat_Ekspres_logo.png' }
+        { name: 'J&T Express', logo: '/images/JnT.png' },
+        { name: 'SiCepat', logo: '/images/sicepat.png' }
     ];
 
     return (
-        <footer className="bg-linear-to-br from-[#55B4E5] via-[#4AA8DC] to-[#FBB338] text-white">
+        <footer className="bg-gradient-to-br from-[#55B4E5] via-[#4AA8DC] to-[#FBB338] text-white">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Jaja.id Section */}
@@ -117,8 +115,12 @@ export default function Footer() {
                             <h3 className="text-xl font-bold mb-4 text-white">Pengiriman</h3>
                             <div className="flex gap-3 flex-wrap">
                                 {shippingPartners.map((partner, index) => (
-                                    <div key={index} className="bg-white rounded-lg p-2 h-12 w-20 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
-                                        <span className="text-xs font-semibold text-gray-800">{partner.name}</span>
+                                    <div key={index} className="bg-white rounded-lg p-3 h-14 w-24 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
+                                        <img 
+                                            src={partner.logo} 
+                                            alt={partner.name} 
+                                            className="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
                                 ))}
                             </div>
@@ -129,7 +131,11 @@ export default function Footer() {
                             <div className="grid grid-cols-3 gap-3">
                                 {paymentMethods.map((method, index) => (
                                     <div key={index} className="bg-white rounded-lg p-2 h-12 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
-                                        <span className="text-xs font-semibold text-gray-800">{method.name}</span>
+                                        <img 
+                                            src={method.logo} 
+                                            alt={method.name} 
+                                            className="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
                                 ))}
                             </div>
