@@ -359,10 +359,12 @@ const CheckoutPage = () => {
       ) || [];
 
       addPendingOrder({
-        id_data: idData,
-        order_number: transaksi.no_transaksi || idData,
-        total: transaksi.total,
-        created_at: new Date().toISOString(),
+        id_data: String(idData),
+        order_number: transaksi.invoice || transaksi.order_id || String(idData),
+        total: transaksi.total_tagihan || transaksi.total_pembayaran || 0,
+        created_at: transaksi.created_date && transaksi.created_time
+          ? `${transaksi.created_date} ${transaksi.created_time}`
+          : new Date().toISOString(),
         batas_pembayaran: transaksi.batas_pembayaran,
         status: 'pending',
         products: products,

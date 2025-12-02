@@ -36,30 +36,52 @@ export default function OrderNotificationDropdown() {
     };
   }, [isOpen]);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string | undefined) => {
+    // Handle berbagai format input
+    let numAmount: number;
+    
+    if (typeof amount === "string") {
+      numAmount = parseFloat(amount);
+    } else if (typeof amount === "number") {
+      numAmount = amount;
+    } else {
+      return "Rp 0";
+    }
+
+    // Validasi jika NaN
+    if (isNaN(numAmount)) {
+      console.warn("Invalid amount for currency formatting:", amount);
+      return "Rp 0";
+    }
+
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(numAmount);
   };
 
   const formatTimeRemaining = (deadline: string) => {
-    const now = new Date().getTime();
-    const deadlineTime = new Date(deadline).getTime();
-    const distance = deadlineTime - now;
+    try {
+      const now = new Date().getTime();
+      const deadlineTime = new Date(deadline).getTime();
+      const distance = deadlineTime - now;
 
-    if (distance < 0) {
-      return "Kadaluarsa";
+      if (distance < 0) {
+        return "Kadaluarsa";
+      }
+
+      const hours = Math.floor(distance / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (hours > 0) {
+        return `${hours}j ${minutes}m`;
+      }
+      return `${minutes}m`;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Invalid time";
     }
-
-    const hours = Math.floor(distance / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (hours > 0) {
-      return `${hours}j ${minutes}m`;
-    }
-    return `${minutes}m`;
   };
 
   const handleNotificationClick = (id_data: string) => {
@@ -72,10 +94,7 @@ export default function OrderNotificationDropdown() {
     router.push("/clientArea/orders");
   };
 
-  const handleRemoveOrder = (
-    e: React.MouseEvent,
-    id_data: string
-  ) => {
+  const handleRemoveOrder = (e: React.MouseEvent, id_data: string) => {
     e.stopPropagation();
     removePendingOrder(id_data);
   };
@@ -187,7 +206,7 @@ export default function OrderNotificationDropdown() {
 
                           <p className="text-sm text-gray-600 line-clamp-1 mb-2">
                             {order.products.length > 1
-                              ? `${order.products[0].nama_produk} +${order.products.length - 1} produk lainnya`
+                              ? `${order.products[0]?.nama_produk || "Produk"} +${order.products.length - 1} produk lainnya`
                               : order.products[0]?.nama_produk || "Produk"}
                           </p>
 
@@ -198,7 +217,9 @@ export default function OrderNotificationDropdown() {
                             {!isExpired && (
                               <div className="flex items-center gap-1 text-xs text-gray-500">
                                 <Clock className="w-3.5 h-3.5" />
-                                <span>{formatTimeRemaining(order.batas_pembayaran)}</span>
+                                <span>
+                                  {formatTimeRemaining(order.batas_pembayaran)}
+                                </span>
                               </div>
                             )}
                           </div>
