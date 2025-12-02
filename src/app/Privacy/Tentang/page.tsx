@@ -1,7 +1,8 @@
 // app/Privacy/Tentang/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import PrivacyHeader from '@/components/PrivacyHeader';
 import PrivacyFooter from '@/components/PrivacyFooter';
 import SyaratLayanan from './SyaratLayanan';
@@ -10,8 +11,16 @@ import CaraKomplain from './CaraKomplain';
 import Retur from './Retur';
 
 export default function TentangJajaID() {
-  const [activeSection, setActiveSection] = useState('tentang');
-
+  const searchParams = useSearchParams();
+  const sectionFromUrl = searchParams.get('section');
+  const [activeSection, setActiveSection] = useState(sectionFromUrl || 'tentang');
+  
+  useEffect(() => {
+    if (sectionFromUrl) {
+      setActiveSection(sectionFromUrl);
+    }
+  }, [sectionFromUrl]);
+  
   const styles = {
     pageContainer: {
       fontFamily: 'Poppins, sans-serif',
@@ -158,7 +167,7 @@ export default function TentangJajaID() {
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Visi Jaja.id</h2>
           <p style={styles.paragraph}>
-            Menjadi Marketplace Khusus Hobby Terbesar di Indoonesia
+            Menjadi Marketplace Khusus Hobby Terbesar di Indonesia
           </p>
         </section>
 
@@ -180,7 +189,7 @@ export default function TentangJajaID() {
         <hr style={styles.divider} />
 
         <div style={styles.contactSection}>
-          <h3 style={styles.contactTitle}>PT</h3>
+          <h3 style={styles.contactTitle}>PT Jaja Indonesia</h3>
           <p style={styles.contactText}>Jl.H. Baping Raya No. 100</p>
           <p style={styles.contactText}>Gedung S, Ciracas</p>
           <p style={styles.contactText}>Jakarta Timur, 13740</p>

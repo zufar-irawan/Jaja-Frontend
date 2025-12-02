@@ -29,7 +29,6 @@ import {
   Grid,
   TrendingUp,
   Loader2,
-  Gem,
   Heart,
 } from "lucide-react";
 

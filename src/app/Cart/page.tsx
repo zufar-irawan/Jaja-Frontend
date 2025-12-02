@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2, MapPin } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2, } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
 import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
