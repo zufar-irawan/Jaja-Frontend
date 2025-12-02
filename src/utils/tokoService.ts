@@ -135,7 +135,7 @@ export interface BasicApiResponse<T = unknown> {
 // Open store helpers
 export async function getStoreProvinces(
   page: number = 1,
-  limit: number = 200,
+  limit: number = 40,
 ): Promise<BasicStoreResponse<ProvinceOption[]>> {
   try {
     const response = await api.get(
@@ -220,10 +220,7 @@ export async function openStore(
   payload: OpenStorePayload,
 ): Promise<BasicStoreResponse> {
   try {
-    const response = await sellerApi.post(
-      "/seller/v2/toko/open-store",
-      payload,
-    );
+    const response = await api.post("/seller/v2/toko/open-store", payload);
 
     return {
       success: true,
@@ -231,10 +228,16 @@ export async function openStore(
       data: response.data?.data ?? response.data,
     };
   } catch (error: any) {
+    console.error("openStore error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+
     return {
       success: false,
       message: error.response?.data?.message || "Gagal membuka toko",
-      data: error.response?.data,
+      data: error.response?.data ?? error.message,
     };
   }
 }

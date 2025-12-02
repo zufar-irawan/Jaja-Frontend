@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { OpenStorePayload } from "@/utils/tokoService";
 import {
-    getStoreProvinces,
-    getStoreCities,
-    getStoreDistricts,
-    getStoreVillages,
-    openStore,
-    type ProvinceOption,
-    type CityOption,
-    type DistrictOption,
-    type VillageOption,
-    type OpenStorePayload,
-} from "@/utils/tokoService";
+    getProvinces,
+    getCities,
+    getDistricts,
+    getVillages,
+    type Province,
+    type City,
+    type District,
+    type Village,
+} from "@/utils/userService";
+
+const toArray = <T,>(payload: any): T[] => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.data?.data)) return payload.data.data;
+    return [];
+};
 
 interface FormState {
     nama_toko: string;
@@ -44,10 +50,10 @@ export default function BukaTokoPage() {
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
-    const [cities, setCities] = useState<CityOption[]>([]);
-    const [districts, setDistricts] = useState<DistrictOption[]>([]);
-    const [villages, setVillages] = useState<VillageOption[]>([]);
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [villages, setVillages] = useState<Village[]>([]);
 
     const [loadingLoc, setLoadingLoc] = useState({
         prov: false,
@@ -73,9 +79,9 @@ export default function BukaTokoPage() {
         const loadProvinces = async () => {
             setLoadingLoc((prev) => ({ ...prev, prov: true }));
             try {
-                const response = await getStoreProvinces(1, 200);
+                const response = await getProvinces(1, 200);
                 if (response.success && response.data) {
-                    setProvinces(response.data);
+                    setProvinces(toArray<Province>(response.data));
                 }
             } finally {
                 setLoadingLoc((prev) => ({ ...prev, prov: false }));
@@ -103,9 +109,9 @@ export default function BukaTokoPage() {
 
         setLoadingLoc((prev) => ({ ...prev, city: true }));
         try {
-            const response = await getStoreCities(numericValue, 1, 200);
+            const response = await getCities(numericValue, 1, 200);
             if (response.success && response.data) {
-                setCities(response.data);
+                setCities(toArray<City>(response.data));
             }
         } finally {
             setLoadingLoc((prev) => ({ ...prev, city: false }));
@@ -124,9 +130,9 @@ export default function BukaTokoPage() {
 
         setLoadingLoc((prev) => ({ ...prev, dist: true }));
         try {
-            const response = await getStoreDistricts(numericValue, 1, 200);
+            const response = await getDistricts(numericValue, 1, 200);
             if (response.success && response.data) {
-                setDistricts(response.data);
+                setDistricts(toArray<District>(response.data));
             }
         } finally {
             setLoadingLoc((prev) => ({ ...prev, dist: false }));
@@ -146,9 +152,9 @@ export default function BukaTokoPage() {
 
         setLoadingLoc((prev) => ({ ...prev, vill: true }));
         try {
-            const response = await getStoreVillages(kecamatanKd, 1, 200);
+            const response = await getVillages(kecamatanKd, 1, 200);
             if (response.success && response.data) {
-                setVillages(response.data);
+                setVillages(toArray<Village>(response.data));
             }
         } finally {
             setLoadingLoc((prev) => ({ ...prev, vill: false }));
@@ -184,11 +190,21 @@ export default function BukaTokoPage() {
         };
 
         try {
-            const response = await openStore(payload);
-            if (!response.success) {
-                throw new Error(response.message || "Gagal membuka toko");
+            const response = await fetch("/api/toko/open-store", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result?.success) {
+                throw new Error(result?.message || "Gagal membuka toko");
             }
-            setMessage(response.message || "Toko berhasil dibuat");
+
+            setMessage(result.message || "Toko berhasil dibuat");
             setForm(initialForm);
             setCities([]);
             setDistricts([]);
