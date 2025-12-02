@@ -15,60 +15,9 @@ import {
   Ban,
   MapPin,
 } from "lucide-react";
+import { getAllTransactions } from "@/utils/checkoutActions";
 
-// Simulasi fungsi API
-const getAllTransactions = async () => {
-  // Mock data untuk demo
-  return {
-    success: true,
-    data: [
-      {
-        id_data: 1,
-        invoice: "INV-2024-001",
-        status_transaksi: "Paid",
-        created_date: "2024-11-27",
-        created_time: "10:00:00",
-        total_tagihan: "250000",
-        batas_pembayaran: "2024-11-30 23:59:59",
-        resi_pengiriman: "MT685U91", // Nomor resi untuk tracking
-        kurir: "Wahana",
-        details: [
-          {
-            id_detail: 1,
-            nama_produk: "Produk A",
-            qty: 2,
-            harga_aktif: "100000",
-            foto_produk: "https://via.placeholder.com/150",
-            nama_toko: "Toko ABC",
-          },
-        ],
-      },
-      {
-        id_data: 2,
-        invoice: "INV-2024-002",
-        status_transaksi: "Menunggu Pembayaran",
-        created_date: "2024-11-28",
-        created_time: "14:30:00",
-        total_tagihan: "150000",
-        batas_pembayaran: "2024-11-29 23:59:59",
-        resi_pengiriman: null,
-        kurir: null,
-        details: [
-          {
-            id_detail: 2,
-            nama_produk: "Produk B",
-            qty: 1,
-            harga_aktif: "150000",
-            foto_produk: "https://via.placeholder.com/150",
-            nama_toko: "Toko XYZ",
-          },
-        ],
-      },
-    ],
-  };
-};
-
-type OrderTab = "unpaid" | "processing" | "completed" | "cancelled";
+type OrderTab = "unpaid" | "processing" | "completed";
 type TransactionData = {
   id_data: number;
   invoice: string;
@@ -98,28 +47,6 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        console.log("Page visible - refreshing orders...");
-        fetchOrders();
-      }
-    };
-
-    const handleFocus = () => {
-      console.log("Window focused - refreshing orders...");
-      fetchOrders();
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
-    };
   }, []);
 
   const fetchOrders = async () => {
@@ -224,17 +151,35 @@ export default function OrdersPage() {
       case "unpaid":
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
+          const isCancelled =
+            statusLower.includes("batal") ||
+            statusLower.includes("cancel") ||
+            statusLower.includes("rejected");
+
+          // Jangan tampilkan order yang sudah dibatalkan
+          if (isCancelled) return false;
+
           const isUnpaid =
             statusLower.includes("menunggu") ||
             statusLower.includes("pending") ||
             statusLower.includes("belum bayar") ||
             statusLower === "unpaid";
+
+          // Jangan tampilkan order yang sudah kadaluarsa
           return isUnpaid && !isExpired(o.batas_pembayaran);
         });
 
       case "processing":
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
+
+          // Jangan tampilkan order yang dibatalkan
+          const isCancelled =
+            statusLower.includes("batal") ||
+            statusLower.includes("cancel") ||
+            statusLower.includes("rejected");
+          if (isCancelled) return false;
+
           return (
             statusLower === "paid" ||
             statusLower.includes("diproses") ||
@@ -249,6 +194,14 @@ export default function OrdersPage() {
       case "completed":
         return orders.filter((o) => {
           const statusLower = o.status_transaksi?.toLowerCase() || "";
+
+          // Jangan tampilkan order yang dibatalkan
+          const isCancelled =
+            statusLower.includes("batal") ||
+            statusLower.includes("cancel") ||
+            statusLower.includes("rejected");
+          if (isCancelled) return false;
+
           return (
             statusLower.includes("selesai") ||
             statusLower.includes("completed") ||
@@ -256,16 +209,6 @@ export default function OrdersPage() {
             statusLower.includes("delivered") ||
             statusLower.includes("received")
           );
-        });
-
-      case "cancelled":
-        return orders.filter((o) => {
-          const statusLower = o.status_transaksi?.toLowerCase() || "";
-          const isCancelled =
-            statusLower.includes("batal") ||
-            statusLower.includes("cancel") ||
-            statusLower.includes("rejected");
-          return isCancelled || isExpired(o.batas_pembayaran);
         });
 
       default:
@@ -277,7 +220,6 @@ export default function OrdersPage() {
   const unpaidCount = getOrdersByStatus("unpaid").length;
   const processingCount = getOrdersByStatus("processing").length;
   const completedCount = getOrdersByStatus("completed").length;
-  const cancelledCount = getOrdersByStatus("cancelled").length;
 
   const handleOrderClick = (orderId: number) => {
     router.push(`/Order/${orderId}`);
@@ -285,7 +227,7 @@ export default function OrdersPage() {
 
   const handleTrackingClick = (e: React.MouseEvent, resi: string) => {
     e.stopPropagation();
-    router.push(`/tracking/${resi}`);
+    router.push(`/clientArea/tracking/${resi}`);
   };
 
   const getStatusBadge = (status: string, expired: boolean) => {
@@ -302,7 +244,7 @@ export default function OrdersPage() {
 
     if (statusLower === "paid") {
       return {
-        label: "Sudah Dibayar",
+        label: "Diproses",
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: <CheckCircle className="w-5 h-5 text-blue-600" />,
@@ -424,10 +366,11 @@ export default function OrdersPage() {
 
       <div className="flex space-x-2 md:space-x-4 border-b border-gray-200 overflow-x-auto pb-0">
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "unpaid"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
+            tab === "unpaid"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+          }`}
           onClick={() => setTab("unpaid")}
         >
           Belum Bayar
@@ -439,10 +382,11 @@ export default function OrdersPage() {
         </button>
 
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "processing"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
+            tab === "processing"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+          }`}
           onClick={() => setTab("processing")}
         >
           Diproses
@@ -454,31 +398,17 @@ export default function OrdersPage() {
         </button>
 
         <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "completed"
+          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
+            tab === "completed"
               ? "border-[#55B4E5] text-[#55B4E5]"
               : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+          }`}
           onClick={() => setTab("completed")}
         >
           Selesai
           {completedCount > 0 && (
-            <span className="ml-2 bg-green-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+            <span className="ml-2 px-2 py-0.5 text-xs bg-[#55B4E5] text-white rounded-full">
               {completedCount}
-            </span>
-          )}
-        </button>
-
-        <button
-          className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${tab === "cancelled"
-              ? "border-[#55B4E5] text-[#55B4E5]"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          onClick={() => setTab("cancelled")}
-        >
-          Dibatalkan
-          {cancelledCount > 0 && (
-            <span className="ml-2 bg-gray-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
-              {cancelledCount}
             </span>
           )}
         </button>
@@ -500,8 +430,6 @@ export default function OrdersPage() {
                 "Pesanan yang sedang diproses akan muncul di sini"}
               {tab === "completed" &&
                 "Pesanan yang sudah selesai akan muncul di sini"}
-              {tab === "cancelled" &&
-                "Pesanan yang dibatalkan akan muncul di sini"}
             </p>
           </div>
         ) : (

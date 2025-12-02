@@ -134,3 +134,26 @@ export async function getAllTransactions() {
     };
   }
 }
+
+export async function trackShipment(resi: string, courier: string) {
+  try {
+    const response = await api.post("/main/checkout/track", {
+      resi: resi,
+      courier: courier,
+    });
+
+    return {
+      success: true,
+      message: response.data.message || "Berhasil melacak resi",
+      data: response.data.data,
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Gagal melacak pengiriman";
+    console.error("Track shipment error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
