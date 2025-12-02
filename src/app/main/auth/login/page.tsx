@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login, loginWithGoogle } from "@/utils/authService";
@@ -103,7 +103,18 @@ export default function Login() {
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
+          {/* Back Button */}
+          <Link
+            href="/"
+            className="absolute top-8 left-8 flex items-center gap-2 text-gray-500 hover:text-gray-700 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-full bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
+              <ArrowLeft size={18} />
+            </div>
+            <span className="text-sm font-medium">Kembali</span>
+          </Link>
           {/* Logo */}
+          
           <div className="mb-8">
             <img
               src="/images/logo.webp"

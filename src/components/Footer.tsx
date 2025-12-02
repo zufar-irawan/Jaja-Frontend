@@ -34,7 +34,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="bg-gradient-to-br from-[#55B4E5] via-[#4AA8DC] to-[#FBB338] text-white">
+        <footer className="bg-linear-to-br from-[#55B4E5] via-[#4AA8DC] to-[#FBB338] text-white">
             <div className="max-w-7xl mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Jaja.id Section */}
