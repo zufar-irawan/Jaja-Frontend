@@ -1,37 +1,36 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
 
 export default function Footer() {
     const links = {
         jaja: [
-            { name: 'Tentang Jaja', href: '#' },
+            { name: 'Tentang Jaja', href: '/Privacy/Tentang' },
             { name: 'Blogs', href: '#' },
-            { name: 'Kebijakan Privasi', href: '#' },
-            { name: 'Syarat Layanan', href: '#' }
+            { name: 'Kebijakan Privasi', href: '/Privacy/Tentang?section=kebijakan-privasi' },
+            { name: 'Syarat Layanan', href: '/Privacy/Tentang?section=syarat-layanan' }
         ],
         layanan: [
-            { name: 'Cara Menangggapi Komplain', href: '#' },
-            { name: 'Pengembalian Dana dan Barang', href: '#' },
+            { name: 'Cara Menangggapi Komplain', href: '/Privacy/Tentang?section=cara-komplain' },
+            { name: 'Pengembalian Dana dan Barang', href: '/Privacy/Tentang?section=ketentuan-pengembalian' },
             { name: 'Bantuan', href: '#' },
-            { name: 'Mulai Jualan', href: '#' }
+            { name: 'Mulai Jualan', href: '/' }
         ]
     };
 
     const paymentMethods = [
-        { name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/2560px-Bank_Central_Asia.svg.png' },
-        { name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/2560px-Bank_Mandiri_logo_2016.svg.png' },
-        { name: 'CIMB Niaga', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/CIMB_Niaga.svg/2560px-CIMB_Niaga.svg.png' },
-        { name: 'BNI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/2560px-BNI_logo.svg.png' },
-        { name: 'Visa', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png' },
-        { name: 'Gopay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/2560px-Gopay_logo.svg.png' },
-        { name: 'Mastercard', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png' }
+        { name: 'BCA', logo: '/images/BCA.png' },
+        { name: 'Mandiri', logo: '/images/Mandiri.png' },
+        { name: 'Gopay', logo: '/images/gopay.png' },
+        { name: 'Visa', logo: '/images/VISA.png' },
+        { name: 'Mastercard', logo: '/images/mastercard.png' }
     ];
 
     const shippingPartners = [
-        { name: 'J&T Express', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/New_Logo_JT_express.png/2560px-New_Logo_JT_express.png' },
-        { name: 'SiCepat', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SiCepat_Ekspres_logo.png/2560px-SiCepat_Ekspres_logo.png' }
+        { name: 'J&T Express', logo: '/images/JnT.png' },
+        { name: 'SiCepat', logo: '/images/sicepat.png' }
     ];
 
     return (
@@ -44,9 +43,12 @@ export default function Footer() {
                         <ul className="space-y-3">
                             {links.jaja.map((link, index) => (
                                 <li key={index}>
-                                    <a href={link.href} className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm">
+                                    <Link 
+                                        href={link.href} 
+                                        className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm"
+                                    >
                                         {link.name}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -58,9 +60,12 @@ export default function Footer() {
                         <ul className="space-y-3">
                             {links.layanan.map((link, index) => (
                                 <li key={index}>
-                                    <a href={link.href} className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm">
+                                    <Link 
+                                        href={link.href} 
+                                        className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm"
+                                    >
                                         {link.name}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -86,27 +91,21 @@ export default function Footer() {
 
                         <h4 className="text-lg font-semibold mb-4 text-white">Download Apps</h4>
                         <div className="space-y-3">
-                            <a href="#" className="block">
-                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 hover:bg-white/20 transition-all duration-300 flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                        <span className="text-black text-xl">🍎</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-white/70">Download on the</p>
-                                        <p className="text-sm font-semibold">App Store</p>
-                                    </div>
-                                </div>
+                            <a href="#" className="block hover:opacity-80 transition-opacity duration-300">
+                                <img 
+                                    src="/images/appstore.png" 
+                                    alt="Download on App Store" 
+                                    className="h-12 w-auto opacity-90"
+                                    style={{ filter: 'invert(1)' }}
+                                />
                             </a>
-                            <a href="#" className="block">
-                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 hover:bg-white/20 transition-all duration-300 flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                        <span className="text-2xl">▶️</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-white/70">GET IT ON</p>
-                                        <p className="text-sm font-semibold">Google Play</p>
-                                    </div>
-                                </div>
+                            <a href="#" className="block hover:opacity-80 transition-opacity duration-300">
+                                <img 
+                                    src="/images/goggleplay.png" 
+                                    alt="Get it on Google Play" 
+                                    className="h-12 w-auto opacity-90"
+                                    style={{ filter: 'invert(1)' }}
+                                />
                             </a>
                         </div>
                     </div>
@@ -117,8 +116,12 @@ export default function Footer() {
                             <h3 className="text-xl font-bold mb-4 text-white">Pengiriman</h3>
                             <div className="flex gap-3 flex-wrap">
                                 {shippingPartners.map((partner, index) => (
-                                    <div key={index} className="bg-white rounded-lg p-2 h-12 w-20 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
-                                        <span className="text-xs font-semibold text-gray-800">{partner.name}</span>
+                                    <div key={index} className="bg-white rounded-lg p-3 h-14 w-24 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
+                                        <img 
+                                            src={partner.logo} 
+                                            alt={partner.name} 
+                                            className="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
                                 ))}
                             </div>
@@ -129,7 +132,11 @@ export default function Footer() {
                             <div className="grid grid-cols-3 gap-3">
                                 {paymentMethods.map((method, index) => (
                                     <div key={index} className="bg-white rounded-lg p-2 h-12 flex items-center justify-center hover:shadow-lg transition-shadow duration-300">
-                                        <span className="text-xs font-semibold text-gray-800">{method.name}</span>
+                                        <img 
+                                            src={method.logo} 
+                                            alt={method.name} 
+                                            className="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
                                 ))}
                             </div>
