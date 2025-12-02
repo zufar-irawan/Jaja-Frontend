@@ -145,6 +145,9 @@ export interface MyTokoDetail {
   foto_npwp: string | null;
   deskripsi_toko: string;
   alamat_toko: string;
+  alamat_google?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   provinsi: number;
   kota_kabupaten: number;
   kecamatan: number;
@@ -206,6 +209,39 @@ export interface MyTokoProductParams {
   search?: string;
   status_produk?: string;
   draft?: "Y" | "T";
+}
+
+export interface UpdateTokoPayload {
+  nama_toko?: string;
+  deskripsi_toko?: string;
+  greating_message?: string;
+  alamat_toko?: string;
+  alamat_google?: string;
+  latitude?: string;
+  longitude?: string;
+  provinsi?: number;
+  kota_kabupaten?: number;
+  kecamatan?: number;
+  kelurahan?: number;
+  kode_pos?: string;
+  free_ongkir?: boolean | "Y" | "T";
+  min_free_ongkir?: number;
+  pilihan_kurir?: string[] | string;
+  kurir_service?: CourierServiceMap | string | null;
+  data_buka_toko?:
+  | {
+    days: string;
+    time_open: string;
+    time_close: string;
+  }
+  | string;
+  data_libur_toko?: string | null;
+}
+
+export interface UpdateTokoResponse {
+  success: boolean;
+  message?: string;
+  toko?: MyTokoDetail;
 }
 
 // Open store helpers

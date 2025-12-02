@@ -22,6 +22,7 @@ import {
     parseBukaTokoData,
 } from "@/utils/tokoService";
 import ExpandableDescription from "../[slug]/ExpandableDescription";
+import StoreActionPanel from "./StoreActionPanel";
 
 const SELLER_PRODUCT_IMAGE_BASE_URL =
     "https://seller.jaja.id/asset/images/products/";
@@ -89,8 +90,8 @@ function ManagementSidebar() {
                             key={item.title}
                             type="button"
                             className={`w-full rounded-2xl border px-4 py-3 text-left transition hover:shadow-md ${item.danger
-                                    ? "border-red-200 bg-red-50/80 text-red-600 hover:bg-red-50"
-                                    : "border-gray-200 bg-white/60 text-gray-800 hover:border-gray-300"
+                                ? "border-red-200 bg-red-50/80 text-red-600 hover:bg-red-50"
+                                : "border-gray-200 bg-white/60 text-gray-800 hover:border-gray-300"
                                 }`}
                         >
                             <div className="font-semibold">{item.title}</div>
@@ -247,14 +248,7 @@ export default async function TokoSayaPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 lg:w-48">
-                            <Link
-                                href="/Toko/buka-toko"
-                                className="px-6 py-3 rounded-xl font-semibold text-white bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:bg-white/30 transition-all duration-200 text-center"
-                            >
-                                Edit Toko
-                            </Link>
-                        </div>
+                        <StoreActionPanel store={tokoData} />
                     </div>
                 </div>
             </div>
