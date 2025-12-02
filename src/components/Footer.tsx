@@ -1,21 +1,22 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Facebook, Instagram, MessageCircle, Music } from 'lucide-react';
 
 export default function Footer() {
     const links = {
         jaja: [
-            { name: 'Tentang Jaja', href: '#' },
+            { name: 'Tentang Jaja', href: '/Privacy/Tentang' },
             { name: 'Blogs', href: '#' },
-            { name: 'Kebijakan Privasi', href: '#' },
-            { name: 'Syarat Layanan', href: '#' }
+            { name: 'Kebijakan Privasi', href: '/Privacy/Tentang?section=kebijakan-privasi' },
+            { name: 'Syarat Layanan', href: '/Privacy/Tentang?section=syarat-layanan' }
         ],
         layanan: [
-            { name: 'Cara Menangggapi Komplain', href: '#' },
-            { name: 'Pengembalian Dana dan Barang', href: '#' },
+            { name: 'Cara Menangggapi Komplain', href: '/Privacy/Tentang?section=cara-komplain' },
+            { name: 'Pengembalian Dana dan Barang', href: '/Privacy/Tentang?section=ketentuan-pengembalian' },
             { name: 'Bantuan', href: '#' },
-            { name: 'Mulai Jualan', href: '#' }
+            { name: 'Mulai Jualan', href: '/' }
         ]
     };
 
@@ -42,9 +43,12 @@ export default function Footer() {
                         <ul className="space-y-3">
                             {links.jaja.map((link, index) => (
                                 <li key={index}>
-                                    <a href={link.href} className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm">
+                                    <Link 
+                                        href={link.href} 
+                                        className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm"
+                                    >
                                         {link.name}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
@@ -56,9 +60,12 @@ export default function Footer() {
                         <ul className="space-y-3">
                             {links.layanan.map((link, index) => (
                                 <li key={index}>
-                                    <a href={link.href} className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm">
+                                    <Link 
+                                        href={link.href} 
+                                        className="text-white/90 hover:text-[#FBB338] transition-colors duration-300 text-sm"
+                                    >
                                         {link.name}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
