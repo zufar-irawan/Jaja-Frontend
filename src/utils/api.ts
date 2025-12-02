@@ -40,7 +40,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      cookies().then((c) => c.delete("auth-token"));
+      console.warn("auth-token expired (401)");
     }
     return Promise.reject(error);
   },
@@ -63,7 +63,7 @@ sellerApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      cookies().then((c) => c.delete("auth-seller-token"));
+      console.warn("auth-seller-token expired (401)");
     }
     return Promise.reject(error);
   },
