@@ -69,6 +69,7 @@ export default function JajaNavbar() {
   const [expandedMobileCategories, setExpandedMobileCategories] = useState<
     number[]
   >([]);
+  const [hasStore, setHasStore] = useState<boolean | null>(null);
 
   // Search states
   const [searchQuery, setSearchQuery] = useState("");
@@ -169,6 +170,37 @@ export default function JajaNavbar() {
   useEffect(() => {
     fetchCartCount();
   }, [fetchCartCount]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setHasStore(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function fetchStoreStatus() {
+      try {
+        const response = await fetch("/api/toko/me", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Failed to fetch store status");
+        }
+        const data = await response.json();
+        if (!isMounted) return;
+        setHasStore(Boolean(data?.toko));
+      } catch (error) {
+        console.warn("Cannot determine store status:", error);
+        if (!isMounted) return;
+        setHasStore(false);
+      }
+    }
+
+    fetchStoreStatus();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -782,13 +814,25 @@ export default function JajaNavbar() {
                         <span className="font-medium">Wishlist Saya</span>
                       </button>
 
-                      <button
-                        onClick={() => router.push(`/Toko/buka-toko`)}
-                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
-                      >
-                        <Store className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        <span className="font-medium">Buka Toko</span>
-                      </button>
+                      {hasStore === false && (
+                        <button
+                          onClick={() => router.push(`/Toko/buka-toko`)}
+                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
+                        >
+                          <Store className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                          <span className="font-medium">Buka Toko</span>
+                        </button>
+                      )}
+
+                      {hasStore === true && (
+                        <button
+                          onClick={() => router.push(`/Toko/tokosaya`)}
+                          className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
+                        >
+                          <Store className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                          <span className="font-medium">Toko Saya</span>
+                        </button>
+                      )}
 
                       <div className="border-t border-gray-100 my-2"></div>
 

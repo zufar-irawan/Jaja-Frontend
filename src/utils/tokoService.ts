@@ -132,6 +132,82 @@ export interface BasicApiResponse<T = unknown> {
   data?: T;
 }
 
+export interface CourierServiceMap {
+  [courier: string]: string[];
+}
+
+export interface MyTokoDetail {
+  id_toko: number;
+  nama_toko: string;
+  slug_toko: string;
+  foto?: string | null;
+  foto_ktp: string | null;
+  foto_npwp: string | null;
+  deskripsi_toko: string;
+  alamat_toko: string;
+  provinsi: number;
+  kota_kabupaten: number;
+  kecamatan: number;
+  kelurahan: number;
+  kode_pos: string;
+  pilihan_kurir: string[] | string;
+  kurir_service: CourierServiceMap | null;
+  free_ongkir: "Y" | "T";
+  min_free_ongkir: number;
+  status_legalitas: string | null;
+  skor: number;
+  data_buka_toko: string | BukaTokoData;
+  data_libur_toko: string | null;
+  kategori_seller?: string;
+  greating_message?: string;
+  toko_pilihan?: "Y" | "T";
+}
+
+export interface MyTokoResponse {
+  success: boolean;
+  message?: string;
+  toko?: MyTokoDetail;
+}
+
+export interface MyTokoProduct {
+  id_produk: number;
+  nama_produk: string;
+  slug_produk: string;
+  harga: number;
+  diskon: number;
+  harga_setelah_diskon: number;
+  stok: number;
+  thumbnail: string | null;
+  variasi_count: number;
+  draft: "Y" | "T";
+  status_produk: string;
+  created_date: string;
+}
+
+export interface SellerPagination {
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+export interface MyTokoProductsResponse {
+  success: boolean;
+  message?: string;
+  pagination: SellerPagination;
+  produk: MyTokoProduct[];
+}
+
+export interface MyTokoProductParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status_produk?: string;
+  draft?: "Y" | "T";
+}
+
 // Open store helpers
 export async function getStoreProvinces(
   page: number = 1,
@@ -246,7 +322,7 @@ export async function createSellerToko(
   payload: CreateTokoPayload,
 ): Promise<BasicApiResponse> {
   try {
-    const response = await sellerApi.post("/v1/seller/create-toko", payload);
+    const response = await api.post("/v1/seller/create-toko", payload);
 
     return {
       success: true,
@@ -264,6 +340,72 @@ export async function createSellerToko(
       message: error.response?.data?.message || "Gagal membuat toko",
       data: error.response?.data,
     };
+  }
+}
+
+export async function getMyToko(): Promise<MyTokoDetail | null> {
+  try {
+    const response = await api.get<MyTokoResponse>(
+      "/seller/v2/toko/detail",
+    );
+
+    if (!response.data?.success) {
+      console.warn("getMyToko response not successful", response.data);
+      return null;
+    }
+
+    return response.data.toko ?? null;
+  } catch (error: any) {
+    const status = error?.response?.status;
+    const logPayload = {
+      message: error?.message,
+      status,
+      data: error?.response?.data,
+    };
+
+    if (status === 401) {
+      console.warn("getMyToko unauthorized", logPayload);
+      return null;
+    }
+
+    console.error("getMyToko error:", logPayload);
+    return null;
+  }
+}
+
+export async function getMyTokoProducts(
+  params?: MyTokoProductParams,
+): Promise<MyTokoProductsResponse | null> {
+  try {
+    const queryParams = new URLSearchParams();
+
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.search) queryParams.append("search", params.search);
+    if (params?.status_produk)
+      queryParams.append("status_produk", params.status_produk);
+    if (params?.draft) queryParams.append("draft", params.draft);
+
+    const suffix = queryParams.toString() ? `?${queryParams}` : "";
+
+    const response = await api.get<MyTokoProductsResponse>(
+      `/seller/v2/produk${suffix}`,
+    );
+
+    if (!response.data?.success) {
+      console.warn("getMyTokoProducts response not successful", response.data);
+      return null;
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error("getMyTokoProducts error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+
+    return null;
   }
 }
 
