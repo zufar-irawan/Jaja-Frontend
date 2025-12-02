@@ -31,14 +31,23 @@ export interface AuthResponse {
   message?: string;
   data?: any;
   token?: string;
+  user?: {
+    id: number;
+    nama_lengkap: string;
+    email: string;
+    role: string;
+    toko: any;
+  };
 }
 
 export async function register(data: RegisterData): Promise<AuthResponse> {
   try {
-    const response = await api.post("/main/auth/register", data);
+    const response = await api.post("/auth-jaja/register", data);
     return {
       success: true,
-      message: response.data.message || "Registrasi berhasil",
+      message:
+        response.data.message ||
+        "Registrasi berhasil. Silakan cek email untuk verifikasi.",
       data: response.data,
     };
   } catch (error: any) {
@@ -51,24 +60,17 @@ export async function register(data: RegisterData): Promise<AuthResponse> {
 
 export async function login(data: LoginData): Promise<AuthResponse> {
   try {
-    const response = await api.post("/main/auth/login", data);
-    let sellerToken: string | undefined;
-
-    try {
-      const sellerResponse = await api.post("/v1/seller/login", data);
-      sellerToken = sellerResponse.data?.token;
-    } catch (sellerError) {
-      console.error("Seller login error:", sellerError);
-    }
+    const response = await api.post("/auth-jaja/login", data);
 
     if (response.data.token) {
       const cookieStore = await cookies();
+      const userData = response.data.user;
 
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 7, 
       });
 
       cookieStore.set("is-authenticated", "true", {
@@ -78,8 +80,17 @@ export async function login(data: LoginData): Promise<AuthResponse> {
         maxAge: 60 * 60 * 24 * 7,
       });
 
-      if (sellerToken) {
-        cookieStore.set("auth-seller-token", sellerToken, {
+      if (userData?.role) {
+        cookieStore.set("user-role", userData.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        });
+      }
+
+      if (userData?.role === "seller" || userData?.toko) {
+        cookieStore.set("auth-seller-token", response.data.token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
@@ -93,6 +104,7 @@ export async function login(data: LoginData): Promise<AuthResponse> {
       message: response.data.message || "Login berhasil",
       data: response.data,
       token: response.data.token,
+      user: response.data.user,
     };
   } catch (error: any) {
     return {
@@ -106,17 +118,20 @@ export async function forgotPassword(
   data: ForgotPasswordData,
 ): Promise<AuthResponse> {
   try {
-    const response = await api.post("/main/auth/forgot-password", data);
+    const response = await api.post("/auth-jaja/forgot-password", data);
     return {
       success: true,
-      message: response.data.message || "Kode verifikasi telah dikirim",
+      message:
+        response.data.message ||
+        "Link reset password telah dikirim ke email",
       data: response.data,
     };
   } catch (error: any) {
     return {
       success: false,
       message:
-        error.response?.data?.message || "Gagal mengirim kode verifikasi",
+        error.response?.data?.message ||
+        "Gagal mengirim link reset password",
     };
   }
 }
@@ -125,16 +140,16 @@ export async function resetPassword(
   data: ResetPasswordData,
 ): Promise<AuthResponse> {
   try {
-    const response = await api.post("/main/auth/reset-password", data);
+    const response = await api.post("/auth-jaja/reset-password", data);
     return {
       success: true,
-      message: response.data.message || "Password berhasil diubah",
+      message: response.data.message || "Password berhasil direset",
       data: response.data,
     };
   } catch (error: any) {
     return {
       success: false,
-      message: error.response?.data?.message || "Gagal mengubah password",
+      message: error.response?.data?.message || "Gagal mereset password",
     };
   }
 }
@@ -143,12 +158,13 @@ export async function loginWithGoogle(
   credential: string,
 ): Promise<AuthResponse> {
   try {
-    const response = await api.post("/main/auth/google", {
-      token: credential,
+    const response = await api.get("/auth-jaja/google", {
+      params: { token: credential },
     });
 
     if (response.data.token) {
       const cookieStore = await cookies();
+      const userData = response.data.user;
 
       cookieStore.set("auth-token", response.data.token, {
         httpOnly: true,
@@ -163,6 +179,24 @@ export async function loginWithGoogle(
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7,
       });
+
+      if (userData?.role) {
+        cookieStore.set("user-role", userData.role, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        });
+      }
+
+      if (userData?.role === "seller" || userData?.toko) {
+        cookieStore.set("auth-seller-token", response.data.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+        });
+      }
     }
 
     return {
@@ -170,6 +204,7 @@ export async function loginWithGoogle(
       message: response.data.message || "Login dengan Google berhasil",
       data: response.data,
       token: response.data.token,
+      user: response.data.user,
     };
   } catch (error: any) {
     console.error("Google login error:", error);
@@ -181,16 +216,11 @@ export async function loginWithGoogle(
 }
 
 export async function logout(): Promise<void> {
-  try {
-    await api.post("/v1/seller/logout");
-  } catch (error) {
-    console.error("Seller logout error:", error);
-  }
-
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
   cookieStore.delete("auth-seller-token");
   cookieStore.delete("is-authenticated");
+  cookieStore.delete("user-role");
 }
 
 export async function clearAuthCookie(): Promise<void> {
@@ -198,10 +228,17 @@ export async function clearAuthCookie(): Promise<void> {
   cookieStore.delete("auth-token");
   cookieStore.delete("auth-seller-token");
   cookieStore.delete("is-authenticated");
+  cookieStore.delete("user-role");
 }
 
 export async function checkAuthStatus(): Promise<boolean> {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth-token")?.value;
   return !!token;
+}
+
+export async function getUserRole(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const role = cookieStore.get("user-role")?.value;
+  return role || null;
 }
