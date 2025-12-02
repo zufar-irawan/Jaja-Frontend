@@ -782,6 +782,14 @@ export default function JajaNavbar() {
                         <span className="font-medium">Wishlist Saya</span>
                       </button>
 
+                      <button
+                        onClick={() => router.push(`/clientArea/wishlist`)}
+                        className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#55B4E5]/10 hover:text-[#55B4E5] transition-all group"
+                      >
+                        <Store className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <span className="font-medium">Buka Toko</span>
+                      </button>
+
                       <div className="border-t border-gray-100 my-2"></div>
 
                       <button
