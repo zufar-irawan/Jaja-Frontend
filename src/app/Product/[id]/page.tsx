@@ -1,5 +1,5 @@
 // app/Product/[id]/page.tsx
-import { getProductBySlug } from '@/utils/productService'
+import { getProductBySlug, getRecommendedProducts } from '@/utils/productService'
 import { notFound } from 'next/navigation'
 import ProductView from '@/app/Product/components/ProductView'
 
@@ -17,8 +17,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             notFound()
         }
 
-        // Fetch product by slug
-        const response = await getProductBySlug(slug)
+        // Fetch product detail and recommended list concurrently
+        const [response, recommendedProducts] = await Promise.all([
+            getProductBySlug(slug),
+            getRecommendedProducts(12)
+        ])
 
         if (!response.success || !response.data?.product) {
             console.warn(`Product with slug "${slug}" not found or failed to load. API response:`, response)
@@ -146,6 +149,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <ProductView
                 product={product}
                 otherProduct={otherProduct}
+                recommendedProducts={recommendedProducts || []}
                 storeInfo={storeInfo}
                 productSpecs={productSpecs}
                 features={features}

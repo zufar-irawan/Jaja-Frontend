@@ -372,6 +372,8 @@ export interface TransactionData {
   confirm_date: string | null;
   status_komplain: string;
   complain_date: string | null;
+  resi_pengiriman?: string | null;
+  kurir?: string | null;
   details: TransactionDetail[];
 }
 
