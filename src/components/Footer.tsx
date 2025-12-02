@@ -91,27 +91,21 @@ export default function Footer() {
 
                         <h4 className="text-lg font-semibold mb-4 text-white">Download Apps</h4>
                         <div className="space-y-3">
-                            <a href="#" className="block">
-                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 hover:bg-white/20 transition-all duration-300 flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                        <span className="text-black text-xl">🍎</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-white/70">Download on the</p>
-                                        <p className="text-sm font-semibold">App Store</p>
-                                    </div>
-                                </div>
+                            <a href="#" className="block hover:opacity-80 transition-opacity duration-300">
+                                <img 
+                                    src="/images/appstore.png" 
+                                    alt="Download on App Store" 
+                                    className="h-12 w-auto opacity-90"
+                                    style={{ filter: 'invert(1)' }}
+                                />
                             </a>
-                            <a href="#" className="block">
-                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 hover:bg-white/20 transition-all duration-300 flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                                        <span className="text-2xl">▶️</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-white/70">GET IT ON</p>
-                                        <p className="text-sm font-semibold">Google Play</p>
-                                    </div>
-                                </div>
+                            <a href="#" className="block hover:opacity-80 transition-opacity duration-300">
+                                <img 
+                                    src="/images/goggleplay.png" 
+                                    alt="Get it on Google Play" 
+                                    className="h-12 w-auto opacity-90"
+                                    style={{ filter: 'invert(1)' }}
+                                />
                             </a>
                         </div>
                     </div>
