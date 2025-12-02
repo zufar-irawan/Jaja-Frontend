@@ -5,6 +5,62 @@ import {
   SearchProductsResponse,
 } from "./productService";
 
+export interface ProvinceOption {
+  province_id: number;
+  province: string;
+  province_kd: string;
+}
+
+export interface CityOption {
+  city_id: number;
+  province_id: number;
+  province: string;
+  city_name: string;
+  city_kd: string;
+  postal_code: number;
+  type: string;
+}
+
+export interface DistrictOption {
+  kecamatan_id: number;
+  province_id: number;
+  province: string;
+  city_id: number;
+  city: string;
+  kecamatan: string;
+  kecamatan_kd: string;
+}
+
+export interface VillageOption {
+  kelurahan_id: number;
+  kd_prop: string;
+  propinsi: string;
+  kd_kab_kota: string;
+  kabupaten_kota: string;
+  kd_kec: string;
+  kecamatan: string;
+  kd_kelurahan_desa: string;
+  kelurahan_desa: string;
+}
+
+export interface OpenStorePayload {
+  nama_toko: string;
+  deskripsi_toko: string;
+  alamat_toko: string;
+  provinsi: number;
+  kota_kabupaten: number;
+  kecamatan: number;
+  kelurahan: number;
+  kode_pos: string;
+  skor: number;
+}
+
+export interface BasicStoreResponse<T = unknown> {
+  success: boolean;
+  message?: string;
+  data?: T;
+}
+
 export interface TokoDetail {
   id_toko: number;
   uid: string;
@@ -74,6 +130,113 @@ export interface BasicApiResponse<T = unknown> {
   success: boolean;
   message?: string;
   data?: T;
+}
+
+// Open store helpers
+export async function getStoreProvinces(
+  page: number = 1,
+  limit: number = 200,
+): Promise<BasicStoreResponse<ProvinceOption[]>> {
+  try {
+    const response = await api.get(
+      `/main/location/provinces?page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal mengambil provinsi",
+    };
+  }
+}
+
+export async function getStoreCities(
+  provinceId: number,
+  page: number = 1,
+  limit: number = 200,
+): Promise<BasicStoreResponse<CityOption[]>> {
+  try {
+    const response = await api.get(
+      `/main/location/cities?province_id=${provinceId}&page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal mengambil kota",
+    };
+  }
+}
+
+export async function getStoreDistricts(
+  cityId: number,
+  page: number = 1,
+  limit: number = 200,
+): Promise<BasicStoreResponse<DistrictOption[]>> {
+  try {
+    const response = await api.get(
+      `/main/location/districts?city_id=${cityId}&page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal mengambil kecamatan",
+    };
+  }
+}
+
+export async function getStoreVillages(
+  kecamatanKd: string,
+  page: number = 1,
+  limit: number = 200,
+): Promise<BasicStoreResponse<VillageOption[]>> {
+  try {
+    const response = await api.get(
+      `/main/location/villages?kecamatan_kd=${kecamatanKd}&page=${page}&limit=${limit}`,
+    );
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal mengambil kelurahan",
+    };
+  }
+}
+
+export async function openStore(
+  payload: OpenStorePayload,
+): Promise<BasicStoreResponse> {
+  try {
+    const response = await sellerApi.post(
+      "/seller/v2/toko/open-store",
+      payload,
+    );
+
+    return {
+      success: true,
+      message: response.data?.message || "Berhasil membuka toko",
+      data: response.data?.data ?? response.data,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || "Gagal membuka toko",
+      data: error.response?.data,
+    };
+  }
 }
 
 export async function createSellerToko(
