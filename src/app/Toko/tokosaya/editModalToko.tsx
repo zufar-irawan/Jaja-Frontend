@@ -190,10 +190,25 @@ export default function EditModalToko({
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
 
-  const toArray = <T,>(payload: any): T[] => {
+  const toArray = <T,>(payload: unknown): T[] => {
     if (Array.isArray(payload)) return payload;
-    if (Array.isArray(payload?.data)) return payload.data;
-    if (Array.isArray(payload?.data?.data)) return payload.data.data;
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "data" in payload &&
+      Array.isArray(payload.data)
+    )
+      return payload.data;
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "data" in payload &&
+      payload.data &&
+      typeof payload.data === "object" &&
+      "data" in payload.data &&
+      Array.isArray(payload.data.data)
+    )
+      return payload.data.data;
     return [];
   };
 
@@ -381,9 +396,11 @@ export default function EditModalToko({
     try {
       await onSubmit?.(form);
       setMessage("Perubahan toko berhasil disimpan.");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update store", error);
-      setMessage(error?.message || "Gagal menyimpan perubahan.");
+      setMessage(
+        error instanceof Error ? error.message : "Gagal menyimpan perubahan.",
+      );
     } finally {
       setSubmitting(false);
     }

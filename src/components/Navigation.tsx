@@ -298,11 +298,12 @@ export default function JajaNavbar() {
 
   const getUserInitials = () => {
     if (!userProfile) return "?";
-    if (userProfile.first_name)
+    if (userProfile.first_name && userProfile.first_name.length > 0)
       return userProfile.first_name.charAt(0).toUpperCase();
-    if (userProfile.nama_lengkap)
+    if (userProfile.nama_lengkap && userProfile.nama_lengkap.length > 0)
       return userProfile.nama_lengkap.charAt(0).toUpperCase();
-    if (userProfile.email) return userProfile.email.charAt(0).toUpperCase();
+    if (userProfile.email && userProfile.email.length > 0)
+      return userProfile.email.charAt(0).toUpperCase();
     return "?";
   };
 
@@ -325,10 +326,11 @@ export default function JajaNavbar() {
           <div key={child.id_kategori}>
             <button
               onClick={() => handleCategoryClick(child)}
-              className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${level === 0
-                ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
-                : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
-                } rounded-lg`}
+              className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${
+                level === 0
+                  ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+                  : "text-xs text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
+              } rounded-lg`}
             >
               <span className="flex items-center">
                 {level > 0 && <span className="mr-2 text-gray-400">•</span>}
@@ -392,8 +394,9 @@ export default function JajaNavbar() {
                     Kategori
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-500 group-hover:text-[#55B4E5] transition-transform ${showCategoryMenu ? "rotate-180" : ""
-                      }`}
+                    className={`w-4 h-4 text-gray-500 group-hover:text-[#55B4E5] transition-transform ${
+                      showCategoryMenu ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
@@ -423,10 +426,11 @@ export default function JajaNavbar() {
                               onMouseEnter={() =>
                                 setHoveredCategory(category.id_kategori)
                               }
-                              className={`w-full text-left px-5 py-3.5 transition-all flex items-center justify-between group border-l-4 ${hoveredCategory === category.id_kategori
-                                ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
-                                : "border-transparent text-gray-700 hover:bg-white/80"
-                                }`}
+                              className={`w-full text-left px-5 py-3.5 transition-all flex items-center justify-between group border-l-4 ${
+                                hoveredCategory === category.id_kategori
+                                  ? "bg-white border-[#55B4E5] text-[#55B4E5] shadow-sm"
+                                  : "border-transparent text-gray-700 hover:bg-white/80"
+                              }`}
                             >
                               <span className="font-medium text-sm">
                                 {category.kategori}
@@ -434,10 +438,11 @@ export default function JajaNavbar() {
                               {category.children &&
                                 category.children.length > 0 && (
                                   <ChevronRight
-                                    className={`w-4 h-4 transition-all ${hoveredCategory === category.id_kategori
-                                      ? "text-[#55B4E5] translate-x-0.5"
-                                      : "text-gray-400"
-                                      }`}
+                                    className={`w-4 h-4 transition-all ${
+                                      hoveredCategory === category.id_kategori
+                                        ? "text-[#55B4E5] translate-x-0.5"
+                                        : "text-gray-400"
+                                    }`}
                                   />
                                 )}
                             </button>
@@ -774,8 +779,9 @@ export default function JajaNavbar() {
                       {getUserDisplayName()}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-gray-600 transition-transform ${showUserMenu ? "rotate-180" : ""
-                        }`}
+                      className={`w-4 h-4 text-gray-600 transition-transform ${
+                        showUserMenu ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
@@ -933,12 +939,13 @@ export default function JajaNavbar() {
                                 className="px-4 py-3.5 text-gray-500 hover:text-[#55B4E5] hover:bg-gray-50 transition-all"
                               >
                                 <ChevronDown
-                                  className={`w-5 h-5 transition-transform duration-200 ${expandedMobileCategories.includes(
-                                    category.id_kategori,
-                                  )
-                                    ? "rotate-180"
-                                    : ""
-                                    }`}
+                                  className={`w-5 h-5 transition-transform duration-200 ${
+                                    expandedMobileCategories.includes(
+                                      category.id_kategori,
+                                    )
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
                                 />
                               </button>
                             )}
