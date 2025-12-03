@@ -5,13 +5,35 @@ import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2, } from 'lucide-r
 import { useRouter } from 'next/navigation';
 import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
 import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
+
+// Extended types untuk mendukung grouping by store
+interface ExtendedProduct {
+  id_produk: number;
+  nama_produk: string;
+  harga: number;
+  diskon?: number;
+  stok: number;
+  slug_produk: string;
+  foto_produk?: string;
+  berat?: string;
+  kondisi?: string;
+  id_toko?: number;
+  toko?: {
+    id_toko: number;
+    nama_toko: string;
+  };
+}
+
+interface ExtendedCartItem extends Omit<CartItem, 'produk'> {
+  produk: ExtendedProduct | number;
+}
 import { useCartStore } from '@/store/cartStore';
 import { getAddresses } from '@/utils/userService';
 import Swal from 'sweetalert2';
 
 const ShoppingCartPage = () => {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingQuantities, setEditingQuantities] = useState<Record<number, string>>({});
   const [couponCode, setCouponCode] = useState('');
@@ -29,7 +51,7 @@ const ShoppingCartPage = () => {
       const response = await getCart();
       
       if (response.success && response.data?.items) {
-        setCartItems(response.data.items);
+        setCartItems(response.data.items as ExtendedCartItem[]);
       } else {
         setError(response.message || 'Gagal memuat keranjang');
       }
@@ -43,8 +65,16 @@ const ShoppingCartPage = () => {
 
   const handleToggleSelection = async (id_cart: number) => {
     try {
+      // Update UI immediately for better UX
+      setCartItems(items =>
+        items.map(item =>
+          item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
+        )
+      );
+      
       const response = await toggleCartSelection(id_cart);
-      if (response.success) {
+      if (!response.success) {
+        // Revert if failed
         setCartItems(items =>
           items.map(item =>
             item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
@@ -53,6 +83,12 @@ const ShoppingCartPage = () => {
       }
     } catch (error) {
       console.error('Error toggling selection:', error);
+      // Revert on error
+      setCartItems(items =>
+        items.map(item =>
+          item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
+        )
+      );
     }
   };
 
@@ -81,6 +117,14 @@ const ShoppingCartPage = () => {
   };
 
   const { fetchCartCount } = useCartStore();
+  
+  // Helper untuk convert ExtendedCartItem ke CartItem untuk compatibility
+  const toCartItem = (item: ExtendedCartItem): CartItem => {
+    return {
+      ...item,
+      produk: typeof item.produk === 'object' ? item.produk : undefined
+    } as CartItem;
+  };
   
   const handleNavigateToProduct = (slug: string | undefined) => {
       if (slug) {
@@ -237,8 +281,37 @@ const ShoppingCartPage = () => {
     } 
   };
 
-  const totals = calculateCartTotals(cartItems, 0, discount, 0);
+  const totals = calculateCartTotals(
+    cartItems.map(toCartItem), 
+    0, 
+    discount, 
+    0
+  );
   const allSelected = cartItems.length > 0 && cartItems.every(item => item.status_pilih);
+
+  // Group cart items by store
+  const groupedByStore = cartItems.reduce((acc, item) => {
+    const storeId = String(item.id_toko || 'unknown');
+    const storeName = item.toko?.nama_toko || 'Toko Tidak Diketahui';
+    
+    if (!acc[storeId]) {
+      acc[storeId] = {
+        storeName,
+        items: []
+      };
+    }
+    acc[storeId].items.push(item);
+    return acc;
+  }, {} as Record<string, { storeName: string; items: ExtendedCartItem[] }>);
+
+  // Debug: Log untuk memastikan grouping bekerja
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      console.log('Cart Items:', cartItems);
+      console.log('Grouped By Store:', groupedByStore);
+      console.log('Number of stores:', Object.keys(groupedByStore).length);
+    }
+  }, [cartItems]);
 
   if (loading) {
     return (
@@ -459,195 +532,245 @@ const ShoppingCartPage = () => {
               </div>
             ) : (
               <>
-                {cartItems.map(item => {
-                  const price = getProductPrice(item);
-                  const itemTotal = price * item.qty;
-                  const imageUrl = getProductImageUrl(item);
-                  const product = typeof item.produk === 'object' && item.produk ? item.produk : null;
-                  const stock = item.variasi?.stok_variasi || product?.stok || 99;
-                  
-                  return (
-                    <div key={item.id_cart} className="cart-item" style={{ 
+                {Object.entries(groupedByStore).map(([storeId, storeData]) => (
+                  <div key={storeId} style={{ marginBottom: '24px' }}>
+                    {/* Store Header */}
+                    <div style={{
                       display: 'flex',
-                      gap: '12px', 
-                      padding: 'clamp(12px, 2vw, 16px)', 
-                      border: '1px solid #e9ecef',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 16px',
+                      backgroundColor: '#f8f9fa',
                       borderRadius: '8px',
                       marginBottom: '12px',
-                      backgroundColor: item.status_pilih ? '#f0f8ff' : 'white'
+                      border: '1px solid #e9ecef'
                     }}>
-                      
-                      {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={item.status_pilih === true || item.status_pilih === 'Y'}
-                        onChange={() => handleToggleSelection(item.id_cart)}
-                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#55B4E5', flexShrink: 0 }}
-                      />
-
-                      {/* Product Image */}
-                      <div 
-                        className="cart-item-image" 
-                        onClick={() => handleNavigateToProduct(product?.slug_produk)}
-                        style={{ 
-                          width: '80px', 
-                          height: '80px', 
-                          backgroundColor: '#f8f9fa', 
-                          borderRadius: '6px', 
-                          overflow: 'hidden',
-                          flexShrink: 0,
-                          cursor: product?.slug_produk ? 'pointer' : 'default',
-                          transition: 'transform 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (product?.slug_produk) {
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                          }
-                        }}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      >
-                        <img 
-                          src={imageUrl} 
-                          alt={product?.nama_produk || 'Nama Produk'}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        backgroundColor: '#55B4E5',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        🏪
                       </div>
-
-                      {/* Product Info */}
-                      <div className="cart-item-content" style={{ flex: 1, minWidth: 0 }}>
-                        <h3 
-                          onClick={() => handleNavigateToProduct(product?.slug_produk)}
-                          style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', marginBottom: '4px', color: '#333' }}
-                          onMouseEnter={(e) => {if (product?.slug_produk) {e.currentTarget.style.color = '#55B4E5';}}}
-                          onMouseLeave={(e) => e.currentTarget.style.color = '#333'}>
-                          {product?.nama_produk || 'Nama Produk'}
-                        </h3>
-                        {item.variasi?.nama_variasi && (
-                          <div style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d', marginBottom: '8px' }}>
-                            Variasi: {item.variasi.nama_variasi}
-                          </div>
-                        )}
-                        
-                        <div className="product-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                          <div>
-                            <div style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '700', color: '#55B4E5' }}>
-                              {formatCurrency(price)}
-                            </div>
-                            <div style={{ fontSize: 'clamp(10px, 2vw, 11px)', color: '#6c757d' }}>
-                              Stok: {stock}
-                            </div>
-                          </div>
-
-                          {/* Quantity Controls */}
-                          <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
-                            <button
-                              onClick={() => handleUpdateQuantity(item.id_cart, item.qty - 1)}
-                              disabled={item.qty <= 1}
-                              style={{ 
-                                width: '28px', 
-                                height: '28px', 
-                                border: '1px solid #dee2e6', 
-                                borderRadius: '5px', 
-                                background: 'white', 
-                                cursor: item.qty <= 1 ? 'not-allowed' : 'pointer', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                opacity: item.qty <= 1 ? 0.5 : 1,
-                                flexShrink: 0
-                              }}
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <input
-                              type="number"
-                              value={editingQuantities[item.id_cart] ?? item.qty}
-                              onFocus={() => {
-                                setEditingQuantities(prev => ({ ...prev, [item.id_cart]: String(item.qty) }));
-                              }}
-                              onChange={(e) => {
-                                setEditingQuantities(prev => ({ ...prev, [item.id_cart]: e.target.value }));
-                              }}
-                              onBlur={() => {
-                                const editedValue = editingQuantities[item.id_cart];
-                                let newQuantity = parseInt(editedValue, 10);
-                      
-                                if (isNaN(newQuantity) || newQuantity < 1) {
-                                  newQuantity = 1;
-                                } else if (newQuantity > stock) {
-                                  newQuantity = stock;
-                                }
-                      
-                                setEditingQuantities(prev => {
-                                  const next = { ...prev };
-                                  delete next[item.id_cart];
-                                  return next;
-                                });
-                                
-                                if (newQuantity !== item.qty) {
-                                  handleUpdateQuantity(item.id_cart, newQuantity);
-                                }
-                              }}
-                              style={{
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                width: '50px',
-                                textAlign: 'center',
-                                border: '1px solid #dee2e6',
-                                borderRadius: '5px',
-                                appearance: 'textfield',
-                                flexShrink: 0
-                              }}
-                            />
-                            <button
-                              onClick={() => handleUpdateQuantity(item.id_cart, item.qty + 1)}
-                              disabled={item.qty >= stock}
-                              style={{ 
-                                width: '28px', 
-                                height: '28px', 
-                                border: '1px solid #dee2e6', 
-                                borderRadius: '5px', 
-                                background: 'white', 
-                                cursor: item.qty >= stock ? 'not-allowed' : 'pointer',
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                opacity: item.qty >= stock ? 0.5 : 1,
-                                flexShrink: 0
-                              }}
-                            >
-                              <Plus size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleRemoveItem(item.id_cart)}
-                              style={{ 
-                                background: 'none', 
-                                border: 'none', 
-                                cursor: 'pointer', 
-                                color: '#dc3545',
-                                padding: '4px',
-                                flexShrink: 0
-                              }}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div style={{ 
-                          marginTop: '8px',
-                          paddingTop: '8px',
-                          borderTop: '1px solid #e9ecef',
-                          textAlign: 'right'
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{
+                          fontSize: 'clamp(13px, 2.5vw, 15px)',
+                          fontWeight: '600',
+                          color: '#333',
+                          margin: 0
                         }}>
-                          <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '700', color: '#1a1a1a' }}>
-                            Subtotal: {formatCurrency(itemTotal)}
-                          </span>
-                        </div>
+                          {storeData.storeName}
+                        </h3>
+                        <p style={{
+                          fontSize: 'clamp(11px, 2vw, 12px)',
+                          color: '#6c757d',
+                          margin: '2px 0 0 0'
+                        }}>
+                          {storeData.items.length} produk
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
+
+                    {/* Store Items */}
+                    {storeData.items.map(item => {
+                      const cartItem = toCartItem(item);
+                      const price = getProductPrice(cartItem);
+                      const itemTotal = price * item.qty;
+                      const imageUrl = getProductImageUrl(cartItem);
+                      const product = typeof item.produk === 'object' && item.produk ? item.produk : null;
+                      const stock = item.variasi?.stok_variasi || product?.stok || 99;
+                      
+                      return (
+                        <div key={item.id_cart} className="cart-item" style={{ 
+                          display: 'flex',
+                          gap: '12px', 
+                          padding: 'clamp(12px, 2vw, 16px)', 
+                          border: '1px solid #e9ecef',
+                          borderRadius: '8px',
+                          marginBottom: '12px',
+                          backgroundColor: item.status_pilih ? '#f0f8ff' : 'white'
+                        }}>
+                          
+                          {/* Checkbox */}
+                          <input
+                            type="checkbox"
+                            checked={item.status_pilih === true || item.status_pilih === 'Y'}
+                            onChange={() => handleToggleSelection(item.id_cart)}
+                            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#55B4E5', flexShrink: 0 }}
+                          />
+
+                          {/* Product Image */}
+                          <div 
+                            className="cart-item-image" 
+                            onClick={() => handleNavigateToProduct(product?.slug_produk)}
+                            style={{ 
+                              width: '80px', 
+                              height: '80px', 
+                              backgroundColor: '#f8f9fa', 
+                              borderRadius: '6px', 
+                              overflow: 'hidden',
+                              flexShrink: 0,
+                              cursor: product?.slug_produk ? 'pointer' : 'default',
+                              transition: 'transform 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (product?.slug_produk) {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                              }
+                            }}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          >
+                            <img 
+                              src={imageUrl} 
+                              alt={product?.nama_produk || 'Nama Produk'}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="cart-item-content" style={{ flex: 1, minWidth: 0 }}>
+                            <h3 
+                              onClick={() => handleNavigateToProduct(product?.slug_produk)}
+                              style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '600', marginBottom: '4px', color: '#333', cursor: product?.slug_produk ? 'pointer' : 'default' }}
+                              onMouseEnter={(e) => {if (product?.slug_produk) {e.currentTarget.style.color = '#55B4E5';}}}
+                              onMouseLeave={(e) => e.currentTarget.style.color = '#333'}>
+                              {product?.nama_produk || 'Nama Produk'}
+                            </h3>
+                            {item.variasi?.nama_variasi && (
+                              <div style={{ fontSize: 'clamp(11px, 2vw, 12px)', color: '#6c757d', marginBottom: '8px' }}>
+                                Variasi: {item.variasi.nama_variasi}
+                              </div>
+                            )}
+                            
+                            <div className="product-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                              <div>
+                                <div style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '700', color: '#55B4E5' }}>
+                                  {formatCurrency(price)}
+                                </div>
+                                <div style={{ fontSize: 'clamp(10px, 2vw, 11px)', color: '#6c757d' }}>
+                                  Stok: {stock}
+                                </div>
+                              </div>
+
+                              {/* Quantity Controls */}
+                              <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
+                                <button
+                                  onClick={() => handleUpdateQuantity(item.id_cart, item.qty - 1)}
+                                  disabled={item.qty <= 1}
+                                  style={{ 
+                                    width: '28px', 
+                                    height: '28px', 
+                                    border: '1px solid #dee2e6', 
+                                    borderRadius: '5px', 
+                                    background: 'white', 
+                                    cursor: item.qty <= 1 ? 'not-allowed' : 'pointer', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    opacity: item.qty <= 1 ? 0.5 : 1,
+                                    flexShrink: 0
+                                  }}
+                                >
+                                  <Minus size={14} />
+                                </button>
+                                <input
+                                  type="number"
+                                  value={editingQuantities[item.id_cart] ?? item.qty}
+                                  onFocus={() => {
+                                    setEditingQuantities(prev => ({ ...prev, [item.id_cart]: String(item.qty) }));
+                                  }}
+                                  onChange={(e) => {
+                                    setEditingQuantities(prev => ({ ...prev, [item.id_cart]: e.target.value }));
+                                  }}
+                                  onBlur={() => {
+                                    const editedValue = editingQuantities[item.id_cart];
+                                    let newQuantity = parseInt(editedValue, 10);
+                          
+                                    if (isNaN(newQuantity) || newQuantity < 1) {
+                                      newQuantity = 1;
+                                    } else if (newQuantity > stock) {
+                                      newQuantity = stock;
+                                    }
+                          
+                                    setEditingQuantities(prev => {
+                                      const next = { ...prev };
+                                      delete next[item.id_cart];
+                                      return next;
+                                    });
+                                    
+                                    if (newQuantity !== item.qty) {
+                                      handleUpdateQuantity(item.id_cart, newQuantity);
+                                    }
+                                  }}
+                                  style={{
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    width: '50px',
+                                    textAlign: 'center',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: '5px',
+                                    appearance: 'textfield',
+                                    flexShrink: 0
+                                  }}
+                                />
+                                <button
+                                  onClick={() => handleUpdateQuantity(item.id_cart, item.qty + 1)}
+                                  disabled={item.qty >= stock}
+                                  style={{ 
+                                    width: '28px', 
+                                    height: '28px', 
+                                    border: '1px solid #dee2e6', 
+                                    borderRadius: '5px', 
+                                    background: 'white', 
+                                    cursor: item.qty >= stock ? 'not-allowed' : 'pointer',
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    opacity: item.qty >= stock ? 0.5 : 1,
+                                    flexShrink: 0
+                                  }}
+                                >
+                                  <Plus size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveItem(item.id_cart)}
+                                  style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    cursor: 'pointer', 
+                                    color: '#dc3545',
+                                    padding: '4px',
+                                    flexShrink: 0
+                                  }}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div style={{ 
+                              marginTop: '8px',
+                              paddingTop: '8px',
+                              borderTop: '1px solid #e9ecef',
+                              textAlign: 'right'
+                            }}>
+                              <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', fontWeight: '700', color: '#1a1a1a' }}>
+                                Subtotal: {formatCurrency(itemTotal)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
 
                 {/* Coupon Code Section */}
                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
