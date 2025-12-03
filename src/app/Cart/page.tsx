@@ -291,9 +291,8 @@ const ShoppingCartPage = () => {
 
   // Group cart items by store
   const groupedByStore = cartItems.reduce((acc, item) => {
-    const product = typeof item.produk === 'object' && item.produk ? item.produk : null;
-    const storeId = String(product?.id_toko || 'unknown');
-    const storeName = product?.toko?.nama_toko || 'Toko Tidak Diketahui';
+    const storeId = String(item.id_toko || 'unknown');
+    const storeName = item.toko?.nama_toko || 'Toko Tidak Diketahui';
     
     if (!acc[storeId]) {
       acc[storeId] = {
