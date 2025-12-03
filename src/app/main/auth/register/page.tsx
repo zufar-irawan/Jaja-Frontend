@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { register, loginWithGoogle } from "@/utils/authService";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import Swal from "sweetalert2";
 
 export default function Register() {
   const router = useRouter();
@@ -61,18 +62,18 @@ export default function Register() {
   const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setError("");
-
     if (!validateForm()) {
       return;
     }
-
     setLoading(true);
-
     try {
       const result = await register(formData);
-
       if (result.success) {
-        alert("Registrasi berhasil! Silakan login dengan akun Anda.");
+        Swal.fire({
+          icon: "success",
+          title: "Registrasi berhasil!",
+          text: "Silakan login dengan akun Anda.",
+        });
         router.push("/main/auth/login");
       } else {
         setError(result.message || "Registrasi gagal");
@@ -83,7 +84,7 @@ export default function Register() {
       setLoading(false);
     }
   };
-
+  
   const handleGoogleSuccess = async (
     credentialResponse: CredentialResponse,
   ) => {

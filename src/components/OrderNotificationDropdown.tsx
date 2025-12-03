@@ -107,14 +107,14 @@ export default function OrderNotificationDropdown() {
       >
         <Bell className="w-6 h-6 text-gray-600 group-hover:text-[#55B4E5] transition-colors" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-linear-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200 z-[70] max-h-[600px] flex flex-col">
+        <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200 z-70 max-h-[600px] flex flex-col">
           {/* Header */}
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <div>
@@ -172,7 +172,7 @@ export default function OrderNotificationDropdown() {
 
                       <div className="flex gap-3">
                         {/* Product Image */}
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           {order.products[0]?.gambar ? (
                             <img
                               src={order.products[0].gambar}
@@ -193,12 +193,12 @@ export default function OrderNotificationDropdown() {
                               Pesanan #{order.order_number}
                             </p>
                             {order.status === "pending" && !isExpired && (
-                              <span className="flex-shrink-0 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
+                              <span className="shrink-0 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
                                 Menunggu
                               </span>
                             )}
                             {isExpired && (
-                              <span className="flex-shrink-0 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
+                              <span className="shrink-0 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
                                 Kadaluarsa
                               </span>
                             )}
