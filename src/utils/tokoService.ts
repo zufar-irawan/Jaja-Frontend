@@ -449,7 +449,13 @@ export function getTokoPhotoUrl(foto: string): string {
  */
 export function isTokoOpen(dataString: string): boolean {
   const bukaTokoData = parseBukaTokoData(dataString);
-  if (!bukaTokoData) return false;
+  if (
+    !bukaTokoData ||
+    !bukaTokoData.days ||
+    !bukaTokoData.time_open ||
+    !bukaTokoData.time_close
+  )
+    return false;
 
   const now = new Date();
   const currentDay = now
