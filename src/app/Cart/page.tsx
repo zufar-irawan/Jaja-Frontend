@@ -40,7 +40,6 @@ const ShoppingCartPage = () => {
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch cart data on mount
   useEffect(() => {
     fetchCartData();
   }, []);

@@ -1,47 +1,5 @@
-import api, { sellerApi } from "./api";
-import {
-  Product,
-  SearchProductsParams,
-  SearchProductsResponse,
-} from "./productService";
-
-export interface ProvinceOption {
-  province_id: number;
-  province: string;
-  province_kd: string;
-}
-
-export interface CityOption {
-  city_id: number;
-  province_id: number;
-  province: string;
-  city_name: string;
-  city_kd: string;
-  postal_code: number;
-  type: string;
-}
-
-export interface DistrictOption {
-  kecamatan_id: number;
-  province_id: number;
-  province: string;
-  city_id: number;
-  city: string;
-  kecamatan: string;
-  kecamatan_kd: string;
-}
-
-export interface VillageOption {
-  kelurahan_id: number;
-  kd_prop: string;
-  propinsi: string;
-  kd_kab_kota: string;
-  kabupaten_kota: string;
-  kd_kec: string;
-  kecamatan: string;
-  kd_kelurahan_desa: string;
-  kelurahan_desa: string;
-}
+import { SearchProductsParams, SearchProductsResponse } from "./productService";
+import api from "./api";
 
 export interface OpenStorePayload {
   nama_toko: string;
@@ -229,12 +187,12 @@ export interface UpdateTokoPayload {
   pilihan_kurir?: string[] | string;
   kurir_service?: CourierServiceMap | string | null;
   data_buka_toko?:
-  | {
-    days: string;
-    time_open: string;
-    time_close: string;
-  }
-  | string;
+    | {
+        days: string;
+        time_open: string;
+        time_close: string;
+      }
+    | string;
   data_libur_toko?: string | null;
 }
 
@@ -242,90 +200,6 @@ export interface UpdateTokoResponse {
   success: boolean;
   message?: string;
   toko?: MyTokoDetail;
-}
-
-// Open store helpers
-export async function getStoreProvinces(
-  page: number = 1,
-  limit: number = 40,
-): Promise<BasicStoreResponse<ProvinceOption[]>> {
-  try {
-    const response = await api.get(
-      `/main/location/provinces?page=${page}&limit=${limit}`,
-    );
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || "Gagal mengambil provinsi",
-    };
-  }
-}
-
-export async function getStoreCities(
-  provinceId: number,
-  page: number = 1,
-  limit: number = 200,
-): Promise<BasicStoreResponse<CityOption[]>> {
-  try {
-    const response = await api.get(
-      `/main/location/cities?province_id=${provinceId}&page=${page}&limit=${limit}`,
-    );
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || "Gagal mengambil kota",
-    };
-  }
-}
-
-export async function getStoreDistricts(
-  cityId: number,
-  page: number = 1,
-  limit: number = 200,
-): Promise<BasicStoreResponse<DistrictOption[]>> {
-  try {
-    const response = await api.get(
-      `/main/location/districts?city_id=${cityId}&page=${page}&limit=${limit}`,
-    );
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || "Gagal mengambil kecamatan",
-    };
-  }
-}
-
-export async function getStoreVillages(
-  kecamatanKd: string,
-  page: number = 1,
-  limit: number = 200,
-): Promise<BasicStoreResponse<VillageOption[]>> {
-  try {
-    const response = await api.get(
-      `/main/location/villages?kecamatan_kd=${kecamatanKd}&page=${page}&limit=${limit}`,
-    );
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || "Gagal mengambil kelurahan",
-    };
-  }
 }
 
 export async function openStore(
@@ -381,9 +255,7 @@ export async function createSellerToko(
 
 export async function getMyToko(): Promise<MyTokoDetail | null> {
   try {
-    const response = await api.get<MyTokoResponse>(
-      "/seller/v2/toko/detail",
-    );
+    const response = await api.get<MyTokoResponse>("/seller/v2/toko/detail");
 
     if (!response.data?.success) {
       console.warn("getMyToko response not successful", response.data);
