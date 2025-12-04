@@ -78,7 +78,6 @@ export default function TrackingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
-  // Data testing dari body API (untuk testing frontend)
   const TESTING_DATA: { resi: string; courier: string } = {
     resi: "MT685U91",
     courier: "wahana",
@@ -94,8 +93,7 @@ export default function TrackingPage() {
       setLoading(true);
       setError(null);
 
-      // Gunakan data testing untuk saat ini
-      const response = await trackShipment(
+       const response = await trackShipment(
         TESTING_DATA.resi,
         TESTING_DATA.courier,
       );

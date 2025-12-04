@@ -719,7 +719,7 @@ export default function JajaNavbar() {
                             onClick={handleViewAllSearch}
                             className="w-full py-2.5 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02]"
                           >
-                            Lihat Semua Hasil untuk "{searchQuery}"
+                            Lihat Semua Hasil untuk {searchQuery}
                           </button>
                         </div>
                       )}

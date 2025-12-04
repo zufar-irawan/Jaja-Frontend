@@ -22,10 +22,29 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
         }
 
         items = (items as any[]).map(item => {
-            const { toko, ...rest } = item;
+            const tokoData = item.toko || item.nama_toko || 'Toko Tidak Diketahui';
+            const tokoName = typeof tokoData === 'object' ? tokoData.nama_toko : tokoData;
+            
             return {
-                ...rest,
-                status_pilih: item.status_pilih === 'Y',
+                id_cart: item.id_cart,
+                id_customer: item.id_customer,
+                id_produk: item.id_produk,
+                id_toko: item.id_toko,
+                qty: item.qty,
+                id_variasi: item.id_variasi,
+                model_variasi: item.model_variasi,
+                warna_variasi: item.warna_variasi,
+                ukuran_variasi: item.ukuran_variasi,
+                produk_cover: item.produk_cover,
+                pesan_customer: item.pesan_customer,
+                greeting_card_gift: item.greeting_card_gift,
+                status_pilih: item.status_pilih === 'Y' || item.status_pilih === true,
+                created_at: item.created_at,
+                updated_at: item.updated_at,
+                harga: item.harga,
+                diskon: item.diskon,
+                berat: item.berat,
+                produk_slug: item.produk_slug,
                 produk: typeof item.produk === 'object'
                     ? item.produk
                     : {
@@ -33,7 +52,7 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
                         nama_produk: item.produk || 'Produk Tidak Diketahui',
                         harga: item.harga || 0,
                         diskon: item.diskon || 0,
-                        stok: 0,
+                        stok: item.stok || 0,
                         slug_produk: item.produk_slug || '',
                         foto_produk: item.produk_cover || '',
                         berat: item.berat || '0',
@@ -41,15 +60,15 @@ export async function getCart(page: number = 1, limit: number = 100): Promise<Ca
                     },
                 toko: {
                     id_toko: item.id_toko,
-                    nama_toko: toko || 'Toko Tidak Diketahui',
+                    nama_toko: tokoName,
                     slug_toko: ''
                 },
                 variasi: item.id_variasi
                     ? {
                         id_variasi: item.id_variasi,
                         nama_variasi: item.model_variasi || '',
-                        harga_variasi: 0,
-                        stok_variasi: 0
+                        harga_variasi: item.harga || 0,
+                        stok_variasi: item.stok_variasi || 0
                     }
                     : undefined
             }
@@ -94,7 +113,6 @@ export async function addToCart(data: AddCartData): Promise<CartResponse> {
         if (data.harga) requestBody.harga = data.harga
         if (data.diskon) requestBody.diskon = data.diskon
 
-        console.log('Adding to cart:', data)
         console.log('Request body being sent:', requestBody)
         const response = await api.post('/main/cart/add', requestBody)
 
@@ -113,12 +131,13 @@ export async function addToCart(data: AddCartData): Promise<CartResponse> {
     }
 }
 
-
 export async function updateCartQuantity(id_cart: number, qty: number): Promise<CartResponse> {
     try {
         console.log('Updating cart quantity:', { id_cart, qty })
 
         const response = await api.put(`/main/cart/${id_cart}/qty`, { qty })
+        
+        console.log('Update quantity response:', response.data)
         
         return {
             success: true,
@@ -140,6 +159,8 @@ export async function toggleCartSelection(id_cart: number): Promise<CartResponse
 
         const response = await api.put(`/main/cart/${id_cart}/toggle-select-product`)
 
+        console.log('Toggle selection response:', response.data)
+
         return {
             success: true,
             message: response.data.message || 'Berhasil mengupdate pilihan',
@@ -159,6 +180,8 @@ export async function deleteCartItem(id_cart: number): Promise<CartResponse> {
         console.log('Deleting cart item:', id_cart)
 
         const response = await api.delete(`/main/cart/${id_cart}`)
+
+        console.log('Delete item response:', response.data)
 
         return {
             success: true,
@@ -180,6 +203,8 @@ export async function clearCart(): Promise<CartResponse> {
 
         const response = await api.delete('/main/cart/clear')
 
+        console.log('Clear cart response:', response.data)
+
         return {
             success: true,
             message: response.data.message || 'Berhasil mengosongkan keranjang',
@@ -194,17 +219,25 @@ export async function clearCart(): Promise<CartResponse> {
     }
 }
 
+// FIX: Add batch toggle with proper error handling
 export async function batchToggleCartSelection(cart_ids: number[], select: boolean): Promise<CartResponse> {
     try {
-        const results = await Promise.all(
+        console.log('Batch toggling cart selection:', { cart_ids, select })
+        
+        const results = await Promise.allSettled(
             cart_ids.map(id => toggleCartSelection(id))
         )
 
-        const allSuccess = results.every(r => r.success)
+        const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length
+        const failedCount = results.length - successCount
+
+        console.log(`Batch toggle completed: ${successCount} success, ${failedCount} failed`)
 
         return {
-            success: allSuccess,
-            message: allSuccess ? 'Berhasil mengupdate semua pilihan' : 'Beberapa item gagal diupdate',
+            success: failedCount === 0,
+            message: failedCount === 0 
+                ? 'Berhasil mengupdate semua pilihan' 
+                : `Berhasil ${successCount} item, gagal ${failedCount} item`,
             data: { items: [] }
         }
     } catch (error: any) {

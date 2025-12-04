@@ -232,9 +232,6 @@ export async function getTokoBySlug(slug: string): Promise<TokoDetail | null> {
   }
 }
 
-/**
- * Get products from a specific store
- */
 export async function getTokoProducts(
   slug: string,
   params?: Omit<SearchProductsParams, "id_kategori">,
@@ -276,9 +273,6 @@ export async function getTokoProducts(
   }
 }
 
-/**
- * Parse data_buka_toko JSON string
- */
 export function parseBukaTokoData(dataString: string): BukaTokoData | null {
   try {
     return JSON.parse(dataString);
@@ -288,9 +282,6 @@ export function parseBukaTokoData(dataString: string): BukaTokoData | null {
   }
 }
 
-/**
- * Get operational days in Indonesian
- */
 export function getOperationalDays(dataString: string): string {
   const daysIndo: { [key: string]: string } = {
     monday: "Sen",
