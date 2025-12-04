@@ -1,5 +1,6 @@
 import { SearchProductsParams, SearchProductsResponse } from "./productService";
 import api from "./api";
+import { AxiosError } from "axios";
 
 import {
   OpenStorePayload,
@@ -17,6 +18,17 @@ import {
   DashboardData,
 } from "./type/tokoInterface";
 
+// Helper function to check if error is AxiosError
+function isAxiosError(error: unknown): error is AxiosError {
+  return (error as AxiosError).isAxiosError === true;
+}
+
+// Helper function to get error message
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 export async function openStore(
   payload: OpenStorePayload,
 ): Promise<BasicStoreResponse> {
@@ -28,17 +40,22 @@ export async function openStore(
       message: response.data?.message || "Berhasil membuka toko",
       data: response.data?.data ?? response.data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+
     console.error("openStore error:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
+      message: errorMessage,
+      status,
+      data: responseData,
     });
 
     return {
       success: false,
-      message: error.response?.data?.message || "Gagal membuka toko",
-      data: error.response?.data ?? error.message,
+      message:
+        (responseData as { message?: string })?.message || "Gagal membuka toko",
+      data: responseData ?? errorMessage,
     };
   }
 }
@@ -54,16 +71,21 @@ export async function createSellerToko(
       message: response.data?.message || "Toko berhasil dibuat",
       data: response.data?.data ?? response.data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
     console.error("Error creating seller toko:", {
-      message: error.message,
-      status: error.response?.status,
+      message: errorMessage,
+      status,
     });
 
     return {
       success: false,
-      message: error.response?.data?.message || "Gagal membuat toko",
-      data: error.response?.data,
+      message:
+        (responseData as { message?: string })?.message || "Gagal membuat toko",
+      data: responseData,
     };
   }
 }
@@ -78,12 +100,15 @@ export async function getMyToko(): Promise<MyTokoDetail | null> {
     }
 
     return response.data.toko ?? null;
-  } catch (error: any) {
-    const status = error?.response?.status;
+  } catch (error: unknown) {
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const errorMessage = getErrorMessage(error);
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
     const logPayload = {
-      message: error?.message,
+      message: errorMessage,
       status,
-      data: error?.response?.data,
+      data: responseData,
     };
 
     if (status === 401) {
@@ -121,11 +146,15 @@ export async function getMyTokoProducts(
     }
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
     console.error("getMyTokoProducts error:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
+      message: errorMessage,
+      status,
+      data: responseData,
     });
 
     return null;
@@ -191,11 +220,15 @@ export async function getTokoDashboard(): Promise<DashboardData | null> {
       JumlahDikirim,
       PesananSelesai,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
     console.error("getTokoDashboard error:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
+      message: errorMessage,
+      status,
+      data: responseData,
     });
     return null;
   }
@@ -221,12 +254,16 @@ export async function getTokoBySlug(slug: string): Promise<TokoDetail | null> {
     console.log("API Response success:", response.data.data.nama_toko);
 
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const url = isAxiosError(error) ? error.config?.url : undefined;
+
     console.error("Error fetching toko detail:", {
       slug,
-      error: error.message,
-      status: error.response?.status,
-      url: error.config?.url,
+      error: errorMessage,
+      status,
+      url,
     });
     return null;
   }
@@ -253,16 +290,22 @@ export async function getTokoProducts(
       `/main/products/search?${queryParams.toString()}`,
     );
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
     console.error("Error fetching toko products:", {
-      error: error.message,
-      status: error.response?.status,
+      error: errorMessage,
+      status,
     });
 
     return {
       success: false,
-      code: error.response?.status || 500,
-      message: error.response?.data?.message || "Error fetching products",
+      code: status || 500,
+      message:
+        (responseData as { message?: string })?.message ||
+        "Error fetching products",
       meta: {
         total: 0,
         page: 1,
