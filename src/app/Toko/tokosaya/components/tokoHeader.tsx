@@ -9,13 +9,14 @@ import {
   Truck,
   BadgeCheck,
 } from "lucide-react";
-import ExpandableDescription from "../[slug]/ExpandableDescription";
+import ExpandableDescription from "../../[slug]/ExpandableDescription";
 import StoreActionPanel from "./StoreActionPanel";
 import type {
   MyTokoDetail,
   TokoStats,
   BukaTokoData,
 } from "@/utils/tokoService";
+import Image from "next/image";
 
 type TokoHeaderProps = {
   tokoData: MyTokoDetail;
@@ -48,7 +49,7 @@ export default function TokoHeader({
           <div className="relative">
             <div className="w-32 h-32 rounded-3xl bg-white p-1 shadow-2xl overflow-hidden">
               {tokoData.foto ? (
-                <img
+                <Image
                   src={storePhotoUrl}
                   alt={tokoData.nama_toko}
                   className="w-full h-full rounded-3xl object-cover"

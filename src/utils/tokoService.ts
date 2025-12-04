@@ -1,206 +1,21 @@
 import { SearchProductsParams, SearchProductsResponse } from "./productService";
 import api from "./api";
 
-export interface OpenStorePayload {
-  nama_toko: string;
-  deskripsi_toko: string;
-  alamat_toko: string;
-  provinsi: number;
-  kota_kabupaten: number;
-  kecamatan: number;
-  kelurahan: number;
-  kode_pos: string;
-  skor: number;
-}
-
-export interface BasicStoreResponse<T = unknown> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
-
-export interface TokoDetail {
-  id_toko: number;
-  uid: string;
-  token_fcm: string | null;
-  nama_toko: string;
-  slug_toko: string;
-  foto: string;
-  foto_ktp: string | null;
-  foto_npwp: string | null;
-  blokir: "Y" | "T";
-  created_date: string;
-  created_time: string;
-  id_user: number;
-  nama_user: string;
-  greating_message: string;
-  deskripsi_toko: string;
-  alamat_toko: string;
-  alamat_google: string | null;
-  latitude: string | null;
-  longitude: string | null;
-  provinsi: number;
-  kota_kabupaten: number;
-  kecamatan: number;
-  kelurahan: number;
-  kode_pos: string;
-  toko_pilihan: "Y" | "T";
-  kategori_seller: string;
-  ranking: string;
-  pin_penghasilan: string | null;
-  id_admin: number | null;
-  nama_admin: string | null;
-  pilihan_kurir: string;
-  kurir_service: string;
-  free_ongkir: "Y" | "T";
-  min_free_ongkir: number;
-  skor: number;
-  status_legalitas: string | null;
-  change_name: string;
-  data_buka_toko: string;
-  data_libur_toko: string | null;
-}
-
-export interface TokoDetailResponse {
-  data: TokoDetail;
-}
-
-export interface BukaTokoData {
-  days: string;
-  time_open: string;
-  time_close: string;
-  time_zone: string;
-}
-
-export interface CreateTokoPayload {
-  nama_toko: string;
-  greating_message: string;
-  deskripsi_toko: string;
-  alamat_toko: string;
-  provinsi: string;
-  kota_kabupaten: string;
-  kecamatan: string;
-  kelurahan: string;
-  kode_pos: string;
-}
-
-export interface BasicApiResponse<T = unknown> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
-
-export interface CourierServiceMap {
-  [courier: string]: string[];
-}
-
-export interface MyTokoDetail {
-  id_toko: number;
-  nama_toko: string;
-  slug_toko: string;
-  foto?: string | null;
-  foto_ktp: string | null;
-  foto_npwp: string | null;
-  deskripsi_toko: string;
-  alamat_toko: string;
-  alamat_google?: string | null;
-  latitude?: string | null;
-  longitude?: string | null;
-  provinsi: number;
-  kota_kabupaten: number;
-  kecamatan: number;
-  kelurahan: number;
-  kode_pos: string;
-  pilihan_kurir: string[] | string;
-  kurir_service: CourierServiceMap | null;
-  free_ongkir: "Y" | "T";
-  min_free_ongkir: number;
-  status_legalitas: string | null;
-  skor: number;
-  data_buka_toko: string | BukaTokoData;
-  data_libur_toko: string | null;
-  kategori_seller?: string;
-  greating_message?: string;
-  toko_pilihan?: "Y" | "T";
-}
-
-export interface MyTokoResponse {
-  success: boolean;
-  message?: string;
-  toko?: MyTokoDetail;
-}
-
-export interface MyTokoProduct {
-  id_produk: number;
-  nama_produk: string;
-  slug_produk: string;
-  harga: number;
-  diskon: number;
-  harga_setelah_diskon: number;
-  stok: number;
-  thumbnail: string | null;
-  variasi_count: number;
-  draft: "Y" | "T";
-  status_produk: string;
-  created_date: string;
-}
-
-export interface SellerPagination {
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
-
-export interface MyTokoProductsResponse {
-  success: boolean;
-  message?: string;
-  pagination: SellerPagination;
-  produk: MyTokoProduct[];
-}
-
-export interface MyTokoProductParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status_produk?: string;
-  draft?: "Y" | "T";
-}
-
-export interface UpdateTokoPayload {
-  nama_toko?: string;
-  deskripsi_toko?: string;
-  greating_message?: string;
-  alamat_toko?: string;
-  alamat_google?: string;
-  latitude?: string;
-  longitude?: string;
-  provinsi?: number;
-  kota_kabupaten?: number;
-  kecamatan?: number;
-  kelurahan?: number;
-  kode_pos?: string;
-  free_ongkir?: boolean | "Y" | "T";
-  min_free_ongkir?: number;
-  pilihan_kurir?: string[] | string;
-  kurir_service?: CourierServiceMap | string | null;
-  data_buka_toko?:
-    | {
-        days: string;
-        time_open: string;
-        time_close: string;
-      }
-    | string;
-  data_libur_toko?: string | null;
-}
-
-export interface UpdateTokoResponse {
-  success: boolean;
-  message?: string;
-  toko?: MyTokoDetail;
-}
+import {
+  OpenStorePayload,
+  BasicStoreResponse,
+  BasicApiResponse,
+  TokoDetail,
+  TokoDetailResponse,
+  BukaTokoData,
+  CreateTokoPayload,
+  MyTokoDetail,
+  MyTokoResponse,
+  MyTokoProductsResponse,
+  MyTokoProductParams,
+  PesananResponse,
+  DashboardData,
+} from "./type/tokoInterface";
 
 export async function openStore(
   payload: OpenStorePayload,
@@ -313,6 +128,75 @@ export async function getMyTokoProducts(
       data: error.response?.data,
     });
 
+    return null;
+  }
+}
+
+export async function getTokoDashboard(): Promise<DashboardData | null> {
+  try {
+    // Get all pesanan data
+    const response = await api.get<PesananResponse>("/seller/v2/pesanan");
+
+    if (!response.data?.success || !response.data?.data) {
+      console.warn("getTokoDashboard response not successful", response.data);
+      return null;
+    }
+
+    const allPesanan = response.data.data;
+
+    // 1. PesananPerbulan - array of 12 months
+    const PesananPerbulan = new Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
+
+    allPesanan.forEach((pesanan) => {
+      const pesananDate = new Date(pesanan.created_date);
+      if (pesananDate.getFullYear() === currentYear) {
+        const month = pesananDate.getMonth();
+        PesananPerbulan[month]++;
+      }
+    });
+
+    // 2. PesananBaru - orders with status "Menunggu Pembayaran" or "belum dibayar"
+    const PesananBaru = allPesanan.filter(
+      (pesanan) =>
+        pesanan.status_transaksi === "Menunggu Pembayaran" ||
+        pesanan.status_transaksi === "belum dibayar",
+    ).length;
+
+    // 3. PesananBerlangsung - orders with status "Paid"
+    const PesananBerlangsung = allPesanan.filter(
+      (pesanan) => pesanan.status_transaksi === "Paid",
+    );
+    const JumlahBerlangsung = PesananBerlangsung.length;
+
+    // 4. Dikirim - orders with details status_pesanan "dikirim"
+    const Dikirim = allPesanan.filter((pesanan) =>
+      pesanan.details?.some((detail) => detail.status_pesanan === "dikirim"),
+    );
+    const JumlahDikirim = Dikirim.length;
+
+    // 5. PesananSelesai - orders with status "Selesai" or details status_pesanan "selesai"
+    const PesananSelesai = allPesanan.filter(
+      (pesanan) =>
+        pesanan.status_transaksi === "Selesai" ||
+        pesanan.details?.some((detail) => detail.status_pesanan === "selesai"),
+    ).length;
+
+    return {
+      PesananPerbulan,
+      PesananBaru,
+      PesananBerlangsung,
+      JumlahBerlangsung,
+      Dikirim,
+      JumlahDikirim,
+      PesananSelesai,
+    };
+  } catch (error: any) {
+    console.error("getTokoDashboard error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
     return null;
   }
 }

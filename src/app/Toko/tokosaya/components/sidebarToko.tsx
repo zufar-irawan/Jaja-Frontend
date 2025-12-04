@@ -1,11 +1,26 @@
-import { ShoppingBag, Box, Tag, Award, LayoutGrid, Trash2 } from "lucide-react";
+import {
+  ShoppingBag,
+  Box,
+  Tag,
+  Award,
+  LayoutGrid,
+  Trash2,
+  LucideIcon,
+} from "lucide-react";
 
-const managementMenu = [
+interface ManagementMenuItem {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  danger?: boolean;
+  primary?: boolean;
+}
+
+const managementMenu: ManagementMenuItem[] = [
   {
     title: "Pesanan",
     description: "Kelola dan pantau pesanan masuk",
     icon: ShoppingBag,
-    primary: true,
   },
   {
     title: "Kelola Produk",
@@ -55,10 +70,10 @@ export default function ManagementSidebar() {
                 type="button"
                 className={`w-full rounded-2xl border px-4 py-3 text-left transition hover:shadow-md ${
                   item.primary
-                    ? "border-[#55B4E5] bg-linear-to-r from-[#55B4E5] to-[#4DA8DC] text-white hover:shadow-xl"
+                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
                     : item.danger
-                      ? "border-red-200 bg-red-50/80 text-red-600 hover:bg-red-50"
-                      : "border-gray-200 bg-white/60 text-gray-800 hover:border-gray-300"
+                      ? "bg-red-50 border-red-100 text-red-700 hover:bg-red-100"
+                      : "bg-white border-gray-100 text-gray-900 hover:border-gray-200"
                 }`}
               >
                 <div className="flex items-center gap-3">
