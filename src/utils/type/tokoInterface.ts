@@ -239,3 +239,62 @@ export interface DashboardData {
   JumlahDikirim: number;
   PesananSelesai: number;
 }
+
+// Kategori Interfaces
+export interface Kategori {
+  id_kategori: number;
+  kategori: string;
+  slug_kategori: string;
+  id_parent: number;
+  seo: string;
+  route: string;
+  tema: string;
+  marker1: string;
+  marker2: string;
+  created_date: string;
+  created_time: string;
+  nama_admin: string;
+  id_admin: number;
+  icon: string | null;
+  icon_apps: string;
+  sort: number;
+  status: string;
+  hidden_kategori: string | null;
+  children: Kategori[];
+}
+
+export interface KategoriResponse {
+  data: Kategori[];
+}
+
+// Brand Interfaces
+export interface MyTokoBrandResponse {
+  success: boolean;
+  message?: string;
+  brands?: MyTokoBrand[];
+}
+
+export interface MyTokoBrand {
+  id_brand: number;
+  nama_brand: string;
+  id_kategori: number;
+  id_sub_kategori: number;
+  status: string;
+  top: boolean;
+  created_date: string;
+  created_by: {
+    id_user: number;
+    nama_user: string;
+  };
+  kategori_info?: {
+    id_kategori: number;
+    kategori: string;
+    slug_kategori: string;
+    icon: string | null;
+    parent_info?: {
+      id_kategori: number;
+      kategori: string;
+      slug_kategori: string;
+    };
+  };
+}

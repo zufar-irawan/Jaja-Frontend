@@ -16,6 +16,9 @@ import {
   MyTokoProductParams,
   PesananResponse,
   DashboardData,
+  MyTokoBrandResponse,
+  Kategori,
+  MyTokoBrand,
 } from "./type/tokoInterface";
 
 // Helper function to check if error is AxiosError
@@ -152,6 +155,137 @@ export async function getMyTokoProducts(
     const responseData = isAxiosError(error) ? error.response?.data : undefined;
 
     console.error("getMyTokoProducts error:", {
+      message: errorMessage,
+      status,
+      data: responseData,
+    });
+
+    return null;
+  }
+}
+
+/**
+ * Flatten nested kategori structure to array
+ */
+function flattenKategori(categories: Kategori[]): Kategori[] {
+  const result: Kategori[] = [];
+
+  function flatten(cats: Kategori[]) {
+    for (const cat of cats) {
+      result.push(cat);
+      if (cat.children && cat.children.length > 0) {
+        flatten(cat.children);
+      }
+    }
+  }
+
+  flatten(categories);
+  return result;
+}
+
+/**
+ * Get my toko brand with kategori info joined
+ */
+export async function getMyTokoBrand() {
+  try {
+    // Fetch both brand and kategori data in parallel
+    const [brandResponse, kategoriResponse] = await Promise.all([
+      api.get<MyTokoBrandResponse>("/seller/v2/brand"),
+      api.get<Kategori[]>("/main/kategories/mega-menu"),
+    ]);
+
+    console.log("Brand Response:", JSON.stringify(brandResponse.data, null, 2));
+    console.log(
+      "Kategori Response (first 2 items):",
+      JSON.stringify(kategoriResponse.data.slice(0, 2), null, 2),
+    );
+
+    if (!brandResponse.data?.success) {
+      console.warn(
+        "getMyTokoBrand response not successful",
+        brandResponse.data,
+      );
+      return null;
+    }
+
+    // Get brands array from response
+    const brands = brandResponse.data.brands ?? [];
+    console.log("Brands found:", brands.length);
+
+    const kategoriData = kategoriResponse.data ?? [];
+    console.log("Raw kategori data length:", kategoriData.length);
+
+    // Flatten nested kategori structure
+    const flatKategori = flattenKategori(kategoriData);
+    console.log("Flattened kategori length:", flatKategori.length);
+
+    // Create kategori map for quick lookup
+    const kategoriMap = new Map<number, Kategori>();
+    flatKategori.forEach((kat) => {
+      kategoriMap.set(kat.id_kategori, kat);
+    });
+    console.log("Kategori map size:", kategoriMap.size);
+
+    // Join kategori info to each brand
+    const brandsWithKategori: MyTokoBrand[] = brands.map(
+      (brand: MyTokoBrand) => {
+        console.log(
+          `Processing brand: ${brand.nama_brand}, id_kategori: ${brand.id_kategori}`,
+        );
+        const kategori = kategoriMap.get(brand.id_kategori);
+
+        if (kategori) {
+          console.log(
+            `Found kategori for brand ${brand.nama_brand}:`,
+            kategori.kategori,
+          );
+
+          // Find parent info if exists
+          let parent_info = undefined;
+          if (kategori.id_parent && kategori.id_parent !== 0) {
+            const parentKat = kategoriMap.get(kategori.id_parent);
+            if (parentKat) {
+              console.log(`Found parent kategori:`, parentKat.kategori);
+              parent_info = {
+                id_kategori: parentKat.id_kategori,
+                kategori: parentKat.kategori,
+                slug_kategori: parentKat.slug_kategori,
+              };
+            }
+          }
+
+          return {
+            ...brand,
+            kategori_info: {
+              id_kategori: kategori.id_kategori,
+              kategori: kategori.kategori,
+              slug_kategori: kategori.slug_kategori,
+              icon: kategori.icon,
+              parent_info,
+            },
+          };
+        } else {
+          console.warn(
+            `No kategori found for brand ${brand.nama_brand} with id_kategori: ${brand.id_kategori}`,
+          );
+        }
+
+        return brand;
+      },
+    );
+
+    console.log("Brands with kategori:", brandsWithKategori.length);
+
+    return {
+      success: true,
+      brands: brandsWithKategori,
+    };
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error);
+    const status = isAxiosError(error) ? error.response?.status : undefined;
+    const responseData = isAxiosError(error) ? error.response?.data : undefined;
+
+    console.error("getMyTokoBrand error:", {
       message: errorMessage,
       status,
       data: responseData,

@@ -1,5 +1,7 @@
 import ProductCard from "@/components/ProductCard";
 import NoStoreFallback from "../components/noStoreFallback";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 import {
   getMyToko,
@@ -40,11 +42,20 @@ export default async function TokoSayaPage() {
 
   return (
     <div className="flex-1">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Produk Saya</h2>
-        <p className="text-gray-600">
-          Menampilkan {totalProducts}+ produk yang aktif di toko kamu
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">Produk Saya</h2>
+          <p className="text-gray-600">
+            Menampilkan {totalProducts}+ produk yang aktif di toko kamu
+          </p>
+        </div>
+        <Link
+          href="/Toko/tokosaya/produk/new"
+          className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-[#55B4E5] to-[#FBB338] text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200 whitespace-nowrap"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Tambah Produk</span>
+        </Link>
       </div>
 
       {transformedProducts.length > 0 ? (

@@ -7,10 +7,11 @@ import {
   Trash2,
   LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 interface ManagementMenuItem {
   title: string;
-  description: string;
+  link: string;
   icon: LucideIcon;
   danger?: boolean;
   primary?: boolean;
@@ -19,32 +20,32 @@ interface ManagementMenuItem {
 const managementMenu: ManagementMenuItem[] = [
   {
     title: "Pesanan",
-    description: "Kelola dan pantau pesanan masuk",
+    link: "/pesanan",
     icon: ShoppingBag,
   },
   {
     title: "Kelola Produk",
-    description: "Atur stok, harga, dan status produk",
+    link: "/produk",
     icon: Box,
   },
   {
     title: "Voucher Toko",
-    description: "Buat promo khusus pelanggan setia",
+    link: "/voucher",
     icon: Tag,
   },
   {
     title: "Kelola Brand",
-    description: "Tata identitas dan koleksi brand",
+    link: "/brand",
     icon: Award,
   },
   {
     title: "Kelola Etalase",
-    description: "Susun etalase agar mudah dijelajahi",
+    link: "/etalase",
     icon: LayoutGrid,
   },
   {
     title: "Hapus Toko",
-    description: "Nonaktifkan toko secara permanen",
+    link: "/hapus-toko",
     icon: Trash2,
     danger: true,
   },
@@ -53,57 +54,83 @@ const managementMenu: ManagementMenuItem[] = [
 export default function ManagementSidebar() {
   return (
     <div className="w-full lg:w-80 shrink-0">
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-100 p-6 sticky top-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Manajemen Toko</h2>
-          <p className="text-sm text-gray-500">
-            Akses cepat ke pengaturan penting toko kamu.
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden sticky top-8">
+        {/* Header */}
+        <div className="bg-linear-to-r from-blue-600 to-blue-700 px-6 py-5">
+          <h2 className="text-xl font-bold text-white mb-1">Manajemen Toko</h2>
+          <p className="text-sm text-blue-100">
+            Akses cepat ke pengaturan penting toko kamu
           </p>
         </div>
 
-        <div className="space-y-3">
+        {/* Menu Items */}
+        <div className="p-4 space-y-2">
           {managementMenu.map((item) => {
             const IconComponent = item.icon;
             return (
-              <button
+              <Link
                 key={item.title}
-                type="button"
-                className={`w-full rounded-2xl border px-4 py-3 text-left transition hover:shadow-md ${
-                  item.primary
-                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
-                    : item.danger
-                      ? "bg-red-50 border-red-100 text-red-700 hover:bg-red-100"
-                      : "bg-white border-gray-100 text-gray-900 hover:border-gray-200"
-                }`}
+                href={`/Toko/tokosaya${item.link}`}
+                className={`
+                  group flex items-center gap-3 w-full rounded-xl px-4 py-3.5
+                  border transition-all duration-200 ease-in-out
+                  ${
+                    item.primary
+                      ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 hover:shadow-md"
+                      : item.danger
+                        ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300 hover:shadow-md"
+                        : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-white hover:border-gray-300 hover:shadow-md"
+                  }
+                `}
               >
-                <div className="flex items-center gap-3">
+                <div
+                  className={`
+                  flex items-center justify-center w-10 h-10 rounded-lg
+                  transition-colors duration-200
+                  ${
+                    item.primary
+                      ? "bg-blue-100 group-hover:bg-blue-200"
+                      : item.danger
+                        ? "bg-red-100 group-hover:bg-red-200"
+                        : "bg-white group-hover:bg-gray-100"
+                  }
+                `}
+                >
                   {IconComponent && (
                     <IconComponent
                       className={`w-5 h-5 ${
                         item.primary
-                          ? "text-white"
+                          ? "text-blue-600"
                           : item.danger
                             ? "text-red-600"
                             : "text-gray-600"
                       }`}
                     />
                   )}
-                  <div className="flex-1">
-                    <div className="font-semibold">{item.title}</div>
-                    <p
-                      className={`text-sm ${
-                        item.primary
-                          ? "text-white/90"
-                          : item.danger
-                            ? "text-red-500"
-                            : "text-gray-500"
-                      }`}
-                    >
-                      {item.description}
-                    </p>
-                  </div>
                 </div>
-              </button>
+                <div className="flex-1">
+                  <div className="font-semibold text-sm">{item.title}</div>
+                </div>
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 group-hover:translate-x-1 ${
+                    item.primary
+                      ? "text-blue-400"
+                      : item.danger
+                        ? "text-red-400"
+                        : "text-gray-400"
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </Link>
             );
           })}
         </div>
