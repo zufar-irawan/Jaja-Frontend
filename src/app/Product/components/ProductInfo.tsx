@@ -18,7 +18,13 @@ interface Variant {
 }
 
 interface RatingStats {
+  average: number;
   total: number;
+  breakdown: Array<{
+    stars: number;
+    count: number;
+    percentage: number;
+  }>;
 }
 
 interface ProductInfoProps {
@@ -70,7 +76,7 @@ export default function ProductInfo({
   const discount = Math.round(
     ((currentVariant.originalPrice - currentVariant.price) /
       currentVariant.originalPrice) *
-    100,
+      100,
   );
 
   const handleVariantChange = (variantName: string) => {
@@ -181,7 +187,9 @@ export default function ProductInfo({
 
         await Swal.fire({
           icon: "success",
-          title: nextState ? "Ditambahkan ke Wishlist" : "Dihapus dari Wishlist",
+          title: nextState
+            ? "Ditambahkan ke Wishlist"
+            : "Dihapus dari Wishlist",
           text:
             result?.message ||
             (nextState
@@ -422,9 +430,32 @@ export default function ProductInfo({
             <span
               style={{ fontSize: "14px", fontWeight: "700", color: "#1a1a1a" }}
             >
-              4.5
+              {ratingStats.average > 0 ? ratingStats.average.toFixed(1) : "0.0"}
             </span>
-            <Star size={14} fill="#FBB338" stroke="#FBB338" />
+            <div style={{ display: "flex", gap: "2px" }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={14}
+                  fill={
+                    star <= Math.floor(ratingStats.average)
+                      ? "#FBB338"
+                      : star - 0.5 <= ratingStats.average
+                        ? "#FBB338"
+                        : "#e5e7eb"
+                  }
+                  stroke="#FBB338"
+                  style={{
+                    opacity:
+                      star <= Math.floor(ratingStats.average)
+                        ? 1
+                        : star - 0.5 <= ratingStats.average
+                          ? 0.5
+                          : 0.3,
+                  }}
+                />
+              ))}
+            </div>
           </div>
           <div
             style={{ height: "16px", width: "1px", backgroundColor: "#e5e7eb" }}
@@ -432,7 +463,8 @@ export default function ProductInfo({
           <span
             style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}
           >
-            {ratingStats.total} Penilaian
+            {ratingStats.total}{" "}
+            {ratingStats.total === 1 ? "Penilaian" : "Penilaian"}
           </span>
           <div
             style={{ height: "16px", width: "1px", backgroundColor: "#e5e7eb" }}
@@ -440,7 +472,7 @@ export default function ProductInfo({
           <span
             style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}
           >
-            1.2k Terjual
+            {productStock > 0 ? `${productStock} Stok` : "Stok Habis"}
           </span>
         </div>
 

@@ -38,11 +38,11 @@ export default async function Home() {
         } catch (error) {
           console.error(
             `Failed to load most viewed product with slug ${item.slug_produk}`,
-            error
+            error,
           );
         }
         return null;
-      })
+      }),
     )
   ).filter((product): product is Product => Boolean(product));
 
@@ -110,9 +110,11 @@ export default async function Home() {
                 key={`most-viewed-${product.id_produk}`}
                 className="shrink-0"
                 product={product}
-                views={mostViewedProducts.find(
-                  (p) => p.slug_produk === product.slug_produk
-                )?.jumlah_view}
+                views={
+                  mostViewedProducts.find(
+                    (p) => p.slug_produk === product.slug_produk,
+                  )?.jumlah_view
+                }
               />
             ))
           ) : (
@@ -150,6 +152,7 @@ export default async function Home() {
                   address: product.tokos.wilayah?.kelurahan_desa || "",
                   slug: product.slug_produk,
                   free_ongkir: product.free_ongkir || "",
+                  avg_rating: product.avg_rating,
                 }}
               />
             </div>

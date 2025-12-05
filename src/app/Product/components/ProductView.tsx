@@ -174,7 +174,7 @@ export default function ProductView({
             <ProductImages
               images={productImages}
               selectedImage={0}
-              setSelectedImage={() => { }}
+              setSelectedImage={() => {}}
               discount={product.diskon || 0}
             />
           </div>
@@ -189,9 +189,9 @@ export default function ProductView({
             <ProductInfo
               variants={variants}
               selectedVariant="Standard"
-              setSelectedVariant={() => { }}
+              setSelectedVariant={() => {}}
               quantity={1}
-              setQuantity={() => { }}
+              setQuantity={() => {}}
               ratingStats={ratingStats}
               productName={product.nama_produk}
               productWeight={product.berat || ""}
@@ -211,7 +211,7 @@ export default function ProductView({
         {/* Product Tabs */}
         <ProductTabs
           activeTab="description"
-          setActiveTab={() => { }}
+          setActiveTab={() => {}}
           features={features}
           productSpecs={productSpecs}
           ratingStats={ratingStats}
@@ -303,6 +303,7 @@ export default function ProductView({
                       image: prod.covers?.[0]?.foto || "",
                       address: prod.tokos?.alamat_toko || "",
                       slug: prod.slug_produk,
+                      avg_rating: prod.avg_rating,
                     }}
                   />
                 </div>
@@ -366,6 +367,7 @@ export default function ProductView({
                         "",
                       slug: recommendation.slug_produk,
                       free_ongkir: recommendation.free_ongkir,
+                      avg_rating: recommendation.avg_rating,
                     }}
                   />
                 </div>

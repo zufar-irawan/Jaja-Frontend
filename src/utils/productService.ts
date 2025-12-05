@@ -46,6 +46,24 @@ export interface Product {
   }[];
 }
 
+export interface Rating {
+  rating_id: number;
+  id_customer: number;
+  id_produk: number;
+  id_toko: number;
+  invoice: string;
+  rating: number;
+  comment: string;
+  foto_depan: string | null;
+  foto_belakang: string | null;
+  foto_kanan: string | null;
+  foto_kiri: string | null;
+  video: string | null;
+  date_created: string;
+  respon: string | null;
+  date_respon: string | null;
+}
+
 export interface SearchProductsParams {
   nama_produk?: string;
   id_kategori?: number;
@@ -80,7 +98,7 @@ export interface ProductDetailResponse {
   message: string;
   data: {
     product: Product & {
-      ratings: unknown[];
+      ratings: Rating[];
     };
     otherProduct: Product[];
   };

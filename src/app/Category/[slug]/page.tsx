@@ -1,21 +1,38 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, use } from 'react';
-import { Search, MapPin, X, SlidersHorizontal, ChevronDown, Sparkles, ChevronLeft, ChevronRight, Loader2, Package } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { searchProducts, getCategoryBySlug, type Product, type SearchProductsParams, type Category } from '@/utils/productService';
-import ProductCard from '@/components/ProductCard';
+import React, { useState, useEffect, use } from "react";
+import {
+  Search,
+  MapPin,
+  X,
+  SlidersHorizontal,
+  ChevronDown,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Package,
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  searchProducts,
+  getCategoryBySlug,
+  type Product,
+  type SearchProductsParams,
+  type Category,
+} from "@/utils/productService";
+import ProductCard from "@/components/ProductCard";
 
 const DynamicCategoryPage = () => {
   const params = useParams();
   const router = useRouter();
   const categorySlug = params.slug as string;
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedCondition, setSelectedCondition] = useState<string>('');
-  const [selectedStock, setSelectedStock] = useState<string>('');
-  const [selectedSort, setSelectedSort] = useState<string>('');
-  const [selectedLocation, setSelectedLocation] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCondition, setSelectedCondition] = useState<string>("");
+  const [selectedStock, setSelectedStock] = useState<string>("");
+  const [selectedSort, setSelectedSort] = useState<string>("");
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,16 +42,23 @@ const DynamicCategoryPage = () => {
 
   useEffect(() => {
     if (categorySlug) {
-          fetchProducts();
+      fetchProducts();
     }
-  }, [categorySlug, selectedCondition, selectedStock, selectedSort, currentPage, searchQuery]);
+  }, [
+    categorySlug,
+    selectedCondition,
+    selectedStock,
+    selectedSort,
+    currentPage,
+    searchQuery,
+  ]);
 
   useEffect(() => {
     if (!categorySlug) return;
-  
+
     const timeoutId = setTimeout(() => {
-    setCurrentPage(1);
-    fetchProducts();
+      setCurrentPage(1);
+      fetchProducts();
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -52,17 +76,30 @@ const DynamicCategoryPage = () => {
       const searchParams: SearchProductsParams = {
         limit: itemsPerPage,
         page: currentPage,
-        stok: selectedStock === 'pre-order' ? 'preorder' : selectedStock === 'ready' ? 'ready' : undefined,
-        kondisi: selectedCondition === 'baru' ? 'baru' : selectedCondition === 'bekas' ? 'bekas' : undefined,
+        stok:
+          selectedStock === "pre-order"
+            ? "preorder"
+            : selectedStock === "ready"
+              ? "ready"
+              : undefined,
+        kondisi:
+          selectedCondition === "baru"
+            ? "baru"
+            : selectedCondition === "bekas"
+              ? "bekas"
+              : undefined,
         id_kategori: category?.id_kategori,
       };
 
-      if (selectedSort === 'Nama (A-Z)') searchParams.sort = 'name_asc';
-      else if (selectedSort === 'Nama (Z-A)') searchParams.sort = 'name_desc';
-      else if (selectedSort === 'Harga Terendah') searchParams.sort = 'price_asc';
-      else if (selectedSort === 'Harga Tertinggi') searchParams.sort = 'price_desc';
-      else if (selectedSort === 'Terbaru') searchParams.sort = 'newest';
-      else if (selectedSort === 'Ulasan Tertinggi') searchParams.sort = 'rating_desc';
+      if (selectedSort === "Nama (A-Z)") searchParams.sort = "name_asc";
+      else if (selectedSort === "Nama (Z-A)") searchParams.sort = "name_desc";
+      else if (selectedSort === "Harga Terendah")
+        searchParams.sort = "price_asc";
+      else if (selectedSort === "Harga Tertinggi")
+        searchParams.sort = "price_desc";
+      else if (selectedSort === "Terbaru") searchParams.sort = "newest";
+      else if (selectedSort === "Ulasan Tertinggi")
+        searchParams.sort = "rating_desc";
 
       if (searchQuery) {
         searchParams.nama_produk = searchQuery;
@@ -74,8 +111,10 @@ const DynamicCategoryPage = () => {
         let filteredProducts = response.data;
 
         if (selectedLocation) {
-          filteredProducts = filteredProducts.filter(product => 
-            product.tokos?.wilayah?.kelurahan_desa.toLowerCase().includes(selectedLocation.toLowerCase())
+          filteredProducts = filteredProducts.filter((product) =>
+            product.tokos?.wilayah?.kelurahan_desa
+              .toLowerCase()
+              .includes(selectedLocation.toLowerCase()),
           );
         }
 
@@ -83,7 +122,7 @@ const DynamicCategoryPage = () => {
         setTotalProducts(response.meta.total);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
       setProducts([]);
       setTotalProducts(0);
     } finally {
@@ -92,33 +131,43 @@ const DynamicCategoryPage = () => {
   };
 
   const resetFilters = () => {
-    setSelectedCondition('');
-    setSelectedStock('');
-    setSelectedSort('');
-    setSelectedLocation('');
-    setSearchQuery('');
+    setSelectedCondition("");
+    setSelectedStock("");
+    setSelectedSort("");
+    setSelectedLocation("");
+    setSearchQuery("");
     setCurrentPage(1);
   };
 
-  const activeFiltersCount = [selectedCondition, selectedStock, selectedSort, selectedLocation].filter(Boolean).length;
+  const activeFiltersCount = [
+    selectedCondition,
+    selectedStock,
+    selectedSort,
+    selectedLocation,
+  ].filter(Boolean).length;
 
   const totalPages = Math.ceil(totalProducts / itemsPerPage);
-  const showingFrom = totalProducts === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const showingFrom =
+    totalProducts === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const showingTo = Math.min(currentPage * itemsPerPage, totalProducts);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getPaginationRange = () => {
-    const delta = 1;  
+    const delta = 1;
     const range = [];
     const rangeWithDots = [];
     let l;
 
     for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
         range.push(i);
       }
     }
@@ -128,7 +177,7 @@ const DynamicCategoryPage = () => {
         if (i - l === 2) {
           rangeWithDots.push(l + 1);
         } else if (i - l !== 1) {
-          rangeWithDots.push('...');
+          rangeWithDots.push("...");
         }
       }
       rangeWithDots.push(i);
@@ -139,9 +188,9 @@ const DynamicCategoryPage = () => {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -168,7 +217,7 @@ const DynamicCategoryPage = () => {
           />
           {searchQuery && (
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="w-5 h-5" />
@@ -204,18 +253,18 @@ const DynamicCategoryPage = () => {
           Kondisi
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {['baru', 'bekas'].map((condition) => (
+          {["baru", "bekas"].map((condition) => (
             <label
               key={condition}
               className={`relative flex items-center justify-center cursor-pointer px-4 py-3 rounded-xl border-2 transition-all ${
                 selectedCondition === condition
-                  ? 'bg-linear-to-r from-[#55B4E5] to-[#FBB338] border-transparent text-white shadow-lg shadow-[#55B4E5]/50'
-                  : 'bg-gray-50 border-gray-200 hover:border-[#55B4E5] text-gray-700'
+                  ? "bg-linear-to-r from-[#55B4E5] to-[#FBB338] border-transparent text-white shadow-lg shadow-[#55B4E5]/50"
+                  : "bg-gray-50 border-gray-200 hover:border-[#55B4E5] text-gray-700"
               }`}
             >
               <input
                 type="radio"
-                name={mobile ? 'condition-mobile' : 'condition'}
+                name={mobile ? "condition-mobile" : "condition"}
                 value={condition}
                 checked={selectedCondition === condition}
                 onChange={(e) => setSelectedCondition(e.target.value)}
@@ -234,20 +283,20 @@ const DynamicCategoryPage = () => {
         </label>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { value: 'pre-order', label: 'Pre Order' },
-            { value: 'ready', label: 'Ready' }
+            { value: "pre-order", label: "Pre Order" },
+            { value: "ready", label: "Ready" },
           ].map((stock) => (
             <label
               key={stock.value}
               className={`relative flex items-center justify-center cursor-pointer px-4 py-3 rounded-xl border-2 transition-all ${
                 selectedStock === stock.value
-                  ? 'bg-linear-to-r from-[#55B4E5] to-[#FBB338] border-transparent text-white shadow-lg shadow-[#55B4E5]/50'
-                  : 'bg-gray-50 border-gray-200 hover:border-[#55B4E5] text-gray-700'
+                  ? "bg-linear-to-r from-[#55B4E5] to-[#FBB338] border-transparent text-white shadow-lg shadow-[#55B4E5]/50"
+                  : "bg-gray-50 border-gray-200 hover:border-[#55B4E5] text-gray-700"
               }`}
             >
               <input
                 type="radio"
-                name={mobile ? 'stock-mobile' : 'stock'}
+                name={mobile ? "stock-mobile" : "stock"}
                 value={stock.value}
                 checked={selectedStock === stock.value}
                 onChange={(e) => setSelectedStock(e.target.value)}
@@ -265,25 +314,35 @@ const DynamicCategoryPage = () => {
           Urutkan
         </label>
         <div className="space-y-2">
-          {['Terlaris', 'Terbaru', 'Nama (A-Z)', 'Nama (Z-A)', 'Harga Terendah', 'Harga Tertinggi', 'Ulasan Tertinggi'].map((option) => (
+          {[
+            "Terlaris",
+            "Terbaru",
+            "Nama (A-Z)",
+            "Nama (Z-A)",
+            "Harga Terendah",
+            "Harga Tertinggi",
+            "Ulasan Tertinggi",
+          ].map((option) => (
             <label
               key={option}
               className={`flex items-center cursor-pointer px-4 py-3 rounded-xl transition-all ${
                 selectedSort === option
-                  ? 'bg-linear-to-r from-[#55B4E5] to-[#FBB338] text-white shadow-lg shadow-[#55B4E5]/50'
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                  ? "bg-linear-to-r from-[#55B4E5] to-[#FBB338] text-white shadow-lg shadow-[#55B4E5]/50"
+                  : "bg-gray-50 hover:bg-gray-100 text-gray-700"
               }`}
             >
               <input
                 type="radio"
-                name={mobile ? 'sort-mobile' : 'sort'}
+                name={mobile ? "sort-mobile" : "sort"}
                 value={option}
                 checked={selectedSort === option}
                 onChange={(e) => setSelectedSort(e.target.value)}
                 className="hidden"
               />
               <span className="font-medium">{option}</span>
-              {selectedSort === option && <Sparkles className="ml-auto w-4 h-4" />}
+              {selectedSort === option && (
+                <Sparkles className="ml-auto w-4 h-4" />
+              )}
             </label>
           ))}
         </div>
@@ -360,10 +419,12 @@ const DynamicCategoryPage = () => {
             <div className="mb-8 flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold bg-linear-to-r from-[#55B4E5] to-[#FBB338] bg-clip-text text-transparent mb-2 capitalize">
-                  {categoryInfo?.kategori || categorySlug.replace(/-/g, ' ')}
+                  {categoryInfo?.kategori || categorySlug.replace(/-/g, " ")}
                 </h1>
                 <p className="text-gray-600 font-medium">
-                  {isLoading ? 'Memuat...' : `${totalProducts} produk ditemukan`}
+                  {isLoading
+                    ? "Memuat..."
+                    : `${totalProducts} produk ditemukan`}
                 </p>
               </div>
 
@@ -395,9 +456,12 @@ const DynamicCategoryPage = () => {
                 <div className="text-gray-300 mb-6">
                   <Package className="w-20 h-20 mx-auto" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">Produk tidak ditemukan</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                  Produk tidak ditemukan
+                </h3>
                 <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                  Coba ubah filter atau kata kunci pencarian Anda untuk hasil yang lebih baik
+                  Coba ubah filter atau kata kunci pencarian Anda untuk hasil
+                  yang lebih baik
                 </p>
                 <button
                   onClick={resetFilters}
@@ -417,9 +481,13 @@ const DynamicCategoryPage = () => {
                         id: product.id_produk,
                         name: product.nama_produk,
                         price: product.harga,
-                        image: product.covers?.[0]?.foto || '',
-                        address: product.tokos?.wilayah?.kelurahan_desa || product.tokos?.nama_toko || '',
-                        slug: product.slug_produk
+                        image: product.covers?.[0]?.foto || "",
+                        address:
+                          product.tokos?.wilayah?.kelurahan_desa ||
+                          product.tokos?.nama_toko ||
+                          "",
+                        slug: product.slug_produk,
+                        avg_rating: product.avg_rating,
                       }}
                     />
                   ))}
@@ -429,7 +497,11 @@ const DynamicCategoryPage = () => {
                 {totalPages > 1 && (
                   <div className="mt-12 flex items-center justify-between">
                     <p className="text-sm text-gray-600">
-                      Showing <span className="font-semibold">{showingFrom}-{showingTo}</span> of <span className="font-semibold">{totalProducts}</span>
+                      Showing{" "}
+                      <span className="font-semibold">
+                        {showingFrom}-{showingTo}
+                      </span>{" "}
+                      of <span className="font-semibold">{totalProducts}</span>
                     </p>
 
                     <div className="flex items-center gap-1">
@@ -438,8 +510,8 @@ const DynamicCategoryPage = () => {
                         disabled={currentPage === 1}
                         className={`px-3 py-2 rounded-lg transition-all ${
                           currentPage === 1
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-gray-600 hover:bg-gray-100'
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "text-gray-600 hover:bg-gray-100"
                         }`}
                       >
                         <ChevronLeft className="w-5 h-5" />
@@ -447,15 +519,15 @@ const DynamicCategoryPage = () => {
 
                       {getPaginationRange().map((page, index) => (
                         <React.Fragment key={index}>
-                          {page === '...' ? (
+                          {page === "..." ? (
                             <span className="px-3 py-2 text-gray-400">...</span>
                           ) : (
                             <button
                               onClick={() => goToPage(page as number)}
                               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                                 currentPage === page
-                                  ? 'bg-[#55B4E5] text-white'
-                                  : 'text-gray-600 hover:bg-gray-100'
+                                  ? "bg-[#55B4E5] text-white"
+                                  : "text-gray-600 hover:bg-gray-100"
                               }`}
                             >
                               {page}
@@ -469,8 +541,8 @@ const DynamicCategoryPage = () => {
                         disabled={currentPage === totalPages}
                         className={`px-3 py-2 rounded-lg transition-all ${
                           currentPage === totalPages
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-gray-600 hover:bg-gray-100'
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "text-gray-600 hover:bg-gray-100"
                         }`}
                       >
                         <ChevronRight className="w-5 h-5" />
