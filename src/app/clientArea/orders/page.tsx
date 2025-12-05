@@ -14,8 +14,10 @@ import {
   PackageCheck,
   Ban,
   MapPin,
+  Star,
 } from "lucide-react";
 import { getAllTransactions } from "@/utils/checkoutActions";
+import ReviewProductModal from "./ReviewProductModal";
 
 type OrderTab = "unpaid" | "processing" | "completed";
 type TransactionData = {
@@ -30,6 +32,7 @@ type TransactionData = {
   kurir?: string | null;
   details: Array<{
     id_detail: number;
+    id_produk: number;
     nama_produk: string;
     qty: number;
     harga_aktif: string;
@@ -44,6 +47,13 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{
+    productId: number;
+    transactionId: number;
+    productName: string;
+    productImage?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -225,6 +235,27 @@ export default function OrdersPage() {
   const handleTrackingClick = (e: React.MouseEvent, resi: string) => {
     e.stopPropagation();
     router.push(`/clientArea/tracking/${resi}`);
+  };
+
+  const handleReviewClick = (
+    e: React.MouseEvent,
+    productId: number,
+    transactionId: number,
+    productName: string,
+    productImage?: string,
+  ) => {
+    e.stopPropagation();
+    setSelectedProduct({
+      productId,
+      transactionId,
+      productName,
+      productImage,
+    });
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSuccess = () => {
+    fetchOrders();
   };
 
   const getStatusBadge = (status: string, expired: boolean) => {
@@ -521,6 +552,23 @@ export default function OrdersPage() {
                             </p>
                           )}
                         </div>
+                        {tab === "completed" && (
+                          <button
+                            onClick={(e) =>
+                              handleReviewClick(
+                                e,
+                                detail.id_produk,
+                                order.id_data,
+                                detail.nama_produk,
+                                detail.foto_produk,
+                              )
+                            }
+                            className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-[#FBB338] to-[#FBB338]/90 text-white text-xs font-semibold rounded-lg hover:from-[#FBB338]/90 hover:to-[#FBB338] transition-all shadow-sm hover:shadow-md"
+                          >
+                            <Star className="w-3.5 h-3.5" />
+                            Review
+                          </button>
+                        )}
                       </div>
                     ))}
                   {order.details && order.details.length > 2 && (
@@ -582,6 +630,22 @@ export default function OrdersPage() {
           })
         )}
       </div>
+
+      {/* Review Product Modal */}
+      {selectedProduct && (
+        <ReviewProductModal
+          isOpen={reviewModalOpen}
+          onClose={() => {
+            setReviewModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.productId}
+          transactionId={selectedProduct.transactionId}
+          productName={selectedProduct.productName}
+          productImage={selectedProduct.productImage}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 }
