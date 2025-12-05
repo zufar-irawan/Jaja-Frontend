@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowLeft, Loader2, } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart } from '@/utils/cartActions';
+import { getCart, updateCartQuantity, toggleCartSelection, deleteCartItem, clearCart, batchToggleCartSelection } from '@/utils/cartActions';
 import { getProductPrice, getProductImageUrl, calculateCartTotals, formatCurrency, type CartItem } from '@/utils/cartService';
 
 // Extended types untuk mendukung grouping by store
@@ -36,6 +36,7 @@ const ShoppingCartPage = () => {
   const [cartItems, setCartItems] = useState<ExtendedCartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingQuantities, setEditingQuantities] = useState<Record<number, string>>({});
+  const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,8 @@ const ShoppingCartPage = () => {
       setLoading(true);
       setError(null);
       const response = await getCart();
+      
+      console.log('Fetched cart response:', response);
       
       if (response.success && response.data?.items) {
         setCartItems(response.data.items as ExtendedCartItem[]);
@@ -65,7 +68,10 @@ const ShoppingCartPage = () => {
 
   const handleToggleSelection = async (id_cart: number) => {
     try {
-      // Update UI immediately for better UX
+      console.log('Toggling selection for cart ID:', id_cart);
+      
+      // Optimistic update
+      const previousItems = [...cartItems];
       setCartItems(items =>
         items.map(item =>
           item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
@@ -73,46 +79,113 @@ const ShoppingCartPage = () => {
       );
       
       const response = await toggleCartSelection(id_cart);
+      console.log('Toggle response:', response);
+      
       if (!response.success) {
-        // Revert if failed
-        setCartItems(items =>
-          items.map(item =>
-            item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
-          )
-        );
+        // Revert on failure
+        console.error('Failed to toggle selection:', response.message);
+        setCartItems(previousItems);
+        Swal.fire({
+          title: 'Gagal',
+          text: response.message || 'Gagal mengubah pilihan',
+          icon: 'error',
+          confirmButtonColor: '#55B4E5',
+        });
       }
     } catch (error) {
       console.error('Error toggling selection:', error);
-      // Revert on error
-      setCartItems(items =>
-        items.map(item =>
-          item.id_cart === id_cart ? { ...item, status_pilih: !item.status_pilih } : item
-        )
-      );
+      // Fetch fresh data on error
+      fetchCartData();
     }
   };
 
-  const handleSelectAll = () => {
-    const allSelected = cartItems.every(item => item.status_pilih);
-    setCartItems(items =>
-      items.map(item => ({ ...item, status_pilih: !allSelected }))
-    );
+  const handleSelectAll = async () => {
+    try {
+      const allSelected = cartItems.every(item => item.status_pilih);
+      const cartIds = cartItems.map(item => item.id_cart);
+      
+      console.log('Selecting all items:', { allSelected, cartIds });
+      
+      // Optimistic update
+      setCartItems(items =>
+        items.map(item => ({ ...item, status_pilih: !allSelected }))
+      );
+      
+      // Call batch toggle
+      const response = await batchToggleCartSelection(cartIds, !allSelected);
+      
+      if (!response.success) {
+        console.error('Failed to toggle all:', response.message);
+        // Fetch fresh data to ensure consistency
+        await fetchCartData();
+        Swal.fire({
+          title: 'Peringatan',
+          text: response.message || 'Beberapa item gagal diupdate',
+          icon: 'warning',
+          confirmButtonColor: '#55B4E5',
+        });
+      }
+    } catch (error) {
+      console.error('Error in select all:', error);
+      fetchCartData();
+    }
   };
 
   const handleUpdateQuantity = async (id_cart: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
+    if (newQuantity < 1) {
+      Swal.fire({
+        title: 'Peringatan',
+        text: 'Jumlah minimal adalah 1',
+        icon: 'warning',
+        confirmButtonColor: '#55B4E5',
+      });
+      return;
+    }
+    
+    // Check if already updating
+    if (updatingItems.has(id_cart)) {
+      console.log('Already updating item:', id_cart);
+      return;
+    }
     
     try {
+      // Mark as updating
+      setUpdatingItems(prev => new Set(prev).add(id_cart));
+      
+      console.log('Updating quantity:', { id_cart, newQuantity });
+      
+      // Optimistic update
+      const previousItems = [...cartItems];
+      setCartItems(items =>
+        items.map(item =>
+          item.id_cart === id_cart ? { ...item, qty: newQuantity } : item
+        )
+      );
+      
       const response = await updateCartQuantity(id_cart, newQuantity);
-      if (response.success) {
-        setCartItems(items =>
-          items.map(item =>
-            item.id_cart === id_cart ? { ...item, qty: newQuantity } : item
-          )
-        );
+      console.log('Update quantity response:', response);
+      
+      if (!response.success) {
+        // Revert on failure
+        console.error('Failed to update quantity:', response.message);
+        setCartItems(previousItems);
+        Swal.fire({
+          title: 'Gagal',
+          text: response.message || 'Gagal mengupdate jumlah',
+          icon: 'error',
+          confirmButtonColor: '#55B4E5',
+        });
       }
     } catch (error) {
       console.error('Error updating quantity:', error);
+      fetchCartData();
+    } finally {
+      // Remove from updating set
+      setUpdatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(id_cart);
+        return next;
+      });
     }
   };
 
@@ -147,7 +220,10 @@ const ShoppingCartPage = () => {
 
       if (!confirm.isConfirmed) return;
 
+      console.log('Deleting item:', id_cart);
+
       const response = await deleteCartItem(id_cart);
+      console.log('Delete response:', response);
 
       if (response.success) {
         setCartItems(items => items.filter(item => item.id_cart !== id_cart));
@@ -192,7 +268,10 @@ const ShoppingCartPage = () => {
     if (!confirm.isConfirmed) return;
 
     try {
+      console.log('Clearing cart...');
       const response = await clearCart();
+      console.log('Clear cart response:', response);
+      
       if (response.success) {
         setCartItems([]);
         await fetchCartCount(); 
@@ -200,6 +279,13 @@ const ShoppingCartPage = () => {
           title: 'Keranjang dikosongkan!',
           text: 'Semua produk telah dihapus.',
           icon: 'success',
+          confirmButtonColor: '#55B4E5',
+        });
+      } else {
+        Swal.fire({
+          title: 'Gagal',
+          text: response.message || 'Gagal mengosongkan keranjang',
+          icon: 'error',
           confirmButtonColor: '#55B4E5',
         });
       }
@@ -586,6 +672,7 @@ const ShoppingCartPage = () => {
                       const imageUrl = getProductImageUrl(cartItem);
                       const product = typeof item.produk === 'object' && item.produk ? item.produk : null;
                       const stock = item.variasi?.stok_variasi || product?.stok || 99;
+                      const isUpdating = updatingItems.has(item.id_cart);
                       
                       return (
                         <div key={item.id_cart} className="cart-item" style={{ 
@@ -595,7 +682,9 @@ const ShoppingCartPage = () => {
                           border: '1px solid #e9ecef',
                           borderRadius: '8px',
                           marginBottom: '12px',
-                          backgroundColor: item.status_pilih ? '#f0f8ff' : 'white'
+                          backgroundColor: item.status_pilih ? '#f0f8ff' : 'white',
+                          opacity: isUpdating ? 0.6 : 1,
+                          pointerEvents: isUpdating ? 'none' : 'auto'
                         }}>
                           
                           {/* Checkbox */}
@@ -663,18 +752,18 @@ const ShoppingCartPage = () => {
                               <div className="quantity-controls" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
                                 <button
                                   onClick={() => handleUpdateQuantity(item.id_cart, item.qty - 1)}
-                                  disabled={item.qty <= 1}
+                                  disabled={item.qty <= 1 || isUpdating}
                                   style={{ 
                                     width: '28px', 
                                     height: '28px', 
                                     border: '1px solid #dee2e6', 
                                     borderRadius: '5px', 
                                     background: 'white', 
-                                    cursor: item.qty <= 1 ? 'not-allowed' : 'pointer', 
+                                    cursor: (item.qty <= 1 || isUpdating) ? 'not-allowed' : 'pointer', 
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     justifyContent: 'center',
-                                    opacity: item.qty <= 1 ? 0.5 : 1,
+                                    opacity: (item.qty <= 1 || isUpdating) ? 0.5 : 1,
                                     flexShrink: 0
                                   }}
                                 >
@@ -697,6 +786,12 @@ const ShoppingCartPage = () => {
                                       newQuantity = 1;
                                     } else if (newQuantity > stock) {
                                       newQuantity = stock;
+                                      Swal.fire({
+                                        title: 'Stok Tidak Cukup',
+                                        text: `Maksimal ${stock} item`,
+                                        icon: 'warning',
+                                        confirmButtonColor: '#55B4E5',
+                                      });
                                     }
                           
                                     setEditingQuantities(prev => {
@@ -709,6 +804,7 @@ const ShoppingCartPage = () => {
                                       handleUpdateQuantity(item.id_cart, newQuantity);
                                     }
                                   }}
+                                  disabled={isUpdating}
                                   style={{
                                     fontSize: '14px',
                                     fontWeight: '500',
@@ -717,23 +813,24 @@ const ShoppingCartPage = () => {
                                     border: '1px solid #dee2e6',
                                     borderRadius: '5px',
                                     appearance: 'textfield',
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    opacity: isUpdating ? 0.5 : 1
                                   }}
                                 />
                                 <button
                                   onClick={() => handleUpdateQuantity(item.id_cart, item.qty + 1)}
-                                  disabled={item.qty >= stock}
+                                  disabled={item.qty >= stock || isUpdating}
                                   style={{ 
                                     width: '28px', 
                                     height: '28px', 
                                     border: '1px solid #dee2e6', 
                                     borderRadius: '5px', 
                                     background: 'white', 
-                                    cursor: item.qty >= stock ? 'not-allowed' : 'pointer',
+                                    cursor: (item.qty >= stock || isUpdating) ? 'not-allowed' : 'pointer',
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     justifyContent: 'center',
-                                    opacity: item.qty >= stock ? 0.5 : 1,
+                                    opacity: (item.qty >= stock || isUpdating) ? 0.5 : 1,
                                     flexShrink: 0
                                   }}
                                 >
@@ -741,13 +838,15 @@ const ShoppingCartPage = () => {
                                 </button>
                                 <button
                                   onClick={() => handleRemoveItem(item.id_cart)}
+                                  disabled={isUpdating}
                                   style={{ 
                                     background: 'none', 
                                     border: 'none', 
-                                    cursor: 'pointer', 
+                                    cursor: isUpdating ? 'not-allowed' : 'pointer', 
                                     color: '#dc3545',
                                     padding: '4px',
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    opacity: isUpdating ? 0.5 : 1
                                   }}
                                 >
                                   <Trash2 size={16} />
@@ -856,6 +955,7 @@ const ShoppingCartPage = () => {
                     color: '#6c757d',
                     fontStyle: 'italic'
                   }}>
+                    Ongkir dihitung di halaman checkout
                   </div>
                 </div>
 

@@ -30,6 +30,7 @@ import {
   TrendingUp,
   Loader2,
   Heart,
+  Clock,
 } from "lucide-react";
 
 interface Category {
@@ -81,8 +82,11 @@ export default function JajaNavbar() {
     categories: [],
     totalProducts: 0,
   });
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const searchRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const cartCount = useCartStore((state) => state.cartCount);
   const fetchCartCount = useCartStore((state) => state.fetchCartCount);
   const router = useRouter();
@@ -100,8 +104,19 @@ export default function JajaNavbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Search with debounce
+  // Optimized search with debounce and abort controller
   useEffect(() => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Abort previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Clear results if query is too short
     if (searchQuery.length < 2) {
       setSearchResults({
         products: [],
@@ -109,26 +124,80 @@ export default function JajaNavbar() {
         categories: [],
         totalProducts: 0,
       });
+      setIsSearchLoading(false);
       return;
     }
 
-    const timeoutId = setTimeout(() => {
-      performSearch();
-    }, 300);
+    // Show loading immediately for better UX
+    setIsSearchLoading(true);
 
-    return () => clearTimeout(timeoutId);
+    // Debounce search with shorter delay for instant feel
+    searchTimeoutRef.current = setTimeout(() => {
+      performSearch();
+    }, 200); // Reduced from 300ms to 200ms
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [searchQuery]);
 
   const performSearch = async () => {
-    setIsSearchLoading(true);
-    try {
-      const results = await performGlobalSearch(searchQuery, 5);
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
+    if (searchQuery.length < 2) {
       setIsSearchLoading(false);
+      return;
     }
+
+    try {
+      abortControllerRef.current = new AbortController();
+      const results = await performGlobalSearch(searchQuery, 5);
+
+      if (!abortControllerRef.current.signal.aborted) {
+        setSearchResults(results);
+        setIsSearchLoading(false);
+        // Save to recent searches if results found
+        if (results.products.length > 0 || results.stores.length > 0) {
+          saveToRecentSearches(searchQuery);
+        }
+      }
+    } catch (error: any) {
+      // Ignore abort errors
+      if (error.name !== "AbortError") {
+        console.error("Search error:", error);
+        setIsSearchLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem("recentSearches");
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch (error) {
+        console.error("Error loading recent searches:", error);
+      }
+    }
+  }, []);
+
+  const saveToRecentSearches = (query: string) => {
+    if (!query || query.length < 2) return;
+
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((q) => q !== query);
+      const newSearches = [query, ...filtered].slice(0, 5); // Keep max 5
+      localStorage.setItem("recentSearches", JSON.stringify(newSearches));
+      return newSearches;
+    });
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem("recentSearches");
   };
 
   useEffect(() => {
@@ -140,14 +209,12 @@ export default function JajaNavbar() {
           setUserProfile(result.data);
           setIsLoggedIn(true);
 
-          // Sync cookie state - set is-authenticated cookie if not present
           const cookies = document.cookie.split(";");
           const hasAuthCookie = cookies.some((cookie) =>
             cookie.trim().startsWith("is-authenticated="),
           );
 
           if (!hasAuthCookie) {
-            // Set cookie with 7 days expiry
             const maxAge = 60 * 60 * 24 * 7;
             document.cookie = `is-authenticated=true; path=/; max-age=${maxAge}; SameSite=Lax`;
             console.log("Auth cookie synced after profile fetch");
@@ -239,7 +306,6 @@ export default function JajaNavbar() {
     try {
       await logout();
 
-      // Clear client-side auth cookie
       document.cookie =
         "is-authenticated=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
@@ -265,6 +331,20 @@ export default function JajaNavbar() {
       categories: [],
       totalProducts: 0,
     });
+    setIsSearchOpen(false);
+  };
+
+  const handleRecentSearchClick = (query: string) => {
+    setSearchQuery(query);
+    setIsSearchOpen(true);
+  };
+
+  const removeRecentSearch = (query: string) => {
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((q) => q !== query);
+      localStorage.setItem("recentSearches", JSON.stringify(filtered));
+      return filtered;
+    });
   };
 
   const handleViewAllSearch = () => {
@@ -287,7 +367,10 @@ export default function JajaNavbar() {
     const parts = text.split(new RegExp(`(${escapedQuery})`, "gi"));
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <mark key={i} className="bg-yellow-200 font-semibold">
+        <mark
+          key={i}
+          className="bg-[#55B4E5]/20 text-[#55B4E5] font-semibold px-0.5 rounded"
+        >
           {part}
         </mark>
       ) : (
@@ -514,49 +597,140 @@ export default function JajaNavbar() {
               </div>
 
               {/* Search Input */}
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => {
-                  setIsSearchOpen(true);
-                  setShowCategoryMenu(false);
-                }}
-                placeholder="Cari produk dan toko di jaja"
-                className="w-full pl-36 pr-14 py-3 border-2 border-gray-200 rounded-full focus:border-[#55B4E5] focus:ring-4 focus:ring-[#55B4E5]/20 outline-none transition-all placeholder:text-gray-400"
-              />
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => {
+                    setIsSearchOpen(true);
+                    setShowCategoryMenu(false);
+                  }}
+                  placeholder="Cari produk, toko, atau kategori..."
+                  className="w-full pl-36 pr-14 py-3 border-2 border-gray-200 rounded-full focus:border-[#55B4E5] focus:ring-4 focus:ring-[#55B4E5]/20 outline-none transition-all placeholder:text-gray-400 text-sm"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
 
-              {/* Clear Button */}
-              {searchQuery && (
+                {/* Loading indicator inside input */}
+                {isSearchLoading && searchQuery.length >= 2 && (
+                  <div className="absolute right-14 top-1/2 -translate-y-1/2 z-10">
+                    <Loader2 className="w-4 h-4 text-[#55B4E5] animate-spin" />
+                  </div>
+                )}
+
+                {/* Clear Button */}
+                {searchQuery && !isSearchLoading && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10 p-1 hover:bg-gray-100 rounded-full"
+                    title="Clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Search Button */}
                 <button
-                  onClick={handleClearSearch}
-                  className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-105 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSearchLoading || searchQuery.length < 2}
+                  onClick={() => {
+                    if (searchQuery.length >= 2) {
+                      performSearch();
+                    }
+                  }}
+                  title="Search"
                 >
-                  <X className="w-5 h-5" />
+                  <Search className="w-5 h-5" />
                 </button>
-              )}
-
-              {/* Search Button */}
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-110 shadow-md hover:shadow-lg">
-                <Search className="w-5 h-5" />
-              </button>
+              </div>
 
               {/* Search Results Dropdown */}
               {isSearchOpen && searchQuery.length >= 2 && (
                 <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 max-h-[600px] overflow-y-auto z-60 animate-in fade-in slide-in-from-top-2 duration-200">
                   {isSearchLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-8 h-8 text-[#55B4E5] animate-spin" />
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="relative">
+                        <div className="w-12 h-12 border-4 border-gray-200 rounded-full"></div>
+                        <div className="absolute top-0 left-0 w-12 h-12 border-4 border-[#55B4E5] rounded-full animate-spin border-t-transparent"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-4 font-medium">
+                        Mencari "{searchQuery}"...
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Tunggu sebentar
+                      </p>
+                    </div>
+                  ) : searchQuery.length < 2 && recentSearches.length > 0 ? (
+                    <div className="py-4">
+                      <div className="flex items-center justify-between px-5 py-2 border-b border-gray-100">
+                        <h3 className="font-bold text-gray-700 text-sm">
+                          Pencarian Terakhir
+                        </h3>
+                        <button
+                          onClick={clearRecentSearches}
+                          className="text-xs text-[#55B4E5] hover:text-[#55B4E5]/80 font-medium"
+                        >
+                          Hapus Semua
+                        </button>
+                      </div>
+                      <div className="divide-y divide-gray-50">
+                        {recentSearches.map((query, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition-colors group"
+                          >
+                            <button
+                              onClick={() => handleRecentSearchClick(query)}
+                              className="flex-1 flex items-center gap-3 text-left"
+                            >
+                              <Clock className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm text-gray-700 group-hover:text-[#55B4E5]">
+                                {query}
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => removeRecentSearch(query)}
+                              className="p-1 hover:bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3.5 h-3.5 text-gray-500" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ) : !hasSearchResults ? (
                     <div className="py-12 text-center">
-                      <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500 font-medium">
-                        Tidak ada hasil ditemukan
+                      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Package className="w-10 h-10 text-gray-400" />
+                      </div>
+                      <p className="text-gray-700 font-semibold text-lg mb-2">
+                        Tidak ada hasil untuk "{searchQuery}"
                       </p>
-                      <p className="text-gray-400 text-sm mt-1">
+                      <p className="text-gray-500 text-sm mb-4">
                         Coba kata kunci lain atau periksa ejaan
                       </p>
+                      <div className="flex flex-wrap gap-2 justify-center px-8">
+                        <span className="text-xs text-gray-400">Saran:</span>
+                        <button
+                          onClick={() => handleRecentSearchClick("buku")}
+                          className="text-xs px-3 py-1 bg-gray-100 hover:bg-[#55B4E5] hover:text-white rounded-full transition-colors"
+                        >
+                          buku
+                        </button>
+                        <button
+                          onClick={() => handleRecentSearchClick("elektronik")}
+                          className="text-xs px-3 py-1 bg-gray-100 hover:bg-[#55B4E5] hover:text-white rounded-full transition-colors"
+                        >
+                          elektronik
+                        </button>
+                        <button
+                          onClick={() => handleRecentSearchClick("fashion")}
+                          className="text-xs px-3 py-1 bg-gray-100 hover:bg-[#55B4E5] hover:text-white rounded-full transition-colors"
+                        >
+                          fashion
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="py-3">
@@ -577,7 +751,7 @@ export default function JajaNavbar() {
                               <a
                                 key={product.id_produk}
                                 href={`/Product/${product.slug_produk}`}
-                                className="flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer"
+                                className="flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#55B4E5]"
                                 onClick={() => setIsSearchOpen(false)}
                               >
                                 <img
@@ -641,7 +815,7 @@ export default function JajaNavbar() {
                                 <a
                                   key={store.id_toko}
                                   href={`/Toko/${store.slug_toko}`}
-                                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer"
+                                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#FBB338]"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
                                   <img
@@ -693,7 +867,7 @@ export default function JajaNavbar() {
                                 <a
                                   key={category.id_kategori}
                                   href={`/category/${category.slug_kategori}`}
-                                  className="flex items-center gap-3 px-5 py-3 hover:bg-purple-50 transition-colors group cursor-pointer"
+                                  className="flex items-center gap-3 px-5 py-3 hover:bg-purple-50 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-purple-500"
                                   onClick={() => setIsSearchOpen(false)}
                                 >
                                   <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center">
@@ -714,12 +888,13 @@ export default function JajaNavbar() {
 
                       {/* View All Button */}
                       {hasSearchResults && (
-                        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
+                        <div className="sticky bottom-0 px-5 py-3 border-t border-gray-100 bg-linear-to-t from-white to-gray-50/50 backdrop-blur-sm">
                           <button
                             onClick={handleViewAllSearch}
-                            className="w-full py-2.5 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02]"
+                            className="w-full py-2.5 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] flex items-center justify-center gap-2"
                           >
-                            Lihat Semua Hasil untuk {searchQuery}
+                            <span>Lihat Semua Hasil untuk "{searchQuery}"</span>
+                            <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
                       )}

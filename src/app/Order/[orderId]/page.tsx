@@ -13,7 +13,11 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { getTransactionDetail, processPayment } from "@/utils/checkoutActions";
+import {
+  getTransactionDetail,
+  processPayment,
+  cancelOrder,
+} from "@/utils/checkoutActions";
 import { formatCurrency } from "@/utils/checkoutService";
 import type { TransactionData } from "@/utils/checkoutService";
 import Swal from "sweetalert2";
@@ -33,7 +37,12 @@ const OrderDetailPage = () => {
     seconds: 0,
   });
 
-  const markOrderAsPaid = useOrderNotificationStore((state) => state.markOrderAsPaid);
+  const markOrderAsPaid = useOrderNotificationStore(
+    (state) => state.markOrderAsPaid,
+  );
+  const markOrderAsCancelled = useOrderNotificationStore(
+    (state) => state.markOrderAsCancelled,
+  );
 
   useEffect(() => {
     if (idData) {
@@ -160,14 +169,40 @@ const OrderDetailPage = () => {
     });
 
     if (result.isConfirmed) {
-      // Implement cancel order API call
-      await Swal.fire({
-        icon: "success",
-        title: "Pesanan Dibatalkan",
-        text: "Pesanan Anda telah dibatalkan",
-        confirmButtonColor: "#55B4E5",
-      });
-      router.push("/");
+      try {
+        // Call cancel order API
+        const response = await cancelOrder(Number(idData));
+
+        if (response.success) {
+          // Remove from notifications
+          markOrderAsCancelled(idData);
+
+          await Swal.fire({
+            icon: "success",
+            title: "Pesanan Dibatalkan",
+            text: response.message || "Pesanan Anda telah dibatalkan",
+            confirmButtonColor: "#55B4E5",
+          });
+
+          router.push("/clientArea/orders");
+        } else {
+          await Swal.fire({
+            icon: "error",
+            title: "Gagal Membatalkan Pesanan",
+            text:
+              response.message || "Terjadi kesalahan saat membatalkan pesanan",
+            confirmButtonColor: "#55B4E5",
+          });
+        }
+      } catch (error) {
+        console.error("Error cancelling order:", error);
+        await Swal.fire({
+          icon: "error",
+          title: "Terjadi Kesalahan",
+          text: "Gagal membatalkan pesanan. Silakan coba lagi.",
+          confirmButtonColor: "#55B4E5",
+        });
+      }
     }
   };
 
@@ -201,14 +236,14 @@ const OrderDetailPage = () => {
   }
 
   if (!orderData) return null;
-  
+
   const isPaymentExpired = () => {
-      if (!orderData?.batas_pembayaran) return false;
-      const now = new Date().getTime();
-      const deadline = new Date(orderData.batas_pembayaran).getTime();
-      return now > deadline;
-    }
-  
+    if (!orderData?.batas_pembayaran) return false;
+    const now = new Date().getTime();
+    const deadline = new Date(orderData.batas_pembayaran).getTime();
+    return now > deadline;
+  };
+
   const paymentExpired = isPaymentExpired();
 
   const statusColor =
@@ -258,11 +293,10 @@ const OrderDetailPage = () => {
                   padding: "0 20px",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <Clock
-                    size={24}
-                    style={{ color: "white" }}
-                  />
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
+                >
+                  <Clock size={24} style={{ color: "white" }} />
                   <span
                     style={{
                       color: "white",
@@ -282,7 +316,8 @@ const OrderDetailPage = () => {
                     textAlign: "center",
                   }}
                 >
-                  Mohon maaf, batas waktu pembayaran untuk pesanan ini telah berakhir.
+                  Mohon maaf, batas waktu pembayaran untuk pesanan ini telah
+                  berakhir.
                 </p>
               </div>
             </div>
@@ -617,14 +652,22 @@ const OrderDetailPage = () => {
                 >
                   <User size={20} style={{ color: "#55B4E5" }} />
                   <h2
-                    style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#333",
+                    }}
                   >
                     Informasi Pelanggan
                   </h2>
                 </div>
 
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}
                 >
                   <div>
                     <label
@@ -640,7 +683,11 @@ const OrderDetailPage = () => {
                       Nama
                     </label>
                     <p
-                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        color: "#333",
+                      }}
                     >
                       {orderData.nama_penerima}
                     </p>
@@ -660,7 +707,11 @@ const OrderDetailPage = () => {
                       Telepon
                     </label>
                     <p
-                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        color: "#333",
+                      }}
                     >
                       {orderData.telp_penerima}
                     </p>
@@ -740,14 +791,22 @@ const OrderDetailPage = () => {
                 >
                   <Truck size={20} style={{ color: "#55B4E5" }} />
                   <h2
-                    style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#333",
+                    }}
                   >
                     Informasi Pengiriman
                   </h2>
                 </div>
 
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}
                 >
                   <div>
                     <label
@@ -763,7 +822,11 @@ const OrderDetailPage = () => {
                       Kurir
                     </label>
                     <p
-                      style={{ fontSize: "13px", fontWeight: "600", color: "#333" }}
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "600",
+                        color: "#333",
+                      }}
                     >
                       {orderData.pengiriman || "Belum dipilih"}
                     </p>
@@ -783,7 +846,11 @@ const OrderDetailPage = () => {
                       Ongkos Kirim
                     </label>
                     <p
-                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        color: "#333",
+                      }}
                     >
                       {formatCurrency(Number(orderData.biaya_ongkir))}
                     </p>
@@ -803,7 +870,11 @@ const OrderDetailPage = () => {
                       Waktu Pengiriman
                     </label>
                     <p
-                      style={{ fontSize: "13px", fontWeight: "500", color: "#333" }}
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        color: "#333",
+                      }}
                     >
                       {orderData.waktu_pengiriman}
                     </p>
@@ -869,7 +940,13 @@ const OrderDetailPage = () => {
                     borderBottom: "2px solid #55B4E5",
                   }}
                 >
-                  <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+                  <h2
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#333",
+                    }}
+                  >
                     Item Pesanan
                   </h2>
                 </div>
@@ -966,7 +1043,10 @@ const OrderDetailPage = () => {
                                     }}
                                   />
                                 ) : (
-                                  <Package style={{ color: "#6c757d" }} size={24} />
+                                  <Package
+                                    style={{ color: "#6c757d" }}
+                                    size={24}
+                                  />
                                 )}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
@@ -980,7 +1060,9 @@ const OrderDetailPage = () => {
                                 >
                                   {item.nama_produk}
                                 </p>
-                                <p style={{ fontSize: "10px", color: "#6c757d" }}>
+                                <p
+                                  style={{ fontSize: "10px", color: "#6c757d" }}
+                                >
                                   {item.nama_toko}
                                 </p>
                               </div>
@@ -1045,13 +1127,23 @@ const OrderDetailPage = () => {
                   }}
                 >
                   <Clock size={20} style={{ color: "#55B4E5" }} />
-                  <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+                  <h2
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#333",
+                    }}
+                  >
                     Timeline Pesanan
                   </h2>
                 </div>
 
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  }}
                 >
                   <div style={{ display: "flex", gap: "12px" }}>
                     <div
@@ -1118,7 +1210,8 @@ const OrderDetailPage = () => {
                       style={{
                         width: "10px",
                         height: "10px",
-                        backgroundColor: orderData.details[0]?.date_time_pengiriman
+                        backgroundColor: orderData.details[0]
+                          ?.date_time_pengiriman
                           ? "#28a745"
                           : "#dee2e6",
                         borderRadius: "50%",
@@ -1203,7 +1296,9 @@ const OrderDetailPage = () => {
               }}
             >
               <CreditCard size={20} style={{ color: "#55B4E5" }} />
-              <h2 style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}>
+              <h2
+                style={{ fontSize: "15px", fontWeight: "600", color: "#333" }}
+              >
                 Ringkasan Pembayaran
               </h2>
             </div>
@@ -1311,11 +1406,15 @@ const OrderDetailPage = () => {
                   style={{
                     width: "100%",
                     padding: "13px",
-                    backgroundColor: processingPayment || paymentExpired ? "#ccc" : "#55B4E5",
+                    backgroundColor:
+                      processingPayment || paymentExpired ? "#ccc" : "#55B4E5",
                     color: "white",
                     border: "none",
                     borderRadius: "6px",
-                    cursor: processingPayment || paymentExpired ? "not-allowed" : "pointer",
+                    cursor:
+                      processingPayment || paymentExpired
+                        ? "not-allowed"
+                        : "pointer",
                     fontWeight: "600",
                     fontSize: "13px",
                     display: "flex",
@@ -1371,8 +1470,7 @@ const OrderDetailPage = () => {
                 paddingTop: "16px",
                 borderTop: "1px solid #e9ecef",
               }}
-            >
-            </div>
+            ></div>
           </div>
         </div>
       </div>

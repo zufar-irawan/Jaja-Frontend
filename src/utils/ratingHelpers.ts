@@ -1,5 +1,3 @@
-// Client-side helper functions for processing ratings data
-
 export interface Rating {
   rating_id: number;
   id_customer: number;
@@ -38,7 +36,6 @@ export interface Review {
   invoice?: string;
 }
 
-// Helper function to process ratings data
 export function processRatingsData(ratings: Rating[]): RatingStats {
   if (!ratings || ratings.length === 0) {
     return {
@@ -67,13 +64,12 @@ export function processRatingsData(ratings: Rating[]): RatingStats {
   let totalRating = 0;
   ratings.forEach((rating) => {
     totalRating += rating.rating;
-    const index = 5 - rating.rating; // Convert to 0-based index (5 stars = index 0)
+    const index = 5 - rating.rating;
     if (index >= 0 && index < 5) {
       breakdown[index].count++;
     }
   });
 
-  // Calculate percentages
   breakdown.forEach((item) => {
     item.percentage = total > 0 ? Math.round((item.count / total) * 100) : 0;
   });
@@ -87,7 +83,6 @@ export function processRatingsData(ratings: Rating[]): RatingStats {
   };
 }
 
-// Helper function to transform API ratings to Review format
 export function transformRatingsToReviews(ratings: Rating[]): Review[] {
   const imageBaseUrl = "https://seller.jaja.id/asset/images/rating/";
 
@@ -121,7 +116,6 @@ export function transformRatingsToReviews(ratings: Rating[]): Review[] {
   });
 }
 
-// Helper function to get customer name from rating
 export function getCustomerDisplayName(
   customerId: number,
   maskName: boolean = true,
@@ -132,7 +126,6 @@ export function getCustomerDisplayName(
   return `Customer ${customerId}`;
 }
 
-// Helper function to format rating date
 export function formatRatingDate(dateString: string): string {
   try {
     const date = new Date(dateString);

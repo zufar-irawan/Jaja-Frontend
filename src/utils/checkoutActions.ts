@@ -9,6 +9,11 @@ import type {
   PaymentData,
   PaymentResponse,
   TransactionResponse,
+  CreateComplainData,
+  CreateComplainResponse,
+  ProductTransactionDetailResponse,
+  CancelOrderResponse,
+  ReceivedOrderResponse,
 } from "./checkoutService";
 
 export async function reviewCheckout(
@@ -151,6 +156,153 @@ export async function trackShipment(resi: string, courier: string) {
     const errorMessage =
       error instanceof Error ? error.message : "Gagal melacak pengiriman";
     console.error("Track shipment error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Create Complain
+export async function createComplain(
+  data: CreateComplainData,
+): Promise<CreateComplainResponse> {
+  try {
+    const formData = new FormData();
+
+    // Add required fields
+    formData.append("invoice", data.invoice);
+    formData.append("id_produk", data.id_produk.toString());
+    formData.append("jenis_komplain", data.jenis_komplain);
+    formData.append("judul_komplain", data.judul_komplain);
+    formData.append("komplain", data.komplain);
+    formData.append("solusi", data.solusi);
+
+    // Add optional files
+    if (data.gambar1) {
+      formData.append("gambar1", data.gambar1);
+    }
+    if (data.gambar2) {
+      formData.append("gambar2", data.gambar2);
+    }
+    if (data.gambar3) {
+      formData.append("gambar3", data.gambar3);
+    }
+    if (data.video) {
+      formData.append("video", data.video);
+    }
+
+    const response = await api.post("/main/komplain/create", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return {
+      success: true,
+      message: response.data.message || "Komplain berhasil dibuat",
+      data: response.data.data,
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Gagal membuat komplain";
+    console.error("Create complain error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Delete Complain
+export async function deleteComplain(
+  complainId: number,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await api.delete(`/main/komplain/${complainId}`);
+
+    return {
+      success: true,
+      message: response.data.message || "Komplain berhasil dihapus",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Gagal menghapus komplain";
+    console.error("Delete complain error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Get Product Transaction Detail
+export async function getProductTransactionDetail(
+  idData: number,
+  idProduk: number,
+): Promise<ProductTransactionDetailResponse> {
+  try {
+    const response = await api.get(
+      `/main/transaksi/${idData}/produk/${idProduk}`,
+    );
+
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Gagal mengambil detail produk transaksi";
+    console.error("Get product transaction detail error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Cancel Order
+export async function cancelOrder(
+  idData: number,
+): Promise<CancelOrderResponse> {
+  try {
+    const response = await api.post(`/main/checkout/${idData}/cancel`);
+
+    return {
+      success: true,
+      message: response.data.message || "Pesanan berhasil dibatalkan",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Gagal membatalkan pesanan";
+    console.error("Cancel order error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Mark Order as Received
+export async function markOrderReceived(
+  idData: number,
+): Promise<ReceivedOrderResponse> {
+  try {
+    const response = await api.post(`/main/checkout/${idData}/received`);
+
+    return {
+      success: true,
+      message:
+        response.data.message || "Pesanan berhasil dikonfirmasi diterima",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Gagal mengkonfirmasi penerimaan pesanan";
+    console.error("Mark order received error:", error);
     return {
       success: false,
       message: errorMessage,

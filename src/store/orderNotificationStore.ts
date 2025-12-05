@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface PendingOrder {
   id_data: string;
@@ -7,7 +7,7 @@ export interface PendingOrder {
   total: number;
   created_at: string;
   batas_pembayaran: string;
-  status: 'pending' | 'paid' | 'expired';
+  status: "pending" | "paid" | "expired";
   products: Array<{
     nama_produk: string;
     qty: number;
@@ -23,6 +23,7 @@ interface OrderNotificationState {
   addPendingOrder: (order: PendingOrder) => void;
   removePendingOrder: (id_data: string) => void;
   markOrderAsPaid: (id_data: string) => void;
+  markOrderAsCancelled: (id_data: string) => void;
   clearExpiredOrders: () => void;
   getPendingOrderById: (id_data: string) => PendingOrder | undefined;
   clearAllOrders: () => void;
@@ -39,13 +40,13 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
         set((state) => {
           // Check if order already exists
           const exists = state.pendingOrders.some(
-            (o) => o.id_data === order.id_data
+            (o) => o.id_data === order.id_data,
           );
 
           if (exists) {
             return {
               pendingOrders: state.pendingOrders.map((o) =>
-                o.id_data === order.id_data ? order : o
+                o.id_data === order.id_data ? order : o,
               ),
             };
           }
@@ -54,7 +55,7 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
           const newOrders = [order, ...state.pendingOrders];
           return {
             pendingOrders: newOrders,
-            unreadCount: newOrders.filter(o => o.status === 'pending').length,
+            unreadCount: newOrders.filter((o) => o.status === "pending").length,
           };
         });
       },
@@ -62,11 +63,11 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
       removePendingOrder: (id_data) => {
         set((state) => {
           const newOrders = state.pendingOrders.filter(
-            (o) => o.id_data !== id_data
+            (o) => o.id_data !== id_data,
           );
           return {
             pendingOrders: newOrders,
-            unreadCount: newOrders.filter(o => o.status === 'pending').length,
+            unreadCount: newOrders.filter((o) => o.status === "pending").length,
           };
         });
       },
@@ -75,12 +76,25 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
         set((state) => {
           const newOrders = state.pendingOrders.map((order) =>
             order.id_data === id_data
-              ? { ...order, status: 'paid' as const }
-              : order
+              ? { ...order, status: "paid" as const }
+              : order,
           );
           return {
             pendingOrders: newOrders,
-            unreadCount: newOrders.filter(o => o.status === 'pending').length,
+            unreadCount: newOrders.filter((o) => o.status === "pending").length,
+          };
+        });
+      },
+
+      markOrderAsCancelled: (id_data) => {
+        set((state) => {
+          // Remove cancelled orders from notifications completely
+          const newOrders = state.pendingOrders.filter(
+            (order) => order.id_data !== id_data,
+          );
+          return {
+            pendingOrders: newOrders,
+            unreadCount: newOrders.filter((o) => o.status === "pending").length,
           };
         });
       },
@@ -90,12 +104,12 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
           const now = new Date().getTime();
           const newOrders = state.pendingOrders.filter((order) => {
             const deadline = new Date(order.batas_pembayaran).getTime();
-            return deadline > now && order.status !== 'expired';
+            return deadline > now && order.status !== "expired";
           });
 
           return {
             pendingOrders: newOrders,
-            unreadCount: newOrders.filter(o => o.status === 'pending').length,
+            unreadCount: newOrders.filter((o) => o.status === "pending").length,
           };
         });
       },
@@ -110,16 +124,17 @@ export const useOrderNotificationStore = create<OrderNotificationState>()(
 
       updateUnreadCount: () => {
         set((state) => ({
-          unreadCount: state.pendingOrders.filter(o => o.status === 'pending').length,
+          unreadCount: state.pendingOrders.filter((o) => o.status === "pending")
+            .length,
         }));
       },
     }),
     {
-      name: 'order-notifications',
+      name: "order-notifications",
       partialize: (state) => ({
         pendingOrders: state.pendingOrders,
         unreadCount: state.unreadCount,
       }),
-    }
-  )
+    },
+  ),
 );

@@ -453,3 +453,149 @@ export function calculateItemTotal(item: CartItem): number {
   const finalPrice = price - (price * discount) / 100;
   return finalPrice * item.qty;
 }
+
+// Complain Types
+export interface CreateComplainData {
+  invoice: string;
+  id_produk: number;
+  jenis_komplain: "barang" | "pengiriman" | "lainnya";
+  judul_komplain: string;
+  komplain: string;
+  solusi: "refund" | "change" | "other";
+  gambar1?: File;
+  gambar2?: File;
+  gambar3?: File;
+  video?: File;
+}
+
+export interface ComplainData {
+  id: number;
+  invoice: string;
+  id_produk: number;
+  id_customer: number;
+  id_toko: number;
+  jenis_komplain: string;
+  judul_komplain: string;
+  komplain: string;
+  gambar1: string | null;
+  gambar2: string | null;
+  gambar3: string | null;
+  video: string | null;
+  solusi: string;
+  status: string;
+  created_date: string;
+  last_update: string;
+}
+
+export interface CreateComplainResponse {
+  success: boolean;
+  message: string;
+  data?: ComplainData;
+}
+
+// Product Transaction Detail Types
+export interface ProductTransactionDetail {
+  id_detail: number;
+  id_data: number;
+  id_flashsale: number | null;
+  id_lelang: number | null;
+  order_id: string;
+  invoice: string;
+  nama_produk: string;
+  qty: string;
+  berat: number;
+  harga_aktif: string;
+  harga_awal: string;
+  total: number;
+  koin: number;
+  ongkir: number;
+  expedisi: string;
+  etd: string | null;
+  waktu_kirim: string;
+  tgl_kirim: string | null;
+  deskripsi: string | null;
+  nama_toko: string;
+  logo_toko: string | null;
+  status_pickup: string | null;
+  status_pengiriman: string | null;
+  sub_total: string;
+  foto_produk: string | null;
+  id_produk: number;
+  id_kategori: number;
+  id_variasi: number | null;
+  id_toko: number;
+  file_ebook: string | null;
+  cetak_label: string;
+  date_time_cetak_label: string | null;
+  date_time_pengiriman: string | null;
+  date_time_terima_expired: string | null;
+  sudah_kirim: string;
+  pesanan_diterima: string | null;
+  date_time_pesanan_diterima: string | null;
+  status_pesanan: string;
+  id_customer: number | null;
+  id_voucher_toko: number | null;
+  id_package_toko: number | null;
+  catatan_package_toko: string | null;
+  pesan_customer_toko: string | null;
+  greeting_card_gift: string | null;
+  notifikasi_admin: string;
+  notifikasi_seller: string;
+  notifikasi_buyer: string;
+  produk_batal: string;
+  created_at: string;
+  updated_at: string;
+  transaksi: {
+    invoice: string;
+    created_date: string;
+    id_status: number;
+    statusTransaksi: {
+      name_status: string;
+      color: string;
+    };
+  };
+  produk: {
+    id_produk: number;
+    nama_produk: string;
+    slug_produk: string;
+    deskripsi: string;
+    harga: number;
+    stok: number;
+    covers: Array<{
+      foto: string;
+    }>;
+  };
+  qty_dibeli: string;
+  harga_saat_beli: string;
+  subtotal: number;
+  variasi_text: string | null;
+  history_komplain: ComplainData[];
+  rating_saya: {
+    rating_id: number;
+    rating: number;
+    comment: string;
+    foto_depan: string | null;
+    foto_belakang: string | null;
+    foto_kanan: string | null;
+    foto_kiri: string | null;
+    video: string | null;
+    date_created: string;
+  } | null;
+}
+
+export interface ProductTransactionDetailResponse {
+  success: boolean;
+  message?: string;
+  data?: ProductTransactionDetail;
+}
+
+// Cancel & Received Order Types
+export interface CancelOrderResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ReceivedOrderResponse {
+  success: boolean;
+  message: string;
+}

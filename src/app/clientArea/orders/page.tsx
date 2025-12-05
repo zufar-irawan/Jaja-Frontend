@@ -15,9 +15,15 @@ import {
   Ban,
   MapPin,
   Star,
+  AlertTriangle,
 } from "lucide-react";
-import { getAllTransactions } from "@/utils/checkoutActions";
+import {
+  getAllTransactions,
+  getProductTransactionDetail,
+} from "@/utils/checkoutActions";
 import ReviewProductModal from "./ReviewProductModal";
+import ComplainModal from "./ComplainModal";
+import { useOrderNotificationStore } from "@/store/orderNotificationStore";
 
 type OrderTab = "unpaid" | "processing" | "completed";
 type TransactionData = {
@@ -30,6 +36,7 @@ type TransactionData = {
   batas_pembayaran: string;
   resi_pengiriman?: string | null;
   kurir?: string | null;
+  id_status?: number;
   details: Array<{
     id_detail: number;
     id_produk: number;
@@ -48,15 +55,35 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [complainModalOpen, setComplainModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{
     productId: number;
     transactionId: number;
     productName: string;
     productImage?: string;
+    invoice?: string;
   } | null>(null);
+  const [productDetails, setProductDetails] = useState<{
+    [key: string]: {
+      id_status: number;
+      hasComplain: boolean;
+      hasRating: boolean;
+    };
+  }>({});
+
+  // Get notification store functions
+  const clearExpiredOrders = useOrderNotificationStore(
+    (state) => state.clearExpiredOrders,
+  );
+  const markOrderAsCancelled = useOrderNotificationStore(
+    (state) => state.markOrderAsCancelled,
+  );
 
   useEffect(() => {
     fetchOrders();
+    // Clear expired orders from notifications on mount
+    clearExpiredOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchOrders = async () => {
@@ -83,6 +110,23 @@ export default function OrdersPage() {
         });
 
         setOrders(ordersData);
+
+        // Clean up notifications for cancelled/expired orders
+        ordersData.forEach((order) => {
+          const statusLower = order.status_transaksi?.toLowerCase() || "";
+          const isCancelled =
+            statusLower.includes("batal") ||
+            statusLower.includes("cancel") ||
+            statusLower.includes("ditolak") ||
+            statusLower.includes("tolak");
+          const isExpiredOrder =
+            order.batas_pembayaran && isExpired(order.batas_pembayaran);
+
+          // Remove from notifications if cancelled or expired
+          if (isCancelled || isExpiredOrder) {
+            markOrderAsCancelled(order.id_data.toString());
+          }
+        });
       } else {
         setError("Gagal memuat pesanan");
       }
@@ -92,6 +136,37 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchProductDetail = async (idData: number, idProduk: number) => {
+    const key = `${idData}-${idProduk}`;
+
+    if (productDetails[key]) {
+      return productDetails[key];
+    }
+
+    try {
+      const response = await getProductTransactionDetail(idData, idProduk);
+
+      if (response.success && response.data) {
+        const detail = {
+          id_status: response.data.transaksi.id_status,
+          hasComplain: response.data.history_komplain.length > 0,
+          hasRating: response.data.rating_saya !== null,
+        };
+
+        setProductDetails((prev) => ({
+          ...prev,
+          [key]: detail,
+        }));
+
+        return detail;
+      }
+    } catch (error) {
+      console.error("Error fetching product detail:", error);
+    }
+
+    return null;
   };
 
   const formatCurrency = (amount: string | number) => {
@@ -105,24 +180,28 @@ export default function OrdersPage() {
     }).format(numAmount);
   };
 
-  const formatDate = (dateString: string, timeString?: string) => {
+  const formatDate = (date: string, time?: string) => {
     try {
-      let date;
-      if (timeString) {
-        date = new Date(`${dateString} ${timeString}`);
+      let dateObj;
+      if (time) {
+        dateObj = new Date(`${date} ${time}`);
       } else {
-        date = new Date(dateString);
+        dateObj = new Date(date);
       }
 
-      return date.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      if (isNaN(dateObj.getTime())) {
+        return date;
+      }
+
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const year = dateObj.getFullYear();
+      const hour = String(dateObj.getHours()).padStart(2, "0");
+      const minute = String(dateObj.getMinutes()).padStart(2, "0");
+
+      return `${day}/${month}/${year} ${hour}:${minute}`;
     } catch {
-      return dateString;
+      return date;
     }
   };
 
@@ -139,88 +218,85 @@ export default function OrdersPage() {
       const hours = Math.floor(distance / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
 
-      if (hours > 0) {
-        return `${hours} jam ${minutes} menit`;
-      }
-      return `${minutes} menit`;
+      return `${hours}j ${minutes}m`;
     } catch {
-      return "Invalid date";
+      return "";
     }
   };
 
   const isExpired = (deadline: string) => {
     try {
-      return new Date(deadline).getTime() < new Date().getTime();
+      const now = new Date().getTime();
+      const deadlineTime = new Date(deadline).getTime();
+      return now > deadlineTime;
     } catch {
       return false;
     }
   };
 
   const getOrdersByStatus = (status: OrderTab) => {
-    switch (status) {
-      case "unpaid":
-        return orders.filter((o) => {
-          const statusLower = o.status_transaksi?.toLowerCase() || "";
-          const isCancelled =
-            statusLower.includes("batal") ||
-            statusLower.includes("cancel") ||
-            statusLower.includes("rejected");
+    if (status === "unpaid") {
+      return orders.filter((order) => {
+        const statusLower = order.status_transaksi?.toLowerCase() || "";
+        const isCancelled =
+          statusLower.includes("batal") || statusLower.includes("cancel");
+        const isExpiredOrder = isExpired(order.batas_pembayaran);
 
-          if (isCancelled) return false;
+        // Hide cancelled and expired orders
+        if (isCancelled || isExpiredOrder) return false;
 
-          const isUnpaid =
-            statusLower.includes("menunggu") ||
-            statusLower.includes("pending") ||
-            statusLower.includes("belum bayar") ||
-            statusLower === "unpaid";
-
-          return isUnpaid && !isExpired(o.batas_pembayaran);
-        });
-
-      case "processing":
-        return orders.filter((o) => {
-          const statusLower = o.status_transaksi?.toLowerCase() || "";
-
-          const isCancelled =
-            statusLower.includes("batal") ||
-            statusLower.includes("cancel") ||
-            statusLower.includes("rejected");
-          if (isCancelled) return false;
-
-          return (
-            statusLower === "paid" ||
-            statusLower.includes("diproses") ||
-            statusLower.includes("dikemas") ||
-            statusLower.includes("dikirim") ||
-            statusLower.includes("processing") ||
-            statusLower.includes("shipped") ||
-            statusLower.includes("delivery")
-          );
-        });
-
-      case "completed":
-        return orders.filter((o) => {
-          const statusLower = o.status_transaksi?.toLowerCase() || "";
-
-          // Jangan tampilkan order yang dibatalkan
-          const isCancelled =
-            statusLower.includes("batal") ||
-            statusLower.includes("cancel") ||
-            statusLower.includes("rejected");
-          if (isCancelled) return false;
-
-          return (
-            statusLower.includes("selesai") ||
-            statusLower.includes("completed") ||
-            statusLower.includes("diterima") ||
-            statusLower.includes("delivered") ||
-            statusLower.includes("received")
-          );
-        });
-
-      default:
-        return [];
+        return (
+          statusLower.includes("menunggu") ||
+          statusLower.includes("pending") ||
+          statusLower.includes("belum bayar") ||
+          statusLower.includes("booked")
+        );
+      });
     }
+
+    if (status === "processing") {
+      return orders.filter((order) => {
+        const statusLower = order.status_transaksi?.toLowerCase() || "";
+
+        const isCancelled =
+          statusLower.includes("batal") ||
+          statusLower.includes("cancel") ||
+          statusLower.includes("tolak");
+
+        if (isCancelled) return false;
+
+        return (
+          statusLower.includes("paid") ||
+          statusLower.includes("diproses") ||
+          statusLower.includes("dikemas") ||
+          statusLower.includes("dikirim") ||
+          statusLower.includes("diapkan") ||
+          statusLower.includes("diapkan") ||
+          statusLower.includes("shipped") ||
+          statusLower.includes("delivery")
+        );
+      });
+    }
+
+    if (status === "completed") {
+      return orders.filter((order) => {
+        const statusLower = order.status_transaksi?.toLowerCase() || "";
+
+        const isCancelled =
+          statusLower.includes("batal") ||
+          statusLower.includes("cancel") ||
+          statusLower.includes("tolak");
+
+        return (
+          statusLower.includes("selesai") ||
+          statusLower.includes("completed") ||
+          statusLower.includes("diterima") ||
+          isCancelled
+        );
+      });
+    }
+
+    return [];
   };
 
   const currentOrders = getOrdersByStatus(tab);
@@ -237,24 +313,79 @@ export default function OrdersPage() {
     router.push(`/clientArea/tracking/${resi}`);
   };
 
-  const handleReviewClick = (
+  const handleReviewClick = async (
     e: React.MouseEvent,
     productId: number,
     transactionId: number,
     productName: string,
+    invoice: string,
     productImage?: string,
   ) => {
     e.stopPropagation();
+
+    // Check if already reviewed
+    const detail = await fetchProductDetail(transactionId, productId);
+
+    if (detail?.hasRating) {
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        icon: "info",
+        title: "Sudah Direview",
+        text: "Anda sudah memberikan review untuk produk ini",
+        confirmButtonColor: "#55B4E5",
+      });
+      return;
+    }
+
     setSelectedProduct({
       productId,
       transactionId,
       productName,
       productImage,
+      invoice,
     });
     setReviewModalOpen(true);
   };
 
+  const handleComplainClick = async (
+    e: React.MouseEvent,
+    productId: number,
+    transactionId: number,
+    productName: string,
+    invoice: string,
+    productImage?: string,
+  ) => {
+    e.stopPropagation();
+
+    // Check if already complained
+    const detail = await fetchProductDetail(transactionId, productId);
+
+    if (detail?.hasComplain) {
+      const Swal = (await import("sweetalert2")).default;
+      Swal.fire({
+        icon: "info",
+        title: "Komplain Sudah Ada",
+        text: "Anda sudah membuat komplain untuk produk ini",
+        confirmButtonColor: "#55B4E5",
+      });
+      return;
+    }
+
+    setSelectedProduct({
+      productId,
+      transactionId,
+      productName,
+      productImage,
+      invoice,
+    });
+    setComplainModalOpen(true);
+  };
+
   const handleReviewSuccess = () => {
+    fetchOrders();
+  };
+
+  const handleComplainSuccess = () => {
     fetchOrders();
   };
 
@@ -348,29 +479,41 @@ export default function OrdersPage() {
     };
   };
 
+  const canShowComplainButton = (order: TransactionData) => {
+    // Komplain bisa dibuat jika id_status = 7 (Dikirim)
+    return order.id_status === 7;
+  };
+
+  const canShowReviewButton = (order: TransactionData) => {
+    // Rating bisa dibuat jika id_status = 9 (Selesai)
+    return order.id_status === 9;
+  };
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 w-full">
-        <Loader2 className="w-12 h-12 text-[#55B4E5] animate-spin mb-4" />
-        <p className="text-gray-600 font-medium">Memuat pesanan...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-[#55B4E5] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Memuat pesanan...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col gap-6 w-full">
-        <h1 className="text-3xl font-bold text-gray-800">Pesanan Kamu</h1>
-        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-4">
-            <XCircle className="w-12 h-12 text-red-500" />
-          </div>
-          <p className="text-gray-600 font-semibold text-lg mb-2">{error}</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Gagal Memuat Pesanan
+          </h2>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={fetchOrders}
-            className="mt-4 flex items-center gap-2 px-4 py-2 bg-[#55B4E5] text-white rounded-lg hover:bg-[#55B4E5]/90 transition-colors"
+            className="px-6 py-3 bg-[#55B4E5] text-white rounded-lg hover:bg-[#55B4E5]/90 transition-colors flex items-center gap-2 mx-auto"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-5 h-5" />
             Coba Lagi
           </button>
         </div>
@@ -379,20 +522,16 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-800">Pesanan Kamu</h1>
-        <button
-          onClick={fetchOrders}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-[#55B4E5] hover:bg-[#55B4E5]/10 rounded-lg transition-colors"
-          title="Refresh"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Refresh
-        </button>
+    <div className="flex flex-col w-full">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          Pesanan Saya
+        </h1>
+        <p className="text-gray-600">Kelola dan lacak pesanan Anda di sini</p>
       </div>
 
-      <div className="flex space-x-2 md:space-x-4 border-b border-gray-200 overflow-x-auto pb-0">
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
         <button
           className={`pb-3 px-3 md:px-4 border-b-2 font-medium whitespace-nowrap transition-colors ${
             tab === "unpaid"
@@ -466,6 +605,8 @@ export default function OrdersPage() {
               tab === "unpaid" ? isExpired(order.batas_pembayaran) : false;
             const statusBadge = getStatusBadge(order.status_transaksi, expired);
             const hasTracking = order.resi_pengiriman && order.kurir;
+            const showComplainButton = canShowComplainButton(order);
+            const showReviewButton = canShowReviewButton(order);
 
             return (
               <div
@@ -552,23 +693,46 @@ export default function OrdersPage() {
                             </p>
                           )}
                         </div>
-                        {tab === "completed" && (
-                          <button
-                            onClick={(e) =>
-                              handleReviewClick(
-                                e,
-                                detail.id_produk,
-                                order.id_data,
-                                detail.nama_produk,
-                                detail.foto_produk,
-                              )
-                            }
-                            className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-[#FBB338] to-[#FBB338]/90 text-white text-xs font-semibold rounded-lg hover:from-[#FBB338]/90 hover:to-[#FBB338] transition-all shadow-sm hover:shadow-md"
-                          >
-                            <Star className="w-3.5 h-3.5" />
-                            Review
-                          </button>
-                        )}
+                        <div className="flex flex-col gap-2">
+                          {/* Tombol Komplain - tampil jika id_status = 7 */}
+                          {showComplainButton && (
+                            <button
+                              onClick={(e) =>
+                                handleComplainClick(
+                                  e,
+                                  detail.id_produk,
+                                  order.id_data,
+                                  detail.nama_produk,
+                                  order.invoice,
+                                  detail.foto_produk,
+                                )
+                              }
+                              className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-sm hover:shadow-md"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                              Komplain
+                            </button>
+                          )}
+                          {/* Tombol Review - tampil jika id_status = 9 */}
+                          {showReviewButton && (
+                            <button
+                              onClick={(e) =>
+                                handleReviewClick(
+                                  e,
+                                  detail.id_produk,
+                                  order.id_data,
+                                  detail.nama_produk,
+                                  order.invoice,
+                                  detail.foto_produk,
+                                )
+                              }
+                              className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-[#FBB338] to-[#FBB338]/90 text-white text-xs font-semibold rounded-lg hover:from-[#FBB338]/90 hover:to-[#FBB338] transition-all shadow-sm hover:shadow-md"
+                            >
+                              <Star className="w-3.5 h-3.5" />
+                              Review
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   {order.details && order.details.length > 2 && (
@@ -644,6 +808,22 @@ export default function OrdersPage() {
           productName={selectedProduct.productName}
           productImage={selectedProduct.productImage}
           onSuccess={handleReviewSuccess}
+        />
+      )}
+
+      {/* Complain Modal */}
+      {selectedProduct && (
+        <ComplainModal
+          isOpen={complainModalOpen}
+          onClose={() => {
+            setComplainModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.productId}
+          productName={selectedProduct.productName}
+          invoice={selectedProduct.invoice || ""}
+          productImage={selectedProduct.productImage}
+          onSuccess={handleComplainSuccess}
         />
       )}
     </div>
