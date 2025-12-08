@@ -17,8 +17,8 @@ export default async function Home() {
   const [landingData, featuredProducts, recommendedProducts] =
     await Promise.all([
       getLanding(),
-      getFeaturedProducts(6),
-      getRecommendedProducts(100),
+      getFeaturedProducts(6).catch(() => []),
+      getRecommendedProducts(100).catch(() => []),
     ]);
 
   const heroBanners = landingData?.data?.banners ?? [];
@@ -138,7 +138,7 @@ export default async function Home() {
         </header>
 
         <div className="flex flex-row gap-x-3 overflow-x-auto sm:gap-x-4">
-          {featuredProducts.map((product) => (
+          {(featuredProducts ?? []).map((product) => (
             <div
               key={`top-${product.id_produk}`}
               className="min-w-[180px] sm:min-w-[200px]"
