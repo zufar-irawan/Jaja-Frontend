@@ -37,5 +37,5 @@ export const formatCurrency = (
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(number).replace(/\s/g, ' '); // Ensure non-breaking space is a regular space
+  }).format(number).replace(/\s/g, ' ');
 };

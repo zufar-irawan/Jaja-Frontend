@@ -71,8 +71,6 @@ export default function JajaNavbar() {
     number[]
   >([]);
   const [hasStore, setHasStore] = useState<boolean | null>(null);
-
-  // Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
@@ -83,7 +81,6 @@ export default function JajaNavbar() {
     totalProducts: 0,
   });
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-
   const searchRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -866,7 +863,7 @@ export default function JajaNavbar() {
                               (category: SearchCategory) => (
                                 <a
                                   key={category.id_kategori}
-                                  href={`/category/${category.slug_kategori}`}
+                                  href={`/Category/${category.slug_kategori}`}
                                   className="flex items-center gap-3 px-5 py-3 hover:bg-purple-50 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-purple-500"
                                   onClick={() => setIsSearchOpen(false)}
                                 >

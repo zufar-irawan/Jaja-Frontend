@@ -89,14 +89,12 @@ export function transformRatingsToReviews(ratings: Rating[]): Review[] {
   return ratings.map((rating) => {
     const images: string[] = [];
 
-    // Add images if they exist
     if (rating.foto_depan) images.push(`${imageBaseUrl}${rating.foto_depan}`);
     if (rating.foto_belakang)
       images.push(`${imageBaseUrl}${rating.foto_belakang}`);
     if (rating.foto_kanan) images.push(`${imageBaseUrl}${rating.foto_kanan}`);
     if (rating.foto_kiri) images.push(`${imageBaseUrl}${rating.foto_kiri}`);
 
-    // Format date
     const date = new Date(rating.date_created);
     const formattedDate = date.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -105,11 +103,11 @@ export function transformRatingsToReviews(ratings: Rating[]): Review[] {
     });
 
     return {
-      name: `Customer #${rating.id_customer}`,
+      name: getCustomerDisplayName(rating.id_customer, false),
       date: formattedDate,
       rating: rating.rating,
       comment: rating.comment,
-      likes: 0, // You can add likes count from API if available
+      likes: 0,
       images: images.length > 0 ? images : undefined,
       invoice: rating.invoice,
     };
@@ -139,15 +137,13 @@ export function formatRatingDate(dateString: string): string {
   }
 }
 
-// Helper function to get rating color based on value
 export function getRatingColor(rating: number): string {
-  if (rating >= 4.5) return "#10b981"; // green
-  if (rating >= 3.5) return "#3b82f6"; // blue
-  if (rating >= 2.5) return "#f59e0b"; // yellow
-  return "#ef4444"; // red
+  if (rating >= 4.5) return "#10b981"; 
+  if (rating >= 3.5) return "#3b82f6"; 
+  if (rating >= 2.5) return "#f59e0b"; 
+  return "#ef4444"; 
 }
 
-// Helper function to get rating label
 export function getRatingLabel(rating: number): string {
   if (rating >= 4.5) return "Sangat Baik";
   if (rating >= 3.5) return "Baik";

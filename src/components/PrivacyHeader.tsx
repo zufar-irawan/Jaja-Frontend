@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 const PrivacyHeader: React.FC = () => {
   const styles = {
@@ -30,16 +31,22 @@ const PrivacyHeader: React.FC = () => {
       objectFit: 'contain' as const,
     },
   };
+  const router = useRouter();
 
   return (
     <header style={styles.privacyHeader}>
       <div style={styles.privacyHeaderContent}>
         <div style={styles.logoSection}>
+          <div
+            className="flex items-center space-x-3 cursor-pointer group"
+            onClick={() => router.push("/")}
+          >
           <img 
             src="/images/logo.webp" 
             alt="Jaja.id Logo" 
             style={styles.privacyLogo}
           />
+          </div>
         </div>
       </div>
     </header>

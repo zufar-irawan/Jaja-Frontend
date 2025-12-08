@@ -48,7 +48,6 @@ export default function OrderNotificationDropdown() {
       return "Rp 0";
     }
 
-    // Validasi jika NaN
     if (isNaN(numAmount)) {
       console.warn("Invalid amount for currency formatting:", amount);
       return "Rp 0";
