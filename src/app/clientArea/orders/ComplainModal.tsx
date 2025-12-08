@@ -242,7 +242,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
       {/* Modal Content */}
       <div className="relative z-10 flex w-full flex-col bg-white rounded-none shadow-none sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:max-h-[90vh]">
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-6 sm:py-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+        <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-6 sm:py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
           <div>
             <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Buat Komplain</h2>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Invoice: {invoice}</p>
@@ -301,7 +301,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
                     }
                     className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       jenisKomplain === option.value
-                        ? "border-red-500 bg-red-50 text-red-700"
+                        ? "border-[#55B4E5] bg-blue-50 text-blue-700"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
@@ -325,7 +325,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
                 value={judulKomplain}
                 onChange={(e) => setJudulKomplain(e.target.value)}
                 placeholder="Contoh: Barang Rusak & Tidak Bisa Nyala"
-                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent"
                 disabled={isSubmitting}
                 maxLength={100}
               />
@@ -348,7 +348,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
                 onChange={(e) => setKomplain(e.target.value)}
                 placeholder="Jelaskan detail masalah yang Anda alami..."
                 rows={5}
-                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#55B4E5] focus:border-transparent resize-none"
                 disabled={isSubmitting}
                 maxLength={500}
               />
@@ -376,7 +376,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
                     }
                     className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       solusi === option.value
-                        ? "border-red-500 bg-red-50 text-red-700"
+                        ? "border-[#55B4E5] bg-blue-50 text-blue-700"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
@@ -572,7 +572,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
+            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 rounded-lg hover:from-[#55B4E5]/90 hover:to-[#55B4E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
           >
             {isSubmitting ? (
               <>
