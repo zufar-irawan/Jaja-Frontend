@@ -232,347 +232,361 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-20 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/50 sm:backdrop-blur-sm">
+      {/* Backdrop (desktop only) */}
+      <div 
+        className="absolute inset-0 hidden sm:block" 
+        onClick={onClose}
+      ></div>
+
+      {/* Modal Content */}
+      <div className="relative z-10 flex w-full flex-col bg-white rounded-none shadow-none sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:max-h-[90vh]">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
+        <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-6 sm:py-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Buat Komplain</h2>
-            <p className="text-sm text-gray-500 mt-1">Invoice: {invoice}</p>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Buat Komplain</h2>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">Invoice: {invoice}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-white/80 rounded-full transition-colors"
             disabled={isSubmitting}
           >
-            <X className="w-6 h-6 text-gray-500" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
           </button>
         </div>
 
         {/* Product Info */}
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
+        <div className="shrink-0 p-4 sm:p-6 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            {productImage && (
+            {productImage ? (
               <img
                 src={productImage}
                 alt={productName}
-                className="w-16 h-16 object-cover rounded-lg"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-gray-200"
               />
+            ) : (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+              </div>
             )}
-            <div>
-              <p className="font-medium text-gray-900">{productName}</p>
-              <p className="text-sm text-gray-500">ID Produk: {productId}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm sm:text-base text-gray-900 line-clamp-2">{productName}</p>
+              <p className="text-xs sm:text-sm text-gray-500">ID Produk: {productId}</p>
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Jenis Komplain */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Jenis Komplain <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "barang", label: "Masalah Barang" },
-                { value: "pengiriman", label: "Masalah Pengiriman" },
-                { value: "lainnya", label: "Lainnya" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() =>
-                    setJenisKomplain(
-                      option.value as "barang" | "pengiriman" | "lainnya",
-                    )
-                  }
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    jenisKomplain === option.value
-                      ? "border-red-500 bg-red-50 text-red-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <span className="font-medium text-sm">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Judul Komplain */}
-          <div>
-            <label
-              htmlFor="judulKomplain"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Judul Komplain <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="judulKomplain"
-              value={judulKomplain}
-              onChange={(e) => setJudulKomplain(e.target.value)}
-              placeholder="Contoh: Barang Rusak & Tidak Bisa Nyala"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              disabled={isSubmitting}
-              maxLength={100}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {judulKomplain.length}/100 karakter
-            </p>
-          </div>
-
-          {/* Deskripsi Komplain */}
-          <div>
-            <label
-              htmlFor="komplain"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Deskripsi Komplain <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="komplain"
-              value={komplain}
-              onChange={(e) => setKomplain(e.target.value)}
-              placeholder="Jelaskan detail masalah yang Anda alami..."
-              rows={5}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-              disabled={isSubmitting}
-              maxLength={500}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {komplain.length}/500 karakter
-            </p>
-          </div>
-
-          {/* Solusi yang Diinginkan */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Solusi yang Diinginkan <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { value: "refund", label: "Pengembalian Dana" },
-                { value: "change", label: "Tukar Barang" },
-                { value: "other", label: "Lainnya" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() =>
-                    setSolusi(option.value as "refund" | "change" | "other")
-                  }
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    solusi === option.value
-                      ? "border-red-500 bg-red-50 text-red-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <span className="font-medium text-sm">{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Upload Bukti */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Bukti <span className="text-red-500">*</span>
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              Upload foto/video bukti (minimal 1 foto). Maks 5MB per gambar,
-              10MB untuk video
-            </p>
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Gambar 1 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  Gambar 1 <span className="text-red-500">*</span>
-                </label>
-                {previewGambar1 ? (
-                  <div className="relative">
-                    <img
-                      src={previewGambar1}
-                      alt="Preview 1"
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFile("gambar1")}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-xs text-gray-500">Upload Gambar</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "gambar1")}
-                      className="hidden"
-                      disabled={isSubmitting}
-                    />
-                  </label>
-                )}
-              </div>
-
-              {/* Gambar 2 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  Gambar 2
-                </label>
-                {previewGambar2 ? (
-                  <div className="relative">
-                    <img
-                      src={previewGambar2}
-                      alt="Preview 2"
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFile("gambar2")}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-xs text-gray-500">Upload Gambar</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "gambar2")}
-                      className="hidden"
-                      disabled={isSubmitting}
-                    />
-                  </label>
-                )}
-              </div>
-
-              {/* Gambar 3 */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  Gambar 3
-                </label>
-                {previewGambar3 ? (
-                  <div className="relative">
-                    <img
-                      src={previewGambar3}
-                      alt="Preview 3"
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFile("gambar3")}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-xs text-gray-500">Upload Gambar</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "gambar3")}
-                      className="hidden"
-                      disabled={isSubmitting}
-                    />
-                  </label>
-                )}
-              </div>
-
-              {/* Video */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-2">
-                  Video (Opsional)
-                </label>
-                {previewVideo ? (
-                  <div className="relative">
-                    <video
-                      src={previewVideo}
-                      className="w-full h-32 object-cover rounded-lg"
-                      controls
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFile("video")}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <Video className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-xs text-gray-500">Upload Video</span>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => handleFileChange(e, "video")}
-                      className="hidden"
-                      disabled={isSubmitting}
-                    />
-                  </label>
-                )}
+        {/* Form - Scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <form onSubmit={handleSubmit} className="px-4 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
+            {/* Jenis Komplain */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                Jenis Komplain <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {[
+                  { value: "barang", label: "Masalah Barang" },
+                  { value: "pengiriman", label: "Masalah Pengiriman" },
+                  { value: "lainnya", label: "Lainnya" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() =>
+                      setJenisKomplain(
+                        option.value as "barang" | "pengiriman" | "lainnya",
+                      )
+                    }
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
+                      jenisKomplain === option.value
+                        ? "border-red-500 bg-red-50 text-red-700"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="font-medium text-xs sm:text-sm">{option.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Info Box */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
-            <div className="text-sm text-yellow-800">
-              <p className="font-medium mb-1">Perhatian:</p>
-              <ul className="list-disc list-inside space-y-1 text-xs">
-                <li>Pastikan bukti yang Anda upload jelas dan sesuai</li>
-                <li>Komplain akan diproses maksimal 2x24 jam</li>
-                <li>Anda akan mendapat notifikasi tentang status komplain</li>
-              </ul>
+            {/* Judul Komplain */}
+            <div>
+              <label
+                htmlFor="judulKomplain"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
+              >
+                Judul Komplain <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="judulKomplain"
+                value={judulKomplain}
+                onChange={(e) => setJudulKomplain(e.target.value)}
+                placeholder="Contoh: Barang Rusak & Tidak Bisa Nyala"
+                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                disabled={isSubmitting}
+                maxLength={100}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {judulKomplain.length}/100 karakter
+              </p>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Mengirim...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Kirim Komplain</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+            {/* Deskripsi Komplain */}
+            <div>
+              <label
+                htmlFor="komplain"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-2"
+              >
+                Deskripsi Komplain <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="komplain"
+                value={komplain}
+                onChange={(e) => setKomplain(e.target.value)}
+                placeholder="Jelaskan detail masalah yang Anda alami..."
+                rows={5}
+                className="w-full px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                disabled={isSubmitting}
+                maxLength={500}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {komplain.length}/500 karakter
+              </p>
+            </div>
+
+            {/* Solusi yang Diinginkan */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                Solusi yang Diinginkan <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {[
+                  { value: "refund", label: "Pengembalian Dana" },
+                  { value: "change", label: "Tukar Barang" },
+                  { value: "other", label: "Lainnya" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() =>
+                      setSolusi(option.value as "refund" | "change" | "other")
+                    }
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
+                      solusi === option.value
+                        ? "border-red-500 bg-red-50 text-red-700"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="font-medium text-xs sm:text-sm">{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Upload Bukti */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                Upload Bukti <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Upload foto/video bukti (minimal 1 foto). Maks 5MB per gambar,
+                10MB untuk video
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Gambar 1 */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Gambar 1 <span className="text-red-500">*</span>
+                  </label>
+                  {previewGambar1 ? (
+                    <div className="relative group">
+                      <img
+                        src={previewGambar1}
+                        alt="Preview 1"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile("gambar1")}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
+                      <span className="text-xs text-gray-500">Upload Gambar</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "gambar1")}
+                        className="hidden"
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Gambar 2 */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Gambar 2
+                  </label>
+                  {previewGambar2 ? (
+                    <div className="relative group">
+                      <img
+                        src={previewGambar2}
+                        alt="Preview 2"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile("gambar2")}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
+                      <span className="text-xs text-gray-500">Upload Gambar</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "gambar2")}
+                        className="hidden"
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Gambar 3 */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Gambar 3
+                  </label>
+                  {previewGambar3 ? (
+                    <div className="relative group">
+                      <img
+                        src={previewGambar3}
+                        alt="Preview 3"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile("gambar3")}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
+                      <span className="text-xs text-gray-500">Upload Gambar</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, "gambar3")}
+                        className="hidden"
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Video */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-2">
+                    Video (Opsional)
+                  </label>
+                  {previewVideo ? (
+                    <div className="relative group">
+                      <video
+                        src={previewVideo}
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
+                        controls
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFile("video")}
+                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <Video className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
+                      <span className="text-xs text-gray-500">Upload Video</span>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleFileChange(e, "video")}
+                        className="hidden"
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 flex gap-2 sm:gap-3">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm text-yellow-800">
+                <p className="font-medium mb-1">Perhatian:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>Pastikan bukti yang Anda upload jelas dan sesuai</li>
+                  <li>Komplain akan diproses maksimal 2x24 jam</li>
+                  <li>Anda akan mendapat notifikasi tentang status komplain</li>
+                </ul>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t border-gray-200 bg-gray-50">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 rounded-lg hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                <span>Mengirim...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>Kirim Komplain</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
