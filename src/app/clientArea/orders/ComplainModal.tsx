@@ -58,7 +58,6 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (max 5MB for images, 10MB for video)
     const maxSize = type === "video" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
       Swal.fire({
@@ -69,7 +68,6 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
       return;
     }
 
-    // Validate file type
     if (type === "video") {
       if (!file.type.startsWith("video/")) {
         Swal.fire({
@@ -242,7 +240,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
       {/* Modal Content */}
       <div className="relative z-10 flex w-full flex-col bg-white rounded-none shadow-none sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:max-h-[90vh]">
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-6 sm:py-6 border-b border-gray-200 bg-linear-to-r from-blue-50 to-indigo-50">
+        <div className="flex shrink-0 items-center justify-between px-4 py-4 sm:px-6 sm:py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div>
             <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Buat Komplain</h2>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Invoice: {invoice}</p>
@@ -572,7 +570,7 @@ const ComplainModal: React.FC<ComplainModalProps> = ({
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 rounded-lg hover:from-[#55B4E5]/90 hover:to-[#55B4E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
+            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 rounded-lg hover:from-[#55B4E5]/90 hover:to-[#55B4E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
           >
             {isSubmitting ? (
               <>

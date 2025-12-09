@@ -242,7 +242,6 @@ export default function OrdersPage() {
           statusLower.includes("batal") || statusLower.includes("cancel");
         const isExpiredOrder = isExpired(order.batas_pembayaran);
 
-        // Hide cancelled and expired orders
         if (isCancelled || isExpiredOrder) return false;
 
         return (
@@ -257,6 +256,11 @@ export default function OrdersPage() {
     if (status === "processing") {
       return orders.filter((order) => {
         const statusLower = order.status_transaksi?.toLowerCase() || "";
+        
+        // Include orders with id_status = 7 (Dikirim/Delivered)
+        if (order.id_status === 7) {
+          return true;
+        }
 
         const isCancelled =
           statusLower.includes("batal") ||
@@ -271,7 +275,6 @@ export default function OrdersPage() {
           statusLower.includes("dikemas") ||
           statusLower.includes("dikirim") ||
           statusLower.includes("diapkan") ||
-          statusLower.includes("diapkan") ||
           statusLower.includes("shipped") ||
           statusLower.includes("delivery")
         );
@@ -281,18 +284,17 @@ export default function OrdersPage() {
     if (status === "completed") {
       return orders.filter((order) => {
         const statusLower = order.status_transaksi?.toLowerCase() || "";
-
         const isCancelled =
           statusLower.includes("batal") ||
           statusLower.includes("cancel") ||
           statusLower.includes("tolak");
 
-        return (
-          statusLower.includes("selesai") ||
-          statusLower.includes("completed") ||
-          statusLower.includes("diterima") ||
-          isCancelled
-        );
+        if (isCancelled) return false;
+        
+        return order.id_status === 9 || 
+               statusLower.includes("selesai") || 
+               statusLower.includes("completed") || 
+               statusLower.includes("diterima");
       });
     }
 

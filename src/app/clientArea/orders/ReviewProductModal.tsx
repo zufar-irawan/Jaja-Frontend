@@ -558,7 +558,7 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
             disabled={
               isSubmitting || rating === 0 || comment.trim().length < 10
             }
-            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#55B4E5] to-[#55B4E5]/90 rounded-lg hover:from-[#55B4E5]/90 hover:to-[#55B4E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
+            className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 rounded-lg hover:from-[#55B4E5]/90 hover:to-[#55B4E5] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg"
           >
             {isSubmitting ? (
               <>
