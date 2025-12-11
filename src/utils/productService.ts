@@ -340,6 +340,75 @@ export async function searchProductsByCategory(
   }
 }
 
+// Autocomplete API Types
+export interface AutocompleteProduct {
+  name: string;
+  slug: string;
+}
+
+export interface AutocompleteStore {
+  name: string;
+  slug: string;
+}
+
+export interface AutocompleteResponse {
+  status: {
+    code: number;
+    message: string;
+  };
+  data: {
+    keyword: string;
+    product: AutocompleteProduct[];
+    store: AutocompleteStore[];
+  };
+}
+
+export interface AutocompleteResults {
+  products: AutocompleteProduct[];
+  stores: AutocompleteStore[];
+  categories: Category[];
+  keyword: string;
+}
+
+// Autocomplete Search Function
+export async function performAutocomplete(
+  query: string,
+): Promise<AutocompleteResults> {
+  try {
+    if (query.length < 1) {
+      return {
+        products: [],
+        stores: [],
+        categories: [],
+        keyword: query,
+      };
+    }
+
+    const response = await api.get<AutocompleteResponse>(
+      `/main/products/autocomplete?q=${encodeURIComponent(query)}`,
+    );
+
+    // Get categories and search for matches
+    const allCategories = await getAllCategories();
+    const matchedCategories = await searchInCategories(allCategories, query);
+
+    return {
+      products: response.data.data.product || [],
+      stores: response.data.data.store || [],
+      categories: matchedCategories.slice(0, 5),
+      keyword: response.data.data.keyword,
+    };
+  } catch (error) {
+    console.error("Error performing autocomplete:", error);
+    return {
+      products: [],
+      stores: [],
+      categories: [],
+      keyword: query,
+    };
+  }
+}
+
 // Review Product Types
 export interface SubmitReviewPayload {
   id_data: number;

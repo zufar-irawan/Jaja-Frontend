@@ -8,9 +8,10 @@ import { logout } from "@/utils/authService";
 import { useCartStore } from "@/store/cartStore";
 import OrderNotificationDropdown from "./OrderNotificationDropdown";
 import {
-  performGlobalSearch,
-  type SearchResults,
-  type Product,
+  performAutocomplete,
+  type AutocompleteResults,
+  type AutocompleteProduct,
+  type AutocompleteStore,
   type Category as SearchCategory,
 } from "@/utils/productService";
 import {
@@ -27,7 +28,6 @@ import {
   Search,
   Store,
   Grid,
-  TrendingUp,
   Loader2,
   Heart,
   Clock,
@@ -74,12 +74,13 @@ export default function JajaNavbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResults>({
-    products: [],
-    stores: [],
-    categories: [],
-    totalProducts: 0,
-  });
+  const [autocompleteResults, setAutocompleteResults] =
+    useState<AutocompleteResults>({
+      products: [],
+      stores: [],
+      categories: [],
+      keyword: "",
+    });
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -113,13 +114,13 @@ export default function JajaNavbar() {
       abortControllerRef.current.abort();
     }
 
-    // Clear results if query is too short
-    if (searchQuery.length < 2) {
-      setSearchResults({
+    // Clear results if query is empty
+    if (searchQuery.length < 1) {
+      setAutocompleteResults({
         products: [],
         stores: [],
         categories: [],
-        totalProducts: 0,
+        keyword: "",
       });
       setIsSearchLoading(false);
       return;
@@ -144,26 +145,32 @@ export default function JajaNavbar() {
   }, [searchQuery]);
 
   const performSearch = async () => {
-    if (searchQuery.length < 2) {
+    if (searchQuery.length < 1) {
       setIsSearchLoading(false);
       return;
     }
 
     try {
       abortControllerRef.current = new AbortController();
-      const results = await performGlobalSearch(searchQuery, 5);
+      const results = await performAutocomplete(searchQuery);
 
       if (!abortControllerRef.current.signal.aborted) {
-        setSearchResults(results);
+        setAutocompleteResults(results);
         setIsSearchLoading(false);
         // Save to recent searches if results found
         if (results.products.length > 0 || results.stores.length > 0) {
           saveToRecentSearches(searchQuery);
         }
+        setIsSearchLoading(false);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore abort errors
-      if (error.name !== "AbortError") {
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name !== "AbortError"
+      ) {
         console.error("Search error:", error);
         setIsSearchLoading(false);
       }
@@ -284,7 +291,7 @@ export default function JajaNavbar() {
     fetchCategories();
   }, []);
 
-  const handleCategoryClick = (category: Category) => {
+  const handleCategoryMenuClick = (category: Category) => {
     setShowCategoryMenu(false);
     setIsMenuOpen(false);
     setHoveredCategory(null);
@@ -322,18 +329,18 @@ export default function JajaNavbar() {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    setSearchResults({
+    setAutocompleteResults({
       products: [],
       stores: [],
       categories: [],
-      totalProducts: 0,
+      keyword: "",
     });
     setIsSearchOpen(false);
   };
 
   const handleRecentSearchClick = (query: string) => {
-    setSearchQuery(query);
-    setIsSearchOpen(true);
+    router.push(`/Search?q=${encodeURIComponent(query)}`);
+    setIsSearchOpen(false);
   };
 
   const removeRecentSearch = (query: string) => {
@@ -345,8 +352,11 @@ export default function JajaNavbar() {
   };
 
   const handleViewAllSearch = () => {
-    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    setIsSearchOpen(false);
+    if (searchQuery.trim()) {
+      router.push(`/Search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      saveToRecentSearches(searchQuery);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -405,7 +415,7 @@ export default function JajaNavbar() {
         {children.map((child) => (
           <div key={child.id_kategori}>
             <button
-              onClick={() => handleCategoryClick(child)}
+              onClick={() => handleCategoryMenuClick(child)}
               className={`w-full text-left px-4 py-2.5 transition-all flex items-center justify-between group ${
                 level === 0
                   ? "text-sm font-medium text-gray-700 hover:text-[#55B4E5] hover:bg-[#55B4E5]/5"
@@ -427,7 +437,35 @@ export default function JajaNavbar() {
   };
 
   const hasSearchResults =
-    searchResults.stores.length > 0 || searchResults.categories.length > 0;
+    autocompleteResults.products.length > 0 ||
+    autocompleteResults.stores.length > 0 ||
+    autocompleteResults.categories.length > 0;
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/Search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+    }
+  };
+
+  const handleProductClick = (slug: string) => {
+    router.push(`/Product/${slug}`);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleStoreClick = (slug: string) => {
+    router.push(`/Toko/${slug}`);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleCategoryClick = (slug: string) => {
+    router.push(`/Category/${slug}`);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+  };
 
   return (
     <nav className="bg-white shadow-lg relative z-50">
@@ -502,7 +540,7 @@ export default function JajaNavbar() {
                           {categories.map((category) => (
                             <button
                               key={category.id_kategori}
-                              onClick={() => handleCategoryClick(category)}
+                              onClick={() => handleCategoryMenuClick(category)}
                               onMouseEnter={() =>
                                 setHoveredCategory(category.id_kategori)
                               }
@@ -594,7 +632,7 @@ export default function JajaNavbar() {
               </div>
 
               {/* Search Input */}
-              <div className="relative w-full">
+              <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
                   type="text"
                   value={searchQuery}
@@ -610,7 +648,7 @@ export default function JajaNavbar() {
                 />
 
                 {/* Loading indicator inside input */}
-                {isSearchLoading && searchQuery.length >= 2 && (
+                {isSearchLoading && searchQuery.length >= 1 && (
                   <div className="absolute right-14 top-1/2 -translate-y-1/2 z-10">
                     <Loader2 className="w-4 h-4 text-[#55B4E5] animate-spin" />
                   </div>
@@ -629,21 +667,17 @@ export default function JajaNavbar() {
 
                 {/* Search Button */}
                 <button
+                  type="submit"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white p-2.5 rounded-full transition-all hover:scale-105 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isSearchLoading || searchQuery.length < 2}
-                  onClick={() => {
-                    if (searchQuery.length >= 2) {
-                      performSearch();
-                    }
-                  }}
+                  disabled={isSearchLoading || searchQuery.length < 1}
                   title="Search"
                 >
                   <Search className="w-5 h-5" />
                 </button>
-              </div>
+              </form>
 
               {/* Search Results Dropdown */}
-              {isSearchOpen && searchQuery.length >= 2 && (
+              {isSearchOpen && searchQuery.length >= 1 && (
                 <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 max-h-[600px] overflow-y-auto z-60 animate-in fade-in slide-in-from-top-2 duration-200">
                   {isSearchLoading ? (
                     <div className="flex flex-col items-center justify-center py-12">
@@ -652,13 +686,13 @@ export default function JajaNavbar() {
                         <div className="absolute top-0 left-0 w-12 h-12 border-4 border-[#55B4E5] rounded-full animate-spin border-t-transparent"></div>
                       </div>
                       <p className="text-sm text-gray-600 mt-4 font-medium">
-                        Mencari "{searchQuery}"...
+                        Mencari &quot;{searchQuery}&quot;...
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
                         Tunggu sebentar
                       </p>
                     </div>
-                  ) : searchQuery.length < 2 && recentSearches.length > 0 ? (
+                  ) : searchQuery.length < 1 && recentSearches.length > 0 ? (
                     <div className="py-4">
                       <div className="flex items-center justify-between px-5 py-2 border-b border-gray-100">
                         <h3 className="font-bold text-gray-700 text-sm">
@@ -702,7 +736,7 @@ export default function JajaNavbar() {
                         <Package className="w-10 h-10 text-gray-400" />
                       </div>
                       <p className="text-gray-700 font-semibold text-lg mb-2">
-                        Tidak ada hasil untuk "{searchQuery}"
+                        Tidak ada hasil untuk &quot;{searchQuery}&quot;
                       </p>
                       <p className="text-gray-500 text-sm mb-4">
                         Coba kata kunci lain atau periksa ejaan
@@ -732,7 +766,7 @@ export default function JajaNavbar() {
                   ) : (
                     <div className="py-3">
                       {/* Products Section */}
-                      {searchResults.products.length > 0 && (
+                      {autocompleteResults.products.length > 0 && (
                         <div className="mb-4">
                           <div className="flex items-center gap-2 px-5 py-2 bg-gray-50">
                             <Package className="w-4 h-4 text-[#55B4E5]" />
@@ -740,62 +774,36 @@ export default function JajaNavbar() {
                               Produk
                             </h3>
                             <span className="text-xs text-gray-500">
-                              ({searchResults.products.length})
+                              ({autocompleteResults.products.length})
                             </span>
                           </div>
                           <div className="divide-y divide-gray-100">
-                            {searchResults.products.map((product: Product) => (
-                              <a
-                                key={product.id_produk}
-                                href={`/Product/${product.slug_produk}`}
-                                className="flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#55B4E5]"
-                                onClick={() => setIsSearchOpen(false)}
-                              >
-                                <img
-                                  src={
-                                    product.covers?.[0]?.foto ||
-                                    "/api/placeholder/60/60"
+                            {autocompleteResults.products.map(
+                              (product: AutocompleteProduct) => (
+                                <button
+                                  key={product.slug}
+                                  onClick={() =>
+                                    handleProductClick(product.slug)
                                   }
-                                  alt={product.nama_produk}
-                                  className="w-14 h-14 rounded-lg object-cover border border-gray-200"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-800 text-sm line-clamp-1 group-hover:text-[#55B4E5] transition-colors">
-                                    {highlightText(
-                                      product.nama_produk,
-                                      searchQuery,
-                                    )}
-                                  </p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="font-bold text-[#55B4E5] text-sm">
-                                      {formatPrice(product.harga)}
-                                    </span>
-                                    {product.diskon > 0 && (
-                                      <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">
-                                        -{product.diskon}%
-                                      </span>
-                                    )}
+                                  className="w-full flex items-center gap-4 px-5 py-3 hover:bg-[#55B4E5]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#55B4E5] text-left"
+                                >
+                                  <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-gray-400" />
                                   </div>
-                                  <p className="text-xs text-gray-500 mt-0.5">
-                                    {product.tokos?.nama_toko}
-                                  </p>
-                                </div>
-                                {product.avg_rating != null && (
-                                  <div className="flex items-center gap-1 text-xs">
-                                    <span className="text-yellow-500">★</span>
-                                    <span className="font-semibold text-gray-700">
-                                      {Number(product.avg_rating).toFixed(1)}
-                                    </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-800 text-sm line-clamp-2 group-hover:text-[#55B4E5] transition-colors">
+                                      {highlightText(product.name, searchQuery)}
+                                    </p>
                                   </div>
-                                )}
-                              </a>
-                            ))}
+                                </button>
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
 
                       {/* Stores Section */}
-                      {searchResults.stores.length > 0 && (
+                      {autocompleteResults.stores.length > 0 && (
                         <div className="mb-4">
                           <div className="flex items-center gap-2 px-5 py-2 bg-gray-50">
                             <Store className="w-4 h-4 text-[#FBB338]" />
@@ -803,43 +811,26 @@ export default function JajaNavbar() {
                               Toko
                             </h3>
                             <span className="text-xs text-gray-500">
-                              ({searchResults.stores.length})
+                              ({autocompleteResults.stores.length})
                             </span>
                           </div>
                           <div className="divide-y divide-gray-100">
-                            {searchResults.stores.map(
-                              (store: Product["tokos"]) => (
-                                <a
-                                  key={store.id_toko}
-                                  href={`/Toko/${store.slug_toko}`}
-                                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#FBB338]"
-                                  onClick={() => setIsSearchOpen(false)}
+                            {autocompleteResults.stores.map(
+                              (store: AutocompleteStore) => (
+                                <button
+                                  key={store.slug}
+                                  onClick={() => handleStoreClick(store.slug)}
+                                  className="w-full flex items-center gap-4 px-5 py-3 hover:bg-[#FBB338]/5 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-[#FBB338] text-left"
                                 >
-                                  <img
-                                    src={store.foto || "/api/placeholder/50/50"}
-                                    alt={store.nama_toko}
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                                  />
+                                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <Store className="w-6 h-6 text-gray-400" />
+                                  </div>
                                   <div className="flex-1">
                                     <p className="font-semibold text-gray-800 text-sm group-hover:text-[#FBB338] transition-colors">
-                                      {highlightText(
-                                        store.nama_toko,
-                                        searchQuery,
-                                      )}
+                                      {highlightText(store.name, searchQuery)}
                                     </p>
-                                    {store.wilayah && (
-                                      <p className="text-xs text-gray-500 mt-0.5">
-                                        {store.wilayah.kelurahan_desa}
-                                      </p>
-                                    )}
-                                    {store.toko_pilihan === "Y" && (
-                                      <span className="inline-flex items-center gap-1 text-xs bg-linear-to-r from-[#55B4E5] to-[#FBB338] text-white px-2 py-0.5 rounded-full mt-1">
-                                        <TrendingUp className="w-3 h-3" />
-                                        Toko Pilihan
-                                      </span>
-                                    )}
                                   </div>
-                                </a>
+                                </button>
                               ),
                             )}
                           </div>
@@ -847,7 +838,7 @@ export default function JajaNavbar() {
                       )}
 
                       {/* Categories Section */}
-                      {searchResults.categories.length > 0 && (
+                      {autocompleteResults.categories.length > 0 && (
                         <div>
                           <div className="flex items-center gap-2 px-5 py-2 bg-gray-50">
                             <Grid className="w-4 h-4 text-purple-500" />
@@ -855,17 +846,18 @@ export default function JajaNavbar() {
                               Kategori
                             </h3>
                             <span className="text-xs text-gray-500">
-                              ({searchResults.categories.length})
+                              ({autocompleteResults.categories.length})
                             </span>
                           </div>
                           <div className="divide-y divide-gray-100">
-                            {searchResults.categories.map(
+                            {autocompleteResults.categories.map(
                               (category: SearchCategory) => (
-                                <a
+                                <button
                                   key={category.id_kategori}
-                                  href={`/Category/${category.slug_kategori}`}
-                                  className="flex items-center gap-3 px-5 py-3 hover:bg-purple-50 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-purple-500"
-                                  onClick={() => setIsSearchOpen(false)}
+                                  onClick={() =>
+                                    handleCategoryClick(category.slug_kategori)
+                                  }
+                                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-purple-50 transition-colors group cursor-pointer border-l-4 border-transparent hover:border-purple-500 text-left"
                                 >
                                   <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center">
                                     <Grid className="w-5 h-5 text-purple-600" />
@@ -876,7 +868,7 @@ export default function JajaNavbar() {
                                       searchQuery,
                                     )}
                                   </p>
-                                </a>
+                                </button>
                               ),
                             )}
                           </div>
@@ -890,7 +882,9 @@ export default function JajaNavbar() {
                             onClick={handleViewAllSearch}
                             className="w-full py-2.5 bg-linear-to-r from-[#55B4E5] to-[#55B4E5]/90 hover:from-[#55B4E5]/90 hover:to-[#55B4E5] text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] flex items-center justify-center gap-2"
                           >
-                            <span>Lihat Semua Hasil untuk "{searchQuery}"</span>
+                            <span>
+                              Lihat Semua Hasil untuk &quot;{searchQuery}&quot;
+                            </span>
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -1046,7 +1040,7 @@ export default function JajaNavbar() {
 
         {/* MOBILE SEARCH */}
         <div className="lg:hidden pb-4">
-          <div className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <input
               type="text"
               value={searchQuery}
@@ -1061,13 +1055,14 @@ export default function JajaNavbar() {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             {searchQuery && (
               <button
+                type="button"
                 onClick={handleClearSearch}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             )}
-          </div>
+          </form>
         </div>
       </div>
 
@@ -1094,7 +1089,7 @@ export default function JajaNavbar() {
                       >
                         <div className="flex items-center">
                           <button
-                            onClick={() => handleCategoryClick(category)}
+                            onClick={() => handleCategoryMenuClick(category)}
                             className="flex-1 text-left px-4 py-3.5 hover:bg-gray-50 transition-all"
                           >
                             <span className="font-semibold text-gray-800 text-sm">
