@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Check, X, ChevronRight, Package, Loader2 } from "lucide-react";
+import { ChevronRight, Package, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { reviewCheckout, processCheckout } from "@/utils/checkoutActions";
 import { getCart } from "@/utils/cartActions";
@@ -11,14 +11,17 @@ import {
   type ShippingOption,
   type ReviewCheckoutResponse,
 } from "@/utils/checkoutService";
+
 import AddressSection from "./AddressSection";
+import VoucherSection from "./VoucherSection";
 import Swal from "sweetalert2";
 import { useOrderNotificationStore } from "@/store/orderNotificationStore";
 
 interface AppliedVoucher {
   code: string;
   discount: number;
-  type: "fixed" | "percentage";
+  type: "store" | "jaja";
+  message?: string;
 }
 
 const CheckoutPage = () => {
@@ -39,10 +42,12 @@ const CheckoutPage = () => {
   });
   const [customerNote, setCustomerNote] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("normal");
-  const [voucherCode, setVoucherCode] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState<AppliedVoucher | null>(
-    null,
-  );
+  const [voucherCodeToko, setVoucherCodeToko] = useState("");
+  const [voucherCodeJaja, setVoucherCodeJaja] = useState("");
+  const [appliedVoucherToko, setAppliedVoucherToko] =
+    useState<AppliedVoucher | null>(null);
+  const [appliedVoucherJaja, setAppliedVoucherJaja] =
+    useState<AppliedVoucher | null>(null);
 
   const [productNames, setProductNames] = useState<Record<number, string>>({});
 
@@ -62,6 +67,13 @@ const CheckoutPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressForm.id_alamat]);
 
+  useEffect(() => {
+    if (addressForm.id_alamat > 0 && Object.keys(selectedShipping).length > 0) {
+      fetchReviewCheckout();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShipping, appliedVoucherToko, appliedVoucherJaja]);
+
   const fetchReviewCheckout = async () => {
     if (addressForm.id_alamat === 0) return;
 
@@ -69,11 +81,22 @@ const CheckoutPage = () => {
       console.log("=== FETCHING REVIEW CHECKOUT ===");
       console.log("Address ID:", addressForm.id_alamat);
 
+      const selectedShippingArray = Object.entries(selectedShipping).map(
+        ([storeId, shipping]) => ({
+          storeId: parseInt(storeId),
+          service: shipping.service,
+        }),
+      );
+
       const reviewResponse = await reviewCheckout({
         id_alamat: addressForm.id_alamat,
         shippingType: "jne",
         is_gift: false,
         isCoin: false,
+        kode_voucher_toko: appliedVoucherToko?.code,
+        kode_voucher_jaja: appliedVoucherJaja?.code,
+        selectedShipping:
+          selectedShippingArray.length > 0 ? selectedShippingArray : undefined,
       });
 
       console.log("Review checkout response:", reviewResponse);
@@ -82,10 +105,10 @@ const CheckoutPage = () => {
         // Deduplicate products in cart to prevent duplicate rendering
         const deduplicatedData = {
           ...reviewResponse.data,
-          cart: reviewResponse.data.cart?.map((storeCart: any) => {
+          cart: reviewResponse.data.cart?.map((storeCart) => {
             // Track seen cartIds to remove duplicates
             const seenCartIds = new Set<number>();
-            const uniqueProducts = storeCart.products.filter((product: any) => {
+            const uniqueProducts = storeCart.products.filter((product) => {
               if (seenCartIds.has(product.cartId)) {
                 console.warn(
                   `Duplicate product found with cartId: ${product.cartId}`,
@@ -103,11 +126,11 @@ const CheckoutPage = () => {
           }),
         };
 
-        setReviewData(deduplicatedData);
+        setReviewData({ success: true, data: deduplicatedData });
         console.log("Review data stored successfully with deduplication");
         console.log(
           "Unique products per store:",
-          deduplicatedData.cart?.map((sc: any) => ({
+          deduplicatedData.cart?.map((sc) => ({
             storeId: sc.store.id,
             productCount: sc.products.length,
           })),
@@ -222,50 +245,67 @@ const CheckoutPage = () => {
     });
   };
 
-  const handleApplyVoucher = () => {
-    if (voucherCode.toUpperCase() === "DISKON10") {
-      setAppliedVoucher({
-        code: voucherCode,
-        discount: 10000,
-        type: "fixed",
-      });
-      Swal.fire({
-        icon: "success",
-        title: "Voucher Applied!",
-        text: "Diskon Rp 10.000 berhasil diterapkan",
-        confirmButtonColor: "#55B4E5",
-        timer: 2000,
-      });
-      setVoucherCode("");
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Voucher",
-        text: "Kode voucher tidak valid",
-        confirmButtonColor: "#55B4E5",
-      });
-    }
+  const handleApplyVoucherToko = async () => {
+    if (!voucherCodeToko.trim()) return;
+
+    setAppliedVoucherToko({
+      code: voucherCodeToko,
+      discount: 0,
+      type: "store",
+    });
+
+    // Trigger review checkout to validate voucher
+    await fetchReviewCheckout();
+  };
+
+  const handleRemoveVoucherToko = () => {
+    setAppliedVoucherToko(null);
+    setVoucherCodeToko("");
+    fetchReviewCheckout();
+  };
+
+  const handleApplyVoucherJaja = async () => {
+    if (!voucherCodeJaja.trim()) return;
+
+    setAppliedVoucherJaja({
+      code: voucherCodeJaja,
+      discount: 0,
+      type: "jaja",
+    });
+
+    // Trigger review checkout to validate voucher
+    await fetchReviewCheckout();
+  };
+
+  const handleRemoveVoucherJaja = () => {
+    setAppliedVoucherJaja(null);
+    setVoucherCodeJaja("");
+    fetchReviewCheckout();
   };
 
   const calculateTotals = () => {
-    if (reviewData) {
-      const subtotal = reviewData.subTotal || 0;
-      const shippingCost = Object.values(selectedShipping).reduce(
-        (sum, shipping) => sum + (shipping.cost || 0),
-        0,
-      );
-      const fee = reviewData.fee || 0;
-      const tax = reviewData.taxAmount || 0;
-      const discount =
-        appliedVoucher?.discount || reviewData.voucherDiscountJaja || 0;
+    if (reviewData?.data) {
+      const subtotal = reviewData.data.subTotal || 0;
+      const shippingCost = reviewData.data.shippingCost || 0;
+      const fee = reviewData.data.fee || 0;
 
-      const total = subtotal + shippingCost + fee + tax - discount;
+      // Get discount from cart voucher data
+      const voucherDiscountToko =
+        reviewData.data.cart?.[0]?.voucherDiscountToko || 0;
+      const voucherDiscountJaja =
+        reviewData.data.cart?.[0]?.voucherDiscountJaja || 0;
+      const voucherDiscountOngkir =
+        reviewData.data.cart?.[0]?.voucherDiscountOngkir || 0;
+      const totalDiscount =
+        voucherDiscountToko + voucherDiscountJaja + voucherDiscountOngkir;
+
+      const total = reviewData.data.total || 0;
 
       return {
         subtotal,
         shippingCost,
-        discount,
-        tax,
+        discount: totalDiscount,
+        tax: 0,
         fee,
         total,
       };
@@ -303,7 +343,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    if (!reviewData || !reviewData.cart) {
+    if (!reviewData || !reviewData.data?.cart) {
       Swal.fire({
         icon: "warning",
         title: "Data Tidak Lengkap",
@@ -313,7 +353,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    const storeIds = reviewData.cart.map(
+    const storeIds = reviewData.data.cart.map(
       (c: { store: { id: number } }) => c.store.id,
     );
     const hasAllShipping = storeIds.every(
@@ -356,8 +396,15 @@ const CheckoutPage = () => {
         telp_penerima: formattedPhone,
         selectedShipping: formattedShipping,
         waktu_pengiriman: deliveryTime,
-        diskon_voucher_toko: appliedVoucher?.discount || 0,
+        diskon_voucher_toko:
+          reviewData?.data?.cart?.[0]?.voucherDiscountToko || 0,
         pesan_customer: customerNote || "",
+        ...(appliedVoucherToko?.code && {
+          kode_voucher_toko: appliedVoucherToko.code,
+        }),
+        ...(appliedVoucherJaja?.code && {
+          kode_voucher_jaja: appliedVoucherJaja.code,
+        }),
       };
 
       console.log("=== FINAL CHECKOUT DATA ===");
@@ -386,9 +433,7 @@ const CheckoutPage = () => {
         reviewData?.data?.cart?.flatMap((storeCart) =>
           storeCart.products.map((product) => ({
             nama_produk:
-              product.name ||
-              productNames[product.productId] ||
-              `Produk ${product.productId}`,
+              productNames[product.productId] || `Produk ${product.productId}`,
             qty: product.qty,
             harga: product.price || 0,
             gambar: product.image || "",
@@ -513,310 +558,269 @@ const CheckoutPage = () => {
             />
 
             {/* Products by Store */}
-            {reviewData && reviewData.cart && reviewData.cart.length > 0 ? (
-              reviewData.cart.map(
-                (storeCart: {
-                  store: { id: number };
-                  products: Array<{
-                    cartId: number;
-                    image: string;
-                    productId: number;
-                    variant: string | null;
-                    qty: number;
-                    priceCurrencyFormat: string;
-                    subTotalCurrencyFormat: string;
-                  }>;
-                  shippingOptions: Array<{
-                    courier: string;
-                    service: string;
-                    description: string;
-                    price: number;
-                    priceCurrencyFormat: string;
-                    etd: string;
-                  }>;
-                }) => (
+            {reviewData?.data?.cart && reviewData.data.cart.length > 0 ? (
+              reviewData.data.cart.map((storeCart) => (
+                <div
+                  key={storeCart.store.id}
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: "10px",
+                    padding: "18px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  }}
+                >
                   <div
-                    key={storeCart.store.id}
                     style={{
-                      backgroundColor: "white",
-                      borderRadius: "10px",
-                      padding: "18px",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "12px",
+                      paddingBottom: "10px",
+                      borderBottom: "2px solid #55B4E5",
                     }}
                   >
-                    <div
+                    <Package size={18} style={{ color: "#55B4E5" }} />
+                    <h3
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        marginBottom: "12px",
-                        paddingBottom: "10px",
-                        borderBottom: "2px solid #55B4E5",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#333",
                       }}
                     >
-                      <Package size={18} style={{ color: "#55B4E5" }} />
-                      <h3
+                      Produk dari Toko
+                    </h3>
+                  </div>
+
+                  {/* Products List */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    {storeCart.products.map((product) => (
+                      <div
+                        key={`${storeCart.store.id}-product-${product.cartId}`}
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "600",
-                          color: "#333",
+                          display: "flex",
+                          gap: "12px",
+                          padding: "10px",
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: "8px",
+                          alignItems: "center",
                         }}
                       >
-                        Produk dari Toko
-                      </h3>
-                    </div>
+                        <div
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            backgroundColor: "#e9ecef",
+                            borderRadius: "6px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            overflow: "hidden",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <img
+                            src={product.image || "/api/placeholder/60/60"}
+                            alt={productNames[product.productId] || "Product"}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              marginBottom: "4px",
+                              color: "#333",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {productNames[product.productId] ||
+                              `Produk ${product.productId}`}
+                          </p>
+                          {product.variant && (
+                            <p
+                              style={{
+                                fontSize: "10px",
+                                color: "#6c757d",
+                                marginBottom: "4px",
+                              }}
+                            >
+                              {product.variant}
+                            </p>
+                          )}
+                          <p style={{ fontSize: "10px", color: "#6c757d" }}>
+                            {product.qty} x {product.priceCurrencyFormat}
+                          </p>
+                        </div>
+                        <div style={{ flexShrink: 0 }}>
+                          <p
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              color: "#55B4E5",
+                            }}
+                          >
+                            {product.subTotalCurrencyFormat}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-                    {/* Products List */}
+                  {/* Shipping Options */}
+                  <div>
+                    <h4
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#333",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Pilih Pengiriman
+                    </h4>
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: "12px",
-                        marginBottom: "16px",
+                        gap: "8px",
                       }}
                     >
-                      {storeCart.products.map(
-                        (product: {
-                          cartId: number;
-                          image: string;
-                          productId: number;
-                          name: string;
-                          variant: string | null;
-                          qty: number;
-                          priceCurrencyFormat: string;
-                          subTotalCurrencyFormat: string;
-                        }) => (
-                          <div
-                            key={`${storeCart.store.id}-product-${product.cartId}`}
-                            style={{
-                              display: "flex",
-                              gap: "12px",
-                              padding: "12px",
-                              backgroundColor: "#f8f9fa",
-                              borderRadius: "8px",
-                              alignItems: "center",
-                            }}
-                          >
+                      {storeCart.shippingOptions &&
+                      storeCart.shippingOptions.length > 0 ? (
+                        storeCart.shippingOptions?.map(
+                          (option: {
+                            courier: string;
+                            service: string;
+                            description: string;
+                            price: number;
+                            priceCurrencyFormat: string;
+                            etd: string;
+                          }) => (
                             <div
+                              key={`${storeCart.store.id}-shipping-${option.courier}-${option.service}`}
+                              onClick={() =>
+                                handleShippingSelect(
+                                  storeCart.store.id,
+                                  option.courier,
+                                  option.service,
+                                  option.price,
+                                  option.etd,
+                                )
+                              }
                               style={{
-                                width: "60px",
-                                height: "60px",
-                                backgroundColor: "#e9ecef",
-                                borderRadius: "6px",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                overflow: "hidden",
-                                flexShrink: 0,
+                                justifyContent: "space-between",
+                                padding: "12px",
+                                border:
+                                  selectedShipping[storeCart.store.id]
+                                    ?.service === option.service.toUpperCase()
+                                    ? "2px solid #55B4E5"
+                                    : "1px solid #dee2e6",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                backgroundColor:
+                                  selectedShipping[storeCart.store.id]
+                                    ?.service === option.service.toUpperCase()
+                                    ? "#f0f9ff"
+                                    : "white",
+                                transition: "all 0.2s",
                               }}
                             >
-                              {product.image &&
-                              product.image !== "https://image.notfound.com" ? (
-                                <img
-                                  src={product.image}
-                                  alt="Product"
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                  }}
-                                />
-                              ) : (
-                                <Package
-                                  size={24}
-                                  style={{ color: "#6c757d" }}
-                                />
-                              )}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p
+                              <div
                                 style={{
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  marginBottom: "4px",
-                                  color: "#333",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                  flex: 1,
                                 }}
                               >
-                                {productNames[product.productId] ||
-                                  `Produk #${product.productId}`}
-                              </p>
-                              {product.variant && (
-                                <p
-                                  style={{
-                                    fontSize: "10px",
-                                    color: "#6c757d",
-                                    marginBottom: "4px",
-                                  }}
-                                >
-                                  {product.variant}
-                                </p>
-                              )}
-                              <p style={{ fontSize: "10px", color: "#6c757d" }}>
-                                {product.qty} x {product.priceCurrencyFormat}
-                              </p>
-                            </div>
-                            <div style={{ flexShrink: 0 }}>
-                              <p
+                                <input
+                                  type="radio"
+                                  checked={
+                                    selectedShipping[storeCart.store.id]
+                                      ?.service === option.service.toUpperCase()
+                                  }
+                                  onChange={() => {}}
+                                  style={{ accentColor: "#55B4E5" }}
+                                />
+                                <div style={{ flex: 1 }}>
+                                  <p
+                                    style={{
+                                      fontSize: "11px",
+                                      fontWeight: "600",
+                                      color: "#333",
+                                      textTransform: "uppercase",
+                                      marginBottom: "2px",
+                                    }}
+                                  >
+                                    {option.courier} - {option.service}
+                                  </p>
+                                  <p
+                                    style={{
+                                      fontSize: "10px",
+                                      color: "#6c757d",
+                                      marginBottom: "2px",
+                                    }}
+                                  >
+                                    {option.description}
+                                  </p>
+                                  <p
+                                    style={{
+                                      fontSize: "10px",
+                                      color: "#6c757d",
+                                    }}
+                                  >
+                                    Estimasi: {option.etd}
+                                  </p>
+                                </div>
+                              </div>
+                              <div
                                 style={{
                                   fontSize: "12px",
                                   fontWeight: "600",
                                   color: "#55B4E5",
+                                  textAlign: "right",
+                                  marginLeft: "10px",
                                 }}
                               >
-                                {product.subTotalCurrencyFormat}
-                              </p>
+                                {option.priceCurrencyFormat}
+                              </div>
                             </div>
-                          </div>
-                        ),
+                          ),
+                        )
+                      ) : (
+                        <p
+                          style={{
+                            padding: "12px",
+                            textAlign: "center",
+                            color: "#6c757d",
+                            fontSize: "11px",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "6px",
+                          }}
+                        >
+                          Tidak ada opsi pengiriman tersedia
+                        </p>
                       )}
                     </div>
-
-                    {/* Shipping Options */}
-                    <div>
-                      <h4
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          color: "#333",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        Pilih Pengiriman
-                      </h4>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                        }}
-                      >
-                        {storeCart.shippingOptions &&
-                        storeCart.shippingOptions.length > 0 ? (
-                          storeCart.shippingOptions?.map(
-                            (option: {
-                              courier: string;
-                              service: string;
-                              description: string;
-                              price: number;
-                              priceCurrencyFormat: string;
-                              etd: string;
-                            }) => (
-                              <div
-                                key={`${storeCart.store.id}-shipping-${option.courier}-${option.service}`}
-                                onClick={() =>
-                                  handleShippingSelect(
-                                    storeCart.store.id,
-                                    option.courier,
-                                    option.service,
-                                    option.price,
-                                    option.etd,
-                                  )
-                                }
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  padding: "12px",
-                                  border:
-                                    selectedShipping[storeCart.store.id]
-                                      ?.service === option.service.toUpperCase()
-                                      ? "2px solid #55B4E5"
-                                      : "1px solid #dee2e6",
-                                  borderRadius: "6px",
-                                  cursor: "pointer",
-                                  backgroundColor:
-                                    selectedShipping[storeCart.store.id]
-                                      ?.service === option.service.toUpperCase()
-                                      ? "#f0f9ff"
-                                      : "white",
-                                  transition: "all 0.2s",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "10px",
-                                    flex: 1,
-                                  }}
-                                >
-                                  <input
-                                    type="radio"
-                                    checked={
-                                      selectedShipping[storeCart.store.id]
-                                        ?.service ===
-                                      option.service.toUpperCase()
-                                    }
-                                    onChange={() => {}}
-                                    style={{ accentColor: "#55B4E5" }}
-                                  />
-                                  <div style={{ flex: 1 }}>
-                                    <p
-                                      style={{
-                                        fontSize: "11px",
-                                        fontWeight: "600",
-                                        color: "#333",
-                                        textTransform: "uppercase",
-                                        marginBottom: "2px",
-                                      }}
-                                    >
-                                      {option.courier} - {option.service}
-                                    </p>
-                                    <p
-                                      style={{
-                                        fontSize: "10px",
-                                        color: "#6c757d",
-                                        marginBottom: "2px",
-                                      }}
-                                    >
-                                      {option.description}
-                                    </p>
-                                    <p
-                                      style={{
-                                        fontSize: "10px",
-                                        color: "#6c757d",
-                                      }}
-                                    >
-                                      Estimasi: {option.etd}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: "600",
-                                    color: "#55B4E5",
-                                    textAlign: "right",
-                                    marginLeft: "10px",
-                                  }}
-                                >
-                                  {option.priceCurrencyFormat}
-                                </div>
-                              </div>
-                            ),
-                          )
-                        ) : (
-                          <p
-                            style={{
-                              padding: "12px",
-                              textAlign: "center",
-                              color: "#6c757d",
-                              fontSize: "11px",
-                              backgroundColor: "#f8f9fa",
-                              borderRadius: "6px",
-                            }}
-                          >
-                            Tidak ada opsi pengiriman tersedia
-                          </p>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                ),
-              )
+                </div>
+              ))
             ) : (
               <div
                 style={{
@@ -833,63 +837,68 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* Delivery Time Section */}
-            {reviewData && reviewData.deliveryTimeOptions && (
-              <div
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: "10px",
-                  padding: "18px",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    marginBottom: "12px",
-                    color: "#333",
-                  }}
-                >
-                  Waktu Pengiriman
-                </h3>
+            {/* Delivery Time Options */}
+            {reviewData?.data?.deliveryTimeOptions &&
+              reviewData.data.deliveryTimeOptions.length > 0 && (
                 <div
                   style={{
-                    display: "flex",
-                    gap: "10px",
-                    justifyContent: "flex-start",
-                    flexWrap: "wrap",
+                    backgroundColor: "white",
+                    borderRadius: "10px",
+                    padding: "18px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
                   }}
                 >
-                  {reviewData.deliveryTimeOptions.map(
-                    (option: { value: string; label: string }) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setDeliveryTime(option.value)}
-                        style={{
-                          padding: "10px 16px",
-                          border:
-                            deliveryTime === option.value
-                              ? "2px solid #55B4E5"
-                              : "1px solid #dee2e6",
-                          borderRadius: "6px",
-                          fontSize: "11px",
-                          color:
-                            deliveryTime === option.value ? "#55B4E5" : "#333",
-                          fontWeight:
-                            deliveryTime === option.value ? "600" : "400",
-                          backgroundColor:
-                            deliveryTime === option.value ? "#f0f9ff" : "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {option.label}
-                      </button>
-                    ),
-                  )}
+                  <h3
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      marginBottom: "12px",
+                      color: "#333",
+                    }}
+                  >
+                    Waktu Pengiriman
+                  </h3>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      justifyContent: "flex-start",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {reviewData.data.deliveryTimeOptions.map(
+                      (option: { value: string; label: string }) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setDeliveryTime(option.value)}
+                          style={{
+                            padding: "10px 16px",
+                            border:
+                              deliveryTime === option.value
+                                ? "2px solid #55B4E5"
+                                : "1px solid #dee2e6",
+                            borderRadius: "6px",
+                            fontSize: "11px",
+                            color:
+                              deliveryTime === option.value
+                                ? "#55B4E5"
+                                : "#333",
+                            fontWeight:
+                              deliveryTime === option.value ? "600" : "400",
+                            backgroundColor:
+                              deliveryTime === option.value
+                                ? "#f0f9ff"
+                                : "white",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {option.label}
+                        </button>
+                      ),
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Right Column - Summary */}
@@ -1048,103 +1057,24 @@ const CheckoutPage = () => {
             </button>
 
             {/* Voucher Section */}
-            <div
-              style={{
-                marginTop: "20px",
-                paddingTop: "20px",
-                borderTop: "1px solid #dee2e6",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "11px",
-                  color: "#6c757d",
-                  marginBottom: "8px",
-                  textAlign: "center",
-                  fontWeight: "600",
-                }}
-              >
-                Punya kode voucher?
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  justifyContent: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Masukkan kode voucher"
-                  value={voucherCode}
-                  onChange={(e) => setVoucherCode(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "10px",
-                    border: "1px solid #dee2e6",
-                    borderRadius: "6px",
-                    fontSize: "11px",
-                    fontFamily: "Poppins, sans-serif",
-                    minWidth: "150px",
-                  }}
-                />
-                <button
-                  onClick={handleApplyVoucher}
-                  style={{
-                    padding: "10px 16px",
-                    backgroundColor: "#FBB338",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontWeight: "600",
-                    fontSize: "11px",
-                  }}
-                >
-                  Gunakan
-                </button>
-              </div>
-
-              {appliedVoucher && (
-                <div
-                  style={{
-                    marginTop: "10px",
-                    padding: "10px",
-                    backgroundColor: "#d4edda",
-                    borderRadius: "6px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <Check size={14} style={{ color: "#28a745" }} />
-                    <span style={{ fontSize: "10px", color: "#155724" }}>
-                      Voucher {appliedVoucher.code} diterapkan
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setAppliedVoucher(null)}
-                    style={{
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: "4px",
-                      display: "flex",
-                    }}
-                  >
-                    <X size={14} style={{ color: "#155724" }} />
-                  </button>
-                </div>
-              )}
-            </div>
+            <VoucherSection
+              voucherCodeToko={voucherCodeToko}
+              setVoucherCodeToko={setVoucherCodeToko}
+              voucherCodeJaja={voucherCodeJaja}
+              setVoucherCodeJaja={setVoucherCodeJaja}
+              appliedVoucherToko={appliedVoucherToko}
+              appliedVoucherJaja={appliedVoucherJaja}
+              onApplyVoucherToko={handleApplyVoucherToko}
+              onRemoveVoucherToko={handleRemoveVoucherToko}
+              onApplyVoucherJaja={handleApplyVoucherJaja}
+              onRemoveVoucherJaja={handleRemoveVoucherJaja}
+              voucherMessageToko={
+                reviewData?.data?.cart?.[0]?.voucherMessageToko
+              }
+              voucherMessageJaja={
+                reviewData?.data?.cart?.[0]?.voucherMessageJaja
+              }
+            />
           </div>
         </div>
       </div>

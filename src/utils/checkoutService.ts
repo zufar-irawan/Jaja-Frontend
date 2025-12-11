@@ -26,6 +26,12 @@ export interface ReviewCheckoutData {
   shippingType: string;
   is_gift: boolean;
   isCoin: boolean;
+  kode_voucher_toko?: string; // optional store voucher
+  kode_voucher_jaja?: string; // optional jaja promo voucher
+  selectedShipping?: Array<{
+    storeId: number;
+    service: string;
+  }>; // optional to see shipping cost + discount
 }
 
 // Updated interface to match API response
@@ -52,31 +58,15 @@ export interface ReviewCheckoutResponse {
       products: Array<{
         productId: number;
         cartId: number;
-        name: string;
         image: string;
-        badges: string[];
-        variant: string | null;
         qty: number;
         weight: number;
-        isDiscount: boolean;
-        discount: number;
         price: number;
         priceCurrencyFormat: string;
-        priceDiscount: number;
-        priceDiscountCurrencyFormat: string;
         subTotal: number;
         subTotalCurrencyFormat: string;
+        variant?: string | null;
       }>;
-      voucherStore: Array<{
-        id: number;
-        code: string;
-        discount: number;
-      }>;
-      voucherStoreSelected: {
-        id: number;
-        code: string;
-        discount: number;
-      } | null;
       shippingOptions: Array<{
         courier: string;
         service: string;
@@ -85,50 +75,28 @@ export interface ReviewCheckoutResponse {
         priceCurrencyFormat: string;
         etd: string;
       }>;
-      shippingSelected: {
-        courier: string;
-        service: string;
-        price: number;
-        etd: string;
-      } | null;
       total: number;
-      totalDiscount: number;
-      voucherDiscount: number;
       totalCurrencyFormat: string;
-      totalDiscountCurrencyFormat: string;
+      voucherStoreSelected: string;
+      voucherJajaSelected: string;
+      voucherDiscountToko: number;
+      voucherDiscountJaja: number;
+      voucherDiscountOngkir: number;
+      voucherCashback: number;
+      voucherMessageToko: string;
+      voucherMessageJaja: string;
       voucherDiscountCurrencyFormat: string;
+      selectedShippingPrice: number;
     }>;
     isGift: boolean;
     isCoin: boolean;
     totalAllProduct: number;
-    voucherJaja: Array<{
-      id: number;
-      code: string;
-      discount: number;
-      description?: string;
-      type?: string;
-    }>;
-    voucherJajaSelected: {
-      id: number;
-      code: string;
-      discount: number;
-      description?: string;
-      type?: string;
-    } | null;
-    voucherDiscountJaja: number;
-    voucherDiscountJajaCurrencyFormat: string;
-    voucherJajaDesc: string;
-    voucherJajaType: string;
     subTotal: number;
     subTotalCurrencyFormat: string;
     shippingCost: number;
     shippingCostCurrencyFormat: string;
     fee: number;
     feeCurrencyFormat: string;
-    tax: number;
-    taxFormat: string;
-    taxAmount: number;
-    taxAmountCurrencyFormat: string;
     coinRemaining: number;
     coinRemainingFormat: string;
     coinUsed: number;
@@ -158,6 +126,8 @@ export interface CheckoutData {
   waktu_pengiriman: string;
   diskon_voucher_toko: number;
   pesan_customer?: string;
+  kode_voucher_toko?: string; // optional store voucher
+  kode_voucher_jaja?: string; // optional jaja voucher
 }
 
 export interface CheckoutResponse {
