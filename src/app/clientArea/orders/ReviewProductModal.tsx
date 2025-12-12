@@ -80,11 +80,11 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
       return;
     }
 
-    if (file.size > 1 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       Swal.fire({
         icon: "error",
         title: "File Terlalu Besar",
-        text: "Ukuran gambar maksimal 1MB",
+        text: "Ukuran gambar maksimal 5MB",
         confirmButtonColor: "#55B4E5",
       });
       return;
@@ -156,16 +156,6 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
         icon: "warning",
         title: "Ulasan Diperlukan",
         text: "Mohon tulis ulasan Anda tentang produk ini",
-        confirmButtonColor: "#55B4E5",
-      });
-      return;
-    }
-
-    if (!fotoDepan && !fotoBelakang && !fotoKanan && !fotoKiri) {
-      Swal.fire({
-        icon: "warning",
-        title: "Foto Diperlukan",
-        text: "Mohon upload minimal 1 foto produk",
         confirmButtonColor: "#55B4E5",
       });
       return;
@@ -244,7 +234,10 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-white sm:bg-black/50 sm:backdrop-blur-sm">
       {/* Backdrop (desktop only) */}
-      <div className="absolute inset-0 hidden sm:block" onClick={onClose}></div>
+      <div 
+        className="absolute inset-0 hidden sm:block" 
+        onClick={onClose}
+      ></div>
 
       {/* Modal Content */}
       <div className="relative z-10 flex w-full flex-col bg-white rounded-none shadow-none sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl sm:max-h-[90vh]">
@@ -294,10 +287,7 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
 
         {/* Form - Scrollable */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
-          <form
-            onSubmit={handleSubmit}
-            className="px-4 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6"
-          >
+          <form onSubmit={handleSubmit} className="px-4 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
             {/* Rating Stars */}
             <div>
               <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
@@ -381,10 +371,10 @@ const ReviewProductModal: React.FC<ReviewProductModalProps> = ({
             {/* Photo Upload */}
             <div>
               <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                Foto Produk
+                Foto Produk (Opsional)
               </label>
               <p className="text-xs text-gray-500 mb-3 sm:mb-4">
-                Tambahkan foto untuk membuat ulasan lebih menarik. Maksimal 1MB
+                Tambahkan foto untuk membuat ulasan lebih menarik. Maksimal 5MB
                 per foto.
               </p>
 
