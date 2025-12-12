@@ -68,33 +68,20 @@ export default function ProductCard({ item }: ProductCardProps) {
         {/* Image/Placeholder Section */}
         <div className="relative h-[200px] w-full overflow-hidden rounded-t-lg bg-gray-100">
           {renderViewsBadge()}
-          {item.image ? (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="h-full w-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                // Fallback if image fails to load
-                const target = e.target as HTMLImageElement;
-                target.style.display = "none";
-                if (target.nextElementSibling) {
-                  (target.nextElementSibling as HTMLElement).style.display =
-                    "flex";
-                }
-              }}
-            />
-          ) : null}
-          {/* Fallback placeholder - always render but hide if image loads */}
-          <div
-            className="flex h-full items-center justify-center"
-            style={{ display: item.image ? "none" : "flex" }}
-          >
-            <p className="text-center text-2xl font-bold text-blue-600">
-              Jaja
-              <span className="text-orange-400">ID</span>
-            </p>
-          </div>
+          <img
+            src={
+              item.image ||
+              "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
+            }
+            alt={item.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src =
+                "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
+            }}
+          />
         </div>
 
         {/* Product Info Section */}
