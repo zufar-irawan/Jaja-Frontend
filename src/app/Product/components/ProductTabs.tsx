@@ -58,18 +58,17 @@ export default function ProductTabs({
   return (
     <div style={{
       backgroundColor: 'white',
-      borderRadius: '16px',
+      borderRadius: '8px',
       padding: '24px',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-      border: '1px solid rgba(0,0,0,0.04)',
-      marginBottom: '32px',
-      fontFamily: "'Poppins', sans-serif"
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+      border: '1px solid #e5e5e5',
+      marginBottom: '32px'
     }}>
       {/* Tabs Header */}
       <div style={{
         display: 'flex',
         gap: '24px',
-        borderBottom: '2px solid #f3f4f6',
+        borderBottom: '1px solid #f0f0f0',
         marginBottom: '24px'
       }}>
         <button
@@ -77,15 +76,14 @@ export default function ProductTabs({
           style={{
             backgroundColor: 'transparent',
             border: 'none',
-            padding: '14px 0',
-            fontSize: '15px',
-            fontWeight: '600',
-            color: activeTab === 'description' ? '#55B4E5' : '#6b7280',
+            padding: '12px 0',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: activeTab === 'description' ? '#111' : '#999',
             cursor: 'pointer',
-            borderBottom: activeTab === 'description' ? '3px solid #55B4E5' : '3px solid transparent',
-            marginBottom: '-2px',
-            transition: 'all 0.2s ease',
-            fontFamily: "'Poppins', sans-serif"
+            borderBottom: activeTab === 'description' ? '2px solid #000' : '2px solid transparent',
+            marginBottom: '-1px',
+            transition: 'all 0.2s ease'
           }}
         >
           Deskripsi Produk
@@ -95,15 +93,14 @@ export default function ProductTabs({
           style={{
             backgroundColor: 'transparent',
             border: 'none',
-            padding: '14px 0',
-            fontSize: '15px',
-            fontWeight: '600',
-            color: activeTab === 'reviews' ? '#55B4E5' : '#6b7280',
+            padding: '12px 0',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: activeTab === 'reviews' ? '#111' : '#999',
             cursor: 'pointer',
-            borderBottom: activeTab === 'reviews' ? '3px solid #55B4E5' : '3px solid transparent',
-            marginBottom: '-2px',
-            transition: 'all 0.2s ease',
-            fontFamily: "'Poppins', sans-serif"
+            borderBottom: activeTab === 'reviews' ? '2px solid #000' : '2px solid transparent',
+            marginBottom: '-1px',
+            transition: 'all 0.2s ease'
           }}
         >
           Ulasan ({ratingStats.total})
@@ -114,13 +111,11 @@ export default function ProductTabs({
       {activeTab === 'description' && (
         <div>
           <h3 style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            color: '#1a1a1a',
-            marginBottom: '20px',
-            marginTop: 0,
-            fontFamily: "'Poppins', sans-serif",
-            letterSpacing: '-0.3px'
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111',
+            marginBottom: '16px',
+            marginTop: 0
           }}>
             Spesifikasi Lengkap
           </h3>
@@ -129,31 +124,26 @@ export default function ProductTabs({
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '0',
-            marginBottom: '32px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '12px',
-            padding: '16px'
+            marginBottom: '32px'
           }}>
             {Object.entries(productSpecs).map(([key, value]) => (
               <div key={key} style={{
                 display: 'flex',
-                padding: '14px 16px',
-                borderBottom: '1px solid #e5e7eb'
+                padding: '12px 0',
+                borderBottom: '1px solid #f0f0f0'
               }}>
                 <span style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#374151',
-                  width: '180px',
-                  fontFamily: "'Poppins', sans-serif"
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  color: '#111',
+                  width: '180px'
                 }}>
                   {key}
                 </span>
                 <span style={{
-                  fontSize: '14px',
-                  color: '#6b7280',
-                  flex: 1,
-                  fontFamily: "'Poppins', sans-serif"
+                  fontSize: '13px',
+                  color: '#666',
+                  flex: 1
                 }}>
                   {value}
                 </span>
@@ -162,31 +152,69 @@ export default function ProductTabs({
           </div>
 
           <h3 style={{
-            fontSize: '20px',
-            fontWeight: '700',
-            color: '#1a1a1a',
-            marginBottom: '16px',
-            marginTop: 0,
-            fontFamily: "'Poppins', sans-serif",
-            letterSpacing: '-0.3px'
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111',
+            marginBottom: '12px',
+            marginTop: 0
           }}>
             Tentang Produk
           </h3>
 
           <p style={{
-            color: '#6b7280',
+            color: '#666',
             fontSize: '14px',
-            lineHeight: '1.8',
+            lineHeight: '1.7',
             marginBottom: '24px',
-            whiteSpace: 'pre-line',
-            fontFamily: "'Poppins', sans-serif",
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb'
+            whiteSpace: 'pre-line'
           }}>
             {description}
           </p>
+
+          {/* Features Section */}
+          {/* <h4 style={{ 
+            fontSize: '16px', 
+            fontWeight: '600',
+            color: '#111',
+            marginBottom: '16px',
+            marginTop: '24px'
+          }}>
+            Fitur Unggulan
+          </h4>
+
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '16px',
+            marginBottom: '24px'
+          }}>
+            {features.map((feature, idx) => (
+              <div key={idx} style={{
+                padding: '16px',
+                backgroundColor: '#fafafa',
+                borderRadius: '4px',
+                border: '1px solid #f0f0f0'
+              }}>
+                <h5 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#111',
+                  marginBottom: '6px',
+                  marginTop: 0
+                }}>
+                  {feature.title}
+                </h5>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#666',
+                  lineHeight: '1.6',
+                  margin: 0
+                }}>
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div> */}
         </div>
       )}
 
@@ -194,95 +222,79 @@ export default function ProductTabs({
       {activeTab === 'reviews' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px' }}>
           {/* Rating Summary */}
-          <div style={{
-            backgroundColor: '#f8f9fa',
-            padding: '24px',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <h4 style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#6b7280',
-                marginBottom: '12px',
+                fontSize: '11px',
+                fontWeight: '500',
+                color: '#999',
+                marginBottom: '8px',
                 marginTop: 0,
                 textTransform: 'uppercase',
-                letterSpacing: '1px',
-                fontFamily: "'Poppins', sans-serif"
+                letterSpacing: '0.5px'
               }}>Rating Rata-rata</h4>
               <div style={{
-                fontSize: '48px',
-                fontWeight: '700',
-                color: '#1a1a1a',
+                fontSize: '42px',
+                fontWeight: '600',
+                color: '#111',
                 lineHeight: '1',
-                letterSpacing: '-2px',
-                fontFamily: "'Poppins', sans-serif"
+                letterSpacing: '-1px'
               }}>
-                {ratingStats.average}<span style={{ fontSize: '24px', color: '#6b7280', fontWeight: '500' }}>/5</span>
+                {ratingStats.average}<span style={{ fontSize: '20px', color: '#999' }}>/5</span>
               </div>
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: '4px',
-                marginTop: '12px',
-                marginBottom: '12px'
+                gap: '3px',
+                marginTop: '8px',
+                marginBottom: '8px'
               }}>
                 {[1, 2, 3, 4, 5].map(i => (
                   <Star
                     key={i}
                     size={20}
-                    fill={i <= Math.floor(ratingStats.average) ? "#FBB338" : "none"}
-                    stroke="#FBB338"
+                    fill={i <= Math.floor(ratingStats.average) ? "#000" : "none"}
+                    stroke="#000"
                   />
                 ))}
               </div>
-              <div style={{ 
-                fontSize: '14px', 
-                color: '#6b7280',
-                fontFamily: "'Poppins', sans-serif",
-                fontWeight: '500'
-              }}>
+              <div style={{ fontSize: '13px', color: '#666' }}>
                 Dari {ratingStats.total} ulasan
               </div>
             </div>
 
-            <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: '20px' }}>
               {ratingStats.breakdown.map((item) => (
                 <div key={item.stars} style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '10px'
+                  gap: '10px',
+                  marginBottom: '8px'
                 }}>
                   <span style={{
-                    fontSize: '13px',
-                    color: '#374151',
-                    width: '65px',
-                    fontFamily: "'Poppins', sans-serif",
-                    fontWeight: '500'
+                    fontSize: '12px',
+                    color: '#666',
+                    width: '55px'
                   }}>{item.stars} bintang</span>
                   <div style={{
                     flex: 1,
-                    height: '8px',
-                    backgroundColor: '#e5e7eb',
-                    borderRadius: '4px',
+                    height: '6px',
+                    backgroundColor: '#f0f0f0',
+                    borderRadius: '3px',
                     overflow: 'hidden'
                   }}>
                     <div style={{
                       width: `${item.percentage}%`,
                       height: '100%',
-                      background: 'linear-gradient(135deg, #FBB338 0%, #f59e0b 100%)',
+                      backgroundColor: '#000',
                       transition: 'width 0.3s'
                     }} />
                   </div>
                   <span style={{
-                    fontSize: '13px',
-                    color: '#6b7280',
+                    fontSize: '12px',
+                    color: '#666',
                     width: '35px',
-                    textAlign: 'right',
-                    fontFamily: "'Poppins', sans-serif",
-                    fontWeight: '600'
+                    textAlign: 'right'
                   }}>{item.count}</span>
                 </div>
               ))}
@@ -290,17 +302,15 @@ export default function ProductTabs({
 
             <button style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
+              backgroundColor: '#000',
               border: 'none',
               color: 'white',
-              padding: '12px',
-              borderRadius: '10px',
-              fontSize: '14px',
-              fontWeight: '700',
+              padding: '10px',
+              borderRadius: '4px',
+              fontSize: '13px',
+              fontWeight: '500',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              fontFamily: "'Poppins', sans-serif",
-              boxShadow: '0 4px 12px rgba(85, 180, 229, 0.3)'
+              transition: 'all 0.2s ease'
             }}>
               Tulis Ulasan
             </button>
@@ -308,18 +318,16 @@ export default function ProductTabs({
 
           {/* Individual Reviews */}
           <div>
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '16px' }}>
               <select style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '2px solid #e5e7eb',
-                fontSize: '14px',
-                color: '#374151',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: '1px solid #e5e5e5',
+                fontSize: '13px',
+                color: '#111',
                 cursor: 'pointer',
                 backgroundColor: 'white',
-                fontWeight: '600',
-                fontFamily: "'Poppins', sans-serif",
-                transition: 'all 0.2s ease'
+                fontWeight: '500'
               }}>
                 <option>Terbaru</option>
                 <option>Rating Tertinggi</option>
@@ -330,67 +338,51 @@ export default function ProductTabs({
 
             {reviews.map((review, idx) => (
               <div key={idx} style={{
-                marginBottom: '24px',
-                paddingBottom: '24px',
-                borderBottom: idx < reviews.length - 1 ? '2px solid #f3f4f6' : 'none',
-                backgroundColor: '#f8f9fa',
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1px solid #e5e7eb'
+                marginBottom: '20px',
+                paddingBottom: '20px',
+                borderBottom: idx < reviews.length - 1 ? '1px solid #f0f0f0' : 'none'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
                   <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '40px',
+                    height: '40px',
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #55B4E5 0%, #3b9ed9 100%)',
+                    backgroundColor: '#000',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    fontWeight: '700',
-                    fontSize: '18px',
-                    fontFamily: "'Poppins', sans-serif",
-                    boxShadow: '0 2px 8px rgba(85, 180, 229, 0.3)'
+                    fontWeight: '600',
+                    fontSize: '16px'
                   }}>
                     {review.name.charAt(0)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ 
-                      fontWeight: '600', 
-                      color: '#1a1a1a', 
-                      fontSize: '15px',
-                      fontFamily: "'Poppins', sans-serif"
-                    }}>{review.name}</div>
-                    <div style={{ 
-                      fontSize: '13px', 
-                      color: '#6b7280',
-                      fontFamily: "'Poppins', sans-serif"
-                    }}>{review.date}</div>
+                    <div style={{ fontWeight: '500', color: '#111', fontSize: '14px' }}>{review.name}</div>
+                    <div style={{ fontSize: '12px', color: '#999' }}>{review.date}</div>
                   </div>
                 </div>
 
                 <div style={{
                   display: 'flex',
                   gap: '3px',
-                  marginBottom: '12px'
+                  marginBottom: '8px'
                 }}>
                   {[1, 2, 3, 4, 5].map(i => (
                     <Star
                       key={i}
-                      size={16}
-                      fill={i <= review.rating ? "#FBB338" : "none"}
-                      stroke="#FBB338"
+                      size={14}
+                      fill={i <= review.rating ? "#000" : "none"}
+                      stroke="#000"
                     />
                   ))}
                 </div>
 
                 <p style={{
-                  color: '#374151',
-                  fontSize: '14px',
-                  lineHeight: '1.7',
-                  marginBottom: '12px',
-                  fontFamily: "'Poppins', sans-serif"
+                  color: '#666',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                  marginBottom: '10px'
                 }}>
                   {review.comment}
                 </p>
@@ -398,8 +390,8 @@ export default function ProductTabs({
                 {review.images && review.images.length > 0 && (
                   <div style={{
                     display: 'flex',
-                    gap: '10px',
-                    marginBottom: '12px'
+                    gap: '8px',
+                    marginBottom: '10px'
                   }}>
                     {review.images.map((img, imgIdx) => (
                       <img
@@ -407,13 +399,12 @@ export default function ProductTabs({
                         src={img}
                         alt={`Review ${imgIdx + 1}`}
                         style={{
-                          width: '80px',
-                          height: '80px',
+                          width: '70px',
+                          height: '70px',
                           objectFit: 'cover',
-                          borderRadius: '8px',
+                          borderRadius: '4px',
                           cursor: 'pointer',
-                          border: '2px solid #e5e7eb',
-                          transition: 'all 0.2s ease'
+                          border: '1px solid #f0f0f0'
                         }}
                       />
                     ))}
@@ -421,19 +412,16 @@ export default function ProductTabs({
                 )}
 
                 <button style={{
-                  backgroundColor: 'white',
-                  border: '2px solid #e5e7eb',
-                  color: '#6b7280',
-                  fontSize: '13px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#666',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  fontFamily: "'Poppins', sans-serif",
-                  transition: 'all 0.2s ease'
+                  gap: '4px',
+                  padding: 0,
+                  fontWeight: '500'
                 }}>
                   👍 Membantu ({review.likes})
                 </button>
@@ -443,17 +431,16 @@ export default function ProductTabs({
             {reviews.length > 3 && (
               <button style={{
                 width: '100%',
-                backgroundColor: 'white',
-                border: '2px solid #55B4E5',
-                color: '#55B4E5',
-                padding: '12px',
-                borderRadius: '10px',
-                fontSize: '14px',
-                fontWeight: '700',
+                backgroundColor: 'transparent',
+                border: '1px solid #e5e5e5',
+                color: '#111',
+                padding: '10px',
+                borderRadius: '4px',
+                fontSize: '13px',
+                fontWeight: '500',
                 cursor: 'pointer',
-                marginTop: '16px',
-                transition: 'all 0.2s ease',
-                fontFamily: "'Poppins', sans-serif"
+                marginTop: '12px',
+                transition: 'all 0.2s ease'
               }}>
                 Muat Lebih Banyak Ulasan
               </button>
