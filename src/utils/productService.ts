@@ -121,6 +121,36 @@ export interface SearchResults {
   totalProducts: number;
 }
 
+// Autocomplete API Types
+export interface AutocompleteProduct {
+  name: string;
+  slug: string;
+}
+
+export interface AutocompleteStore {
+  name: string;
+  slug: string;
+}
+
+export interface AutocompleteResponse {
+  status: {
+    code: number;
+    message: string;
+  };
+  data: {
+    keyword: string;
+    product: AutocompleteProduct[];
+    store: AutocompleteStore[];
+  };
+}
+
+export interface AutocompleteResults {
+  products: AutocompleteProduct[];
+  stores: AutocompleteStore[];
+  categories: Category[];
+  keyword: string;
+}
+
 // Service Functions
 export async function searchProducts(
   params: SearchProductsParams,
@@ -161,7 +191,6 @@ export async function getProductBySlug(
   }
 }
 
-// NEW: Get all categories
 export async function getAllCategories(): Promise<Category[]> {
   try {
     const response = await api.get("/main/kategories/mega-menu");
@@ -172,14 +201,12 @@ export async function getAllCategories(): Promise<Category[]> {
   }
 }
 
-// NEW: Get category by slug
 export async function getCategoryBySlug(
   slug: string,
 ): Promise<Category | null> {
   try {
     const allCategories = await getAllCategories();
 
-    // Recursive function to find category by slug
     const findCategory = (categories: Category[]): Category | null => {
       for (const category of categories) {
         if (category.slug_kategori === slug) {
@@ -200,7 +227,6 @@ export async function getCategoryBySlug(
   }
 }
 
-// NEW: Search in categories recursively
 export async function searchInCategories(
   categories: Category[],
   query: string,
@@ -223,7 +249,6 @@ export async function searchInCategories(
   return results;
 }
 
-// NEW: Perform global search (products, stores, categories)
 export async function performGlobalSearch(
   query: string,
   limit: number = 5,
@@ -268,7 +293,6 @@ export async function performGlobalSearch(
   }
 }
 
-// Helper functions untuk use case spesifik
 export async function getFeaturedProducts(
   limit: number = 8,
 ): Promise<Product[]> {
@@ -304,13 +328,12 @@ export async function getRecommendedProducts(
 ): Promise<Product[]> {
   try {
     const response = await searchProducts({
-      limit: limit, // fetch extra to allow randomization
+      limit: limit, 
       stok: "ready",
     });
 
     const products = response.data || [];
 
-    // Shuffle using Fisher-Yates algorithm
     for (let i = products.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [products[i], products[j]] = [products[j], products[i]];
@@ -340,37 +363,7 @@ export async function searchProductsByCategory(
   }
 }
 
-// Autocomplete API Types
-export interface AutocompleteProduct {
-  name: string;
-  slug: string;
-}
 
-export interface AutocompleteStore {
-  name: string;
-  slug: string;
-}
-
-export interface AutocompleteResponse {
-  status: {
-    code: number;
-    message: string;
-  };
-  data: {
-    keyword: string;
-    product: AutocompleteProduct[];
-    store: AutocompleteStore[];
-  };
-}
-
-export interface AutocompleteResults {
-  products: AutocompleteProduct[];
-  stores: AutocompleteStore[];
-  categories: Category[];
-  keyword: string;
-}
-
-// Autocomplete Search Function
 export async function performAutocomplete(
   query: string,
 ): Promise<AutocompleteResults> {
@@ -388,7 +381,6 @@ export async function performAutocomplete(
       `/main/products/autocomplete?q=${encodeURIComponent(query)}`,
     );
 
-    // Get categories and search for matches
     const allCategories = await getAllCategories();
     const matchedCategories = await searchInCategories(allCategories, query);
 
@@ -409,7 +401,6 @@ export async function performAutocomplete(
   }
 }
 
-// Review Product Types
 export interface SubmitReviewPayload {
   id_data: number;
   id_produk: number;
@@ -435,13 +426,11 @@ export async function submitProductReview(
   try {
     const formData = new FormData();
 
-    // Add required fields
     formData.append("id_data", payload.id_data.toString());
     formData.append("id_produk", payload.id_produk.toString());
     formData.append("rating", payload.rating.toString());
     formData.append("comment", payload.comment);
 
-    // Add optional photo fields
     if (payload.foto_depan) {
       formData.append("foto_depan", payload.foto_depan);
     }
@@ -465,7 +454,6 @@ export async function submitProductReview(
   } catch (error: unknown) {
     console.error("Error submitting product review:", error);
 
-    // Handle 400 error
     if (error && typeof error === "object" && "response" in error) {
       const errorResponse = error.response as {
         status?: number;
