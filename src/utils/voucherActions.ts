@@ -8,7 +8,7 @@ import type {
   ClaimVoucherResponse,
 } from "./voucherService";
 
-// Get My Claimed Vouchers
+// Get My Claim Vouchers
 export async function getMyVouchers(): Promise<MyVouchersResponse> {
   try {
     const response = await api.get("/main/voucher/my-vouchers");

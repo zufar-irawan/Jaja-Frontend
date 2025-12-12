@@ -204,7 +204,7 @@ export async function getAllCategories(): Promise<Category[]> {
 export async function getCategoryBySlug(
   slug: string,
 ): Promise<Category | null> {
-  try {
+  try { 
     const allCategories = await getAllCategories();
 
     const findCategory = (categories: Category[]): Category | null => {

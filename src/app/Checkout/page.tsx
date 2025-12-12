@@ -102,22 +102,51 @@ const CheckoutPage = () => {
       console.log("Review checkout response:", reviewResponse);
 
       if (reviewResponse.success && reviewResponse.data) {
+        // Log raw products before deduplication
+        console.log("=== RAW PRODUCTS FROM API ===");
+        reviewResponse.data.cart?.forEach((storeCart, idx) => {
+          console.log(`Store ${idx}:`, storeCart.store.name);
+          console.log(
+            `Products:`,
+            storeCart.products.map((p) => ({
+              cartId: p.cartId,
+              productId: p.productId,
+              variationId: p.variationId,
+              qty: p.qty,
+              price: p.price,
+              image: p.image,
+              foto_produk: (p as any).foto_produk,
+            })),
+          );
+        });
+
         // Deduplicate products in cart to prevent duplicate rendering
         const deduplicatedData = {
           ...reviewResponse.data,
           cart: reviewResponse.data.cart?.map((storeCart) => {
-            // Track seen cartIds to remove duplicates
-            const seenCartIds = new Set<number>();
-            const uniqueProducts = storeCart.products.filter((product) => {
-              if (seenCartIds.has(product.cartId)) {
-                console.warn(
-                  `Duplicate product found with cartId: ${product.cartId}`,
-                );
-                return false;
-              }
-              seenCartIds.add(product.cartId);
-              return true;
-            });
+            // Track seen products by productId + variationId combination
+            const seenProducts = new Set<string>();
+            const uniqueProducts = storeCart.products
+              .filter((product) => {
+                // Create unique key from productId and variationId
+                const productKey = `${product.productId}-${product.variationId || "no-variant"}`;
+
+                if (seenProducts.has(productKey)) {
+                  console.warn(
+                    `Duplicate product found: ${product.productId} (cartId: ${product.cartId})`,
+                  );
+                  return false;
+                }
+                seenProducts.add(productKey);
+                return true;
+              })
+              .map((product) => {
+                // Fix image field - support both 'image' and 'foto_produk'
+                return {
+                  ...product,
+                  image: product.image || (product as any).foto_produk || "",
+                };
+              });
 
             return {
               ...storeCart,
@@ -132,8 +161,26 @@ const CheckoutPage = () => {
           "Unique products per store:",
           deduplicatedData.cart?.map((sc) => ({
             storeId: sc.store.id,
+            storeName: sc.store.name,
             productCount: sc.products.length,
+            products: sc.products.map((p) => ({
+              cartId: p.cartId,
+              productId: p.productId,
+              variationId: p.variationId,
+              qty: p.qty,
+              price: p.price,
+            })),
           })),
+        );
+
+        // Calculate and log total unique products
+        const totalUniqueProducts =
+          deduplicatedData.cart?.reduce(
+            (sum, sc) => sum + sc.products.length,
+            0,
+          ) || 0;
+        console.log(
+          `Total unique products after deduplication: ${totalUniqueProducts}`,
         );
       } else {
         console.error("Review checkout failed:", reviewResponse.message);
@@ -285,9 +332,32 @@ const CheckoutPage = () => {
 
   const calculateTotals = () => {
     if (reviewData?.data) {
-      const subtotal = reviewData.data.subTotal || 0;
-      const shippingCost = reviewData.data.shippingCost || 0;
-      const fee = reviewData.data.fee || 0;
+      // Calculate subtotal from deduplicated products
+      let calculatedSubtotal = 0;
+      console.log("=== CALCULATING TOTALS ===");
+      reviewData.data.cart?.forEach((storeCart) => {
+        console.log(`Store: ${storeCart.store.name}`);
+        storeCart.products.forEach((product) => {
+          const itemTotal = (product.price || 0) * (product.qty || 1);
+          console.log(
+            `  Product ${product.productId}: ${product.qty} x ${product.price} = ${itemTotal}`,
+          );
+          calculatedSubtotal += itemTotal;
+        });
+      });
+
+      const subtotal = calculatedSubtotal;
+      console.log(`Calculated Subtotal: ${subtotal}`);
+      console.log(`API Subtotal: ${reviewData.data.subTotal || 0}`);
+
+      // Check if user has selected shipping
+      const hasSelectedShipping = Object.keys(selectedShipping).length > 0;
+
+      // Only show shipping cost, fee, and total if shipping is selected
+      const shippingCost = hasSelectedShipping
+        ? reviewData.data.shippingCost || 0
+        : 0;
+      const fee = hasSelectedShipping ? reviewData.data.fee || 0 : 0;
 
       // Get discount from cart voucher data
       const voucherDiscountToko =
@@ -299,7 +369,16 @@ const CheckoutPage = () => {
       const totalDiscount =
         voucherDiscountToko + voucherDiscountJaja + voucherDiscountOngkir;
 
-      const total = reviewData.data.total || 0;
+      // Recalculate total based on corrected subtotal
+      const total = hasSelectedShipping
+        ? subtotal + shippingCost + fee - totalDiscount
+        : subtotal;
+
+      console.log(`Shipping Cost: ${shippingCost}`);
+      console.log(`Fee: ${fee}`);
+      console.log(`Total Discount: ${totalDiscount}`);
+      console.log(`Final Total: ${total}`);
+      console.log("=== END CALCULATING TOTALS ===");
 
       return {
         subtotal,
@@ -436,7 +515,9 @@ const CheckoutPage = () => {
               productNames[product.productId] || `Produk ${product.productId}`,
             qty: product.qty,
             harga: product.price || 0,
-            gambar: product.image || "",
+            gambar:
+              product.image ||
+              "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg",
           })),
         ) || [];
 
@@ -616,7 +697,7 @@ const CheckoutPage = () => {
                           style={{
                             width: "60px",
                             height: "60px",
-                            backgroundColor: "#e9ecef",
+                            backgroundColor: "#f8f9fa",
                             borderRadius: "6px",
                             display: "flex",
                             alignItems: "center",
@@ -626,12 +707,20 @@ const CheckoutPage = () => {
                           }}
                         >
                           <img
-                            src={product.image || "/api/placeholder/60/60"}
+                            src={
+                              product.image ||
+                              "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
+                            }
                             alt={productNames[product.productId] || "Product"}
                             style={{
                               width: "100%",
                               height: "100%",
                               objectFit: "cover",
+                            }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src =
+                                "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg";
                             }}
                           />
                         </div>
@@ -1074,6 +1163,8 @@ const CheckoutPage = () => {
               voucherMessageJaja={
                 reviewData?.data?.cart?.[0]?.voucherMessageJaja
               }
+              storeIdFromCart={reviewData?.data?.cart?.[0]?.store?.id}
+              storeNameFromCart={reviewData?.data?.cart?.[0]?.store?.name}
             />
           </div>
         </div>

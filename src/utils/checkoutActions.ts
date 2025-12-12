@@ -214,6 +214,39 @@ export async function createComplain(
   }
 }
 
+// Get Complain Detail
+export async function getComplainDetail(
+  idData: number,
+  idProduk: number,
+): Promise<{ success: boolean; data?: any; message?: string }> {
+  try {
+    const response = await api.get(
+      `/main/transaksi/${idData}/produk/${idProduk}`,
+    );
+
+    // Extract complain data from history_komplain
+    const complainData = response.data.data?.history_komplain || [];
+
+    return {
+      success: true,
+      data: {
+        history_komplain: complainData,
+        rating_saya: response.data.data?.rating_saya || null,
+      },
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Gagal mengambil detail komplain";
+    console.error("Get complain detail error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
 // Delete Complain
 export async function deleteComplain(
   complainId: number,
@@ -229,6 +262,31 @@ export async function deleteComplain(
     const errorMessage =
       error instanceof Error ? error.message : "Gagal menghapus komplain";
     console.error("Delete complain error:", error);
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+}
+
+// Delete Rating/Review
+export async function deleteRating(
+  idData: number,
+  idProduk: number,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await api.delete(
+      `/main/transaksi/${idData}/produk/${idProduk}/rating`,
+    );
+
+    return {
+      success: true,
+      message: response.data.message || "Review berhasil dihapus",
+    };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Gagal menghapus review";
+    console.error("Delete rating error:", error);
     return {
       success: false,
       message: errorMessage,

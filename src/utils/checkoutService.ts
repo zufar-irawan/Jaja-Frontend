@@ -277,6 +277,8 @@ export interface TransactionDetail {
   produk_batal: string;
   created_at: string;
   updated_at: string;
+  rating_saya?: number | null;
+  ulasan_saya?: string | null;
 }
 
 export interface TransactionData {

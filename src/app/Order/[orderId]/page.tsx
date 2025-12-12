@@ -11,12 +11,22 @@ import {
   CreditCard,
   Loader2,
   ChevronLeft,
+  MapPin,
+  CheckCircle,
+  AlertTriangle,
+  Star,
+  Trash2,
+  MessageCircle,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import {
   getTransactionDetail,
   processPayment,
   cancelOrder,
+  trackShipment,
+  getComplainDetail,
+  deleteComplain,
+  deleteRating,
 } from "@/utils/checkoutActions";
 import { formatCurrency } from "@/utils/checkoutService";
 import type { TransactionData } from "@/utils/checkoutService";
@@ -36,6 +46,13 @@ const OrderDetailPage = () => {
     minutes: 0,
     seconds: 0,
   });
+  const [resiNumber, setResiNumber] = useState("");
+  const [courierType, setCourierType] = useState("");
+  const [trackingData, setTrackingData] = useState<any>(null);
+  const [loadingTracking, setLoadingTracking] = useState(false);
+  const [complainData, setComplainData] = useState<any[]>([]);
+  const [loadingComplain, setLoadingComplain] = useState(false);
+  const [showComplainSection, setShowComplainSection] = useState(false);
 
   const markOrderAsPaid = useOrderNotificationStore(
     (state) => state.markOrderAsPaid,
@@ -81,6 +98,11 @@ const OrderDetailPage = () => {
 
       if (response.success && response.data) {
         setOrderData(response.data);
+
+        // Fetch complain data after order data is loaded
+        setTimeout(() => {
+          fetchComplainData();
+        }, 500);
       } else {
         await Swal.fire({
           icon: "error",
@@ -203,6 +225,210 @@ const OrderDetailPage = () => {
           confirmButtonColor: "#55B4E5",
         });
       }
+    }
+  };
+
+  const handleTrackShipment = async () => {
+    if (!resiNumber.trim() || !courierType.trim()) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Data Tidak Lengkap",
+        text: "Silakan masukkan nomor resi dan pilih kurir",
+        confirmButtonColor: "#55B4E5",
+      });
+      return;
+    }
+
+    try {
+      setLoadingTracking(true);
+      const response = await trackShipment(
+        resiNumber,
+        courierType.toLowerCase(),
+      );
+
+      if (response.success && response.data) {
+        setTrackingData(response.data);
+        await Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Data tracking berhasil dimuat",
+          confirmButtonColor: "#55B4E5",
+          timer: 2000,
+        });
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: response.message || "Gagal melacak pengiriman",
+          confirmButtonColor: "#55B4E5",
+        });
+      }
+    } catch (error) {
+      console.error("Error tracking shipment:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Terjadi kesalahan saat melacak pengiriman",
+        confirmButtonColor: "#55B4E5",
+      });
+    } finally {
+      setLoadingTracking(false);
+    }
+  };
+
+  const fetchComplainData = async () => {
+    if (!orderData?.details || orderData.details.length === 0) {
+      console.log("No order details to fetch complains for");
+      return;
+    }
+
+    try {
+      setLoadingComplain(true);
+      console.log("=== FETCHING COMPLAIN DATA ===");
+      console.log("Order ID:", orderData.id_data);
+      console.log(
+        "Products:",
+        orderData.details.map((d) => d.id_produk),
+      );
+
+      const complainPromises = orderData.details.map((detail) =>
+        getComplainDetail(orderData.id_data, detail.id_produk),
+      );
+
+      const results = await Promise.all(complainPromises);
+      console.log("Complain results:", results);
+
+      const allComplains: any[] = [];
+      results.forEach((result, index) => {
+        console.log(`Result ${index}:`, result);
+        if (result.success && result.data) {
+          const complainData = result.data.history_komplain || [];
+          console.log(`Complain data for result ${index}:`, complainData);
+
+          complainData.forEach((complain: any) => {
+            console.log("Processing complain:", complain);
+            allComplains.push({
+              id_komplain: complain.id,
+              judul_komplain: complain.judul,
+              jenis_komplain: complain.jenis_komplain || "-",
+              komplain: complain.komplain || complain.deskripsi || "-",
+              solusi: complain.solusi,
+              status: complain.status,
+              status_text: complain.status_text || "-",
+              gambar1: complain.gambar?.[0] || null,
+              gambar2: complain.gambar?.[1] || null,
+              gambar3: complain.gambar?.[2] || null,
+              video: complain.video,
+              tanggal: complain.tanggal,
+            });
+          });
+        }
+      });
+
+      console.log("Total complains found:", allComplains.length);
+      console.log("Final complain data:", allComplains);
+
+      setComplainData(allComplains);
+      setShowComplainSection(allComplains.length > 0);
+    } catch (error) {
+      console.error("Error fetching complain data:", error);
+    } finally {
+      setLoadingComplain(false);
+    }
+  };
+
+  const handleDeleteComplain = async (complainId: number) => {
+    const Swal = (await import("sweetalert2")).default;
+
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Hapus Komplain?",
+      text: "Apakah Anda yakin ingin menghapus komplain ini?",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await deleteComplain(complainId);
+
+      if (response.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Berhasil",
+          text: "Komplain berhasil dihapus",
+          confirmButtonColor: "#55B4E5",
+          timer: 2000,
+        });
+        fetchComplainData();
+        fetchOrderDetail();
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: response.message || "Gagal menghapus komplain",
+          confirmButtonColor: "#55B4E5",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting complain:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Terjadi kesalahan saat menghapus komplain",
+        confirmButtonColor: "#55B4E5",
+      });
+    }
+  };
+
+  const handleDeleteRating = async (idProduk: number) => {
+    const Swal = (await import("sweetalert2")).default;
+
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Hapus Review?",
+      text: "Apakah Anda yakin ingin menghapus review ini?",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await deleteRating(orderData!.id_data, idProduk);
+
+      if (response.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Berhasil",
+          text: "Review berhasil dihapus",
+          confirmButtonColor: "#55B4E5",
+          timer: 2000,
+        });
+        fetchOrderDetail();
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: response.message || "Gagal menghapus review",
+          confirmButtonColor: "#55B4E5",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting rating:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Terjadi kesalahan saat menghapus review",
+        confirmButtonColor: "#55B4E5",
+      });
     }
   };
 
@@ -1270,6 +1496,737 @@ const OrderDetailPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Tracking Section */}
+              {orderData.details[0]?.date_time_pengiriman && (
+                <div
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: "10px",
+                    padding: "20px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                    marginTop: "20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "16px",
+                      paddingBottom: "12px",
+                      borderBottom: "2px solid #55B4E5",
+                    }}
+                  >
+                    <Truck size={20} style={{ color: "#55B4E5" }} />
+                    <h2
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        color: "#333",
+                      }}
+                    >
+                      Lacak Pengiriman
+                    </h2>
+                  </div>
+
+                  {/* Input Resi */}
+                  <div style={{ marginBottom: "16px" }}>
+                    <label
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#333",
+                        marginBottom: "8px",
+                        display: "block",
+                      }}
+                    >
+                      Nomor Resi
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Masukkan nomor resi"
+                      value={resiNumber}
+                      onChange={(e) => setResiNumber(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid #dee2e6",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontFamily: "Poppins, sans-serif",
+                      }}
+                    />
+                  </div>
+
+                  {/* Select Kurir */}
+                  <div style={{ marginBottom: "16px" }}>
+                    <label
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#333",
+                        marginBottom: "8px",
+                        display: "block",
+                      }}
+                    >
+                      Pilih Kurir
+                    </label>
+                    <select
+                      value={courierType}
+                      onChange={(e) => setCourierType(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid #dee2e6",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontFamily: "Poppins, sans-serif",
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <option value="">Pilih Kurir</option>
+                      <option value="jne">JNE</option>
+                      <option value="jnt">J&T Express</option>
+                      <option value="sicepat">SiCepat</option>
+                      <option value="tiki">TIKI</option>
+                      <option value="pos">POS Indonesia</option>
+                      <option value="anteraja">AnterAja</option>
+                      <option value="ninja">Ninja Express</option>
+                    </select>
+                  </div>
+
+                  {/* Button Track */}
+                  <button
+                    onClick={handleTrackShipment}
+                    disabled={
+                      loadingTracking ||
+                      !resiNumber.trim() ||
+                      !courierType.trim()
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "12px",
+                      backgroundColor:
+                        loadingTracking ||
+                        !resiNumber.trim() ||
+                        !courierType.trim()
+                          ? "#ccc"
+                          : "#55B4E5",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor:
+                        loadingTracking ||
+                        !resiNumber.trim() ||
+                        !courierType.trim()
+                          ? "not-allowed"
+                          : "pointer",
+                      fontWeight: "600",
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    {loadingTracking ? (
+                      <>
+                        <Loader2
+                          size={16}
+                          style={{ animation: "spin 1s linear infinite" }}
+                        />
+                        Melacak...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin size={16} />
+                        Lacak Paket
+                      </>
+                    )}
+                  </button>
+
+                  {/* Tracking Result Stepper */}
+                  {trackingData && (
+                    <div
+                      style={{
+                        marginTop: "24px",
+                        paddingTop: "24px",
+                        borderTop: "1px solid #dee2e6",
+                      }}
+                    >
+                      <h3
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          color: "#333",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        Status Pengiriman
+                      </h3>
+
+                      {/* Summary Info */}
+                      <div
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        <div style={{ marginBottom: "8px" }}>
+                          <span style={{ fontSize: "11px", color: "#6c757d" }}>
+                            Status:{" "}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              color: "#55B4E5",
+                            }}
+                          >
+                            {trackingData.summary?.status || "Dalam Pengiriman"}
+                          </span>
+                        </div>
+                        {trackingData.summary?.waybill_number && (
+                          <div style={{ marginBottom: "8px" }}>
+                            <span
+                              style={{ fontSize: "11px", color: "#6c757d" }}
+                            >
+                              No. Resi:{" "}
+                            </span>
+                            <span
+                              style={{ fontSize: "11px", fontWeight: "600" }}
+                            >
+                              {trackingData.summary.waybill_number}
+                            </span>
+                          </div>
+                        )}
+                        {trackingData.summary?.courier_name && (
+                          <div>
+                            <span
+                              style={{ fontSize: "11px", color: "#6c757d" }}
+                            >
+                              Kurir:{" "}
+                            </span>
+                            <span
+                              style={{ fontSize: "11px", fontWeight: "600" }}
+                            >
+                              {trackingData.summary.courier_name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tracking History Stepper */}
+                      {trackingData.history &&
+                        trackingData.history.length > 0 && (
+                          <div style={{ position: "relative" }}>
+                            {trackingData.history.map(
+                              (item: any, index: number) => (
+                                <div
+                                  key={index}
+                                  style={{
+                                    display: "flex",
+                                    gap: "12px",
+                                    marginBottom:
+                                      index === trackingData.history.length - 1
+                                        ? "0"
+                                        : "16px",
+                                    position: "relative",
+                                  }}
+                                >
+                                  {/* Timeline Line */}
+                                  {index !==
+                                    trackingData.history.length - 1 && (
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        left: "9px",
+                                        top: "24px",
+                                        bottom: "-16px",
+                                        width: "2px",
+                                        backgroundColor: "#dee2e6",
+                                      }}
+                                    />
+                                  )}
+
+                                  {/* Status Dot */}
+                                  <div
+                                    style={{
+                                      width: "20px",
+                                      height: "20px",
+                                      borderRadius: "50%",
+                                      backgroundColor:
+                                        index === 0 ? "#28a745" : "#55B4E5",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      flexShrink: 0,
+                                      zIndex: 1,
+                                    }}
+                                  >
+                                    <CheckCircle
+                                      size={12}
+                                      style={{ color: "white" }}
+                                    />
+                                  </div>
+
+                                  {/* Content */}
+                                  <div
+                                    style={{ flex: 1, paddingBottom: "4px" }}
+                                  >
+                                    <p
+                                      style={{
+                                        fontSize: "12px",
+                                        fontWeight: "600",
+                                        color: "#333",
+                                        marginBottom: "4px",
+                                      }}
+                                    >
+                                      {item.note ||
+                                        item.description ||
+                                        "Update Status"}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "#6c757d",
+                                        marginBottom: "2px",
+                                      }}
+                                    >
+                                      {item.date || item.updated_at || "-"}
+                                    </p>
+                                    {item.location && (
+                                      <p
+                                        style={{
+                                          fontSize: "10px",
+                                          color: "#999",
+                                        }}
+                                      >
+                                        📍 {item.location}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        )}
+
+                      {/* No History */}
+                      {(!trackingData.history ||
+                        trackingData.history.length === 0) && (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "20px",
+                            color: "#6c757d",
+                          }}
+                        >
+                          <Package
+                            size={32}
+                            style={{ opacity: 0.3, margin: "0 auto 8px" }}
+                          />
+                          <p style={{ fontSize: "12px" }}>
+                            Belum ada riwayat pengiriman
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Complain & Review Section */}
+              {orderData &&
+                (showComplainSection ||
+                  orderData.id_status === 9 ||
+                  orderData.id_status === 7) && (
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: "10px",
+                      padding: "20px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                      marginTop: "20px",
+                    }}
+                  >
+                    {/* Complain Section */}
+                    {complainData.length > 0 && (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            marginBottom: "16px",
+                            paddingBottom: "12px",
+                            borderBottom: "2px solid #FFA500",
+                          }}
+                        >
+                          <AlertTriangle
+                            size={20}
+                            style={{ color: "#FFA500" }}
+                          />
+                          <h2
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: "600",
+                              color: "#333",
+                            }}
+                          >
+                            Komplain Saya
+                          </h2>
+                        </div>
+
+                        {loadingComplain ? (
+                          <div style={{ textAlign: "center", padding: "20px" }}>
+                            <Loader2
+                              size={24}
+                              style={{
+                                animation: "spin 1s linear infinite",
+                                color: "#55B4E5",
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "16px",
+                            }}
+                          >
+                            {complainData.map((complain, index) => (
+                              <div
+                                key={complain.id_komplain || index}
+                                style={{
+                                  border: "1px solid #e9ecef",
+                                  borderRadius: "8px",
+                                  padding: "16px",
+                                  backgroundColor: "#fff9f0",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "start",
+                                    marginBottom: "12px",
+                                  }}
+                                >
+                                  <div>
+                                    <p
+                                      style={{
+                                        fontSize: "13px",
+                                        fontWeight: "600",
+                                        color: "#333",
+                                        marginBottom: "4px",
+                                      }}
+                                    >
+                                      {complain.judul_komplain || "Komplain"}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "#6c757d",
+                                        marginBottom: "2px",
+                                      }}
+                                    >
+                                      Status:{" "}
+                                      {complain.status_text ||
+                                        complain.status ||
+                                        "-"}
+                                    </p>
+                                    <p
+                                      style={{
+                                        fontSize: "11px",
+                                        color: "#6c757d",
+                                      }}
+                                    >
+                                      Solusi: {complain.solusi || "-"}
+                                    </p>
+                                    {complain.tanggal && (
+                                      <p
+                                        style={{
+                                          fontSize: "10px",
+                                          color: "#999",
+                                        }}
+                                      >
+                                        {new Date(
+                                          complain.tanggal,
+                                        ).toLocaleDateString("id-ID")}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteComplain(complain.id_komplain)
+                                    }
+                                    style={{
+                                      padding: "6px 12px",
+                                      backgroundColor: "#dc3545",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "6px",
+                                      cursor: "pointer",
+                                      fontSize: "11px",
+                                      fontWeight: "600",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "4px",
+                                    }}
+                                  >
+                                    <Trash2 size={12} />
+                                    Hapus
+                                  </button>
+                                </div>
+                                <div
+                                  style={{
+                                    padding: "12px",
+                                    backgroundColor: "white",
+                                    borderRadius: "6px",
+                                    marginBottom: "12px",
+                                  }}
+                                >
+                                  <p
+                                    style={{
+                                      fontSize: "12px",
+                                      color: "#333",
+                                      lineHeight: "1.5",
+                                    }}
+                                  >
+                                    {complain.komplain || "Tidak ada deskripsi"}
+                                  </p>
+                                </div>
+                                {complain.gambar1 && (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: "8px",
+                                      marginTop: "8px",
+                                    }}
+                                  >
+                                    {[
+                                      complain.gambar1,
+                                      complain.gambar2,
+                                      complain.gambar3,
+                                    ]
+                                      .filter(Boolean)
+                                      .map((img, idx) => (
+                                        <img
+                                          key={idx}
+                                          src={img}
+                                          alt={`Bukti ${idx + 1}`}
+                                          style={{
+                                            width: "80px",
+                                            height: "80px",
+                                            objectFit: "cover",
+                                            borderRadius: "6px",
+                                            border: "1px solid #dee2e6",
+                                          }}
+                                        />
+                                      ))}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Review Section */}
+                    {orderData.id_status === 9 && orderData.details && (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            marginBottom: "16px",
+                            marginTop: complainData.length > 0 ? "24px" : "0",
+                            paddingBottom: "12px",
+                            paddingTop: complainData.length > 0 ? "24px" : "0",
+                            borderTop:
+                              complainData.length > 0
+                                ? "1px solid #e9ecef"
+                                : "none",
+                            borderBottom: "2px solid #FBB338",
+                          }}
+                        >
+                          <Star size={20} style={{ color: "#FBB338" }} />
+                          <h2
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: "600",
+                              color: "#333",
+                            }}
+                          >
+                            Review Saya
+                          </h2>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "12px",
+                          }}
+                        >
+                          {orderData.details
+                            .filter((detail: any) => {
+                              console.log(
+                                `Checking review for product ${detail.id_produk}:`,
+                                {
+                                  rating_saya: detail.rating_saya,
+                                  ulasan_saya: detail.ulasan_saya,
+                                  type: typeof detail.rating_saya,
+                                },
+                              );
+                              // rating_saya bisa berupa number atau null
+                              return (
+                                detail.rating_saya !== null &&
+                                detail.rating_saya !== undefined &&
+                                detail.rating_saya > 0
+                              );
+                            })
+                            .map((detail: any) => (
+                              <div
+                                key={detail.id_detail}
+                                style={{
+                                  border: "1px solid #e9ecef",
+                                  borderRadius: "8px",
+                                  padding: "16px",
+                                  backgroundColor: "#fffbf0",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "start",
+                                    marginBottom: "12px",
+                                  }}
+                                >
+                                  <div style={{ flex: 1 }}>
+                                    <p
+                                      style={{
+                                        fontSize: "13px",
+                                        fontWeight: "600",
+                                        color: "#333",
+                                        marginBottom: "8px",
+                                      }}
+                                    >
+                                      {detail.nama_produk}
+                                    </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        gap: "4px",
+                                        marginBottom: "8px",
+                                      }}
+                                    >
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          size={14}
+                                          style={{
+                                            fill:
+                                              i < detail.rating_saya
+                                                ? "#FBB338"
+                                                : "none",
+                                            color:
+                                              i < detail.rating_saya
+                                                ? "#FBB338"
+                                                : "#ccc",
+                                          }}
+                                        />
+                                      ))}
+                                    </div>
+                                    {detail.ulasan_saya && (
+                                      <p
+                                        style={{
+                                          fontSize: "12px",
+                                          color: "#666",
+                                          lineHeight: "1.5",
+                                        }}
+                                      >
+                                        {detail.ulasan_saya}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteRating(detail.id_produk)
+                                    }
+                                    style={{
+                                      padding: "6px 12px",
+                                      backgroundColor: "#dc3545",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "6px",
+                                      cursor: "pointer",
+                                      fontSize: "11px",
+                                      fontWeight: "600",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "4px",
+                                      marginLeft: "12px",
+                                    }}
+                                  >
+                                    <Trash2 size={12} />
+                                    Hapus
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          {(() => {
+                            const hasReviews = orderData.details.some(
+                              (d: any) =>
+                                d.rating_saya !== null &&
+                                d.rating_saya !== undefined &&
+                                d.rating_saya > 0,
+                            );
+                            console.log("Has reviews:", hasReviews);
+                            console.log(
+                              "All details:",
+                              orderData.details.map((d) => ({
+                                id: d.id_produk,
+                                rating: d.rating_saya,
+                              })),
+                            );
+                            if (!hasReviews) {
+                              return (
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    padding: "20px",
+                                    color: "#6c757d",
+                                  }}
+                                >
+                                  <Star
+                                    size={32}
+                                    style={{
+                                      opacity: 0.3,
+                                      margin: "0 auto 8px",
+                                    }}
+                                  />
+                                  <p style={{ fontSize: "12px" }}>
+                                    Belum ada review
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
 

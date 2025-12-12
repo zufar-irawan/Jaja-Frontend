@@ -86,6 +86,26 @@ export default function OrdersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Fetch product details after orders are loaded
+  useEffect(() => {
+    if (orders.length > 0) {
+      // Get unique product-order combinations
+      const uniqueProducts = new Set<string>();
+      orders.forEach((order) => {
+        order.details?.forEach((detail) => {
+          uniqueProducts.add(`${order.id_data}-${detail.id_produk}`);
+        });
+      });
+
+      // Fetch details for each unique product
+      uniqueProducts.forEach((key) => {
+        const [idData, idProduk] = key.split("-").map(Number);
+        fetchProductDetail(idData, idProduk);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders]);
+
   const fetchOrders = async () => {
     try {
       setLoading(true);
@@ -256,7 +276,7 @@ export default function OrdersPage() {
     if (status === "processing") {
       return orders.filter((order) => {
         const statusLower = order.status_transaksi?.toLowerCase() || "";
-        
+
         // Include orders with id_status = 7 (Dikirim/Delivered)
         if (order.id_status === 7) {
           return true;
@@ -290,11 +310,13 @@ export default function OrdersPage() {
           statusLower.includes("tolak");
 
         if (isCancelled) return false;
-        
-        return order.id_status === 9 || 
-               statusLower.includes("selesai") || 
-               statusLower.includes("completed") || 
-               statusLower.includes("diterima");
+
+        return (
+          order.id_status === 9 ||
+          statusLower.includes("selesai") ||
+          statusLower.includes("completed") ||
+          statusLower.includes("diterima")
+        );
       });
     }
 
@@ -666,77 +688,158 @@ export default function OrdersPage() {
 
                 <div className="space-y-3 mb-4">
                   {order.details &&
-                    order.details.slice(0, 2).map((detail, index) => (
-                      <div
-                        key={detail.id_detail || index}
-                        className="flex items-center gap-3"
-                      >
-                        {detail.foto_produk ? (
-                          <img
-                            src={detail.foto_produk}
-                            alt={detail.nama_produk}
-                            className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Package className="w-8 h-8 text-gray-400" />
+                    (() => {
+                      // Group products by id_produk
+                      const groupedProducts = order.details.reduce(
+                        (acc, detail) => {
+                          const existing = acc.find(
+                            (item) => item.id_produk === detail.id_produk,
+                          );
+                          if (existing) {
+                            // Don't sum qty, just count items
+                            existing.details.push(detail);
+                          } else {
+                            acc.push({
+                              id_produk: detail.id_produk,
+                              nama_produk: detail.nama_produk,
+                              foto_produk: detail.foto_produk,
+                              nama_toko: detail.nama_toko,
+                              harga_aktif: detail.harga_aktif,
+                              qty: detail.qty,
+                              details: [detail],
+                            });
+                          }
+                          return acc;
+                        },
+                        [] as Array<{
+                          id_produk: number;
+                          nama_produk: string;
+                          foto_produk: string;
+                          nama_toko: string;
+                          harga_aktif: string;
+                          qty: number;
+                          details: typeof order.details;
+                        }>,
+                      );
+
+                      return groupedProducts.slice(0, 2).map((group, index) => {
+                        const detailKey = `${order.id_data}-${group.id_produk}`;
+                        const productDetail = productDetails[detailKey];
+                        const hasComplain = productDetail?.hasComplain || false;
+                        const hasRating = productDetail?.hasRating || false;
+
+                        // Calculate total items
+                        const itemCount = group.details.length;
+                        // Calculate total quantity (parse string to number)
+                        const totalQty = group.details.reduce(
+                          (sum, d) => sum + parseInt(String(d.qty), 10),
+                          0,
+                        );
+
+                        return (
+                          <div
+                            key={`${order.id_data}-${group.id_produk}`}
+                            className="flex items-center gap-3"
+                          >
+                            {group.foto_produk ? (
+                              <img
+                                src={group.foto_produk}
+                                alt={group.nama_produk}
+                                className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <Package className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-800 text-sm line-clamp-1">
+                                {group.nama_produk}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {totalQty} x {formatCurrency(group.harga_aktif)}
+                              </p>
+                              {group.nama_toko && (
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  {group.nama_toko}
+                                </p>
+                              )}
+                              {itemCount > 1 && (
+                                <p className="text-xs text-blue-600 mt-0.5 font-medium">
+                                  Total {itemCount} item
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {/* Tombol Komplain - tampil jika id_status = 7 */}
+                              {showComplainButton &&
+                                (hasComplain ? (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      router.push(`/Order/${order.id_data}`);
+                                    }}
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-gray-500 text-white text-xs font-semibold rounded-lg hover:bg-gray-600 transition-all shadow-sm hover:shadow-md"
+                                  >
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    Lihat Komplain
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={(e) =>
+                                      handleComplainClick(
+                                        e,
+                                        group.id_produk,
+                                        order.id_data,
+                                        group.nama_produk,
+                                        order.invoice,
+                                        group.foto_produk,
+                                      )
+                                    }
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-sm hover:shadow-md"
+                                  >
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    Komplain
+                                  </button>
+                                ))}
+                              {/* Tombol Review - tampil jika id_status = 9 */}
+                              {showReviewButton &&
+                                (hasRating ? (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/Product/${group.nama_produk.toLowerCase().replace(/\s+/g, "-")}`,
+                                      );
+                                    }}
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-green-500 text-white text-xs font-semibold rounded-lg hover:bg-green-600 transition-all shadow-sm hover:shadow-md"
+                                  >
+                                    <Star className="w-3.5 h-3.5" />
+                                    Lihat Review
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={(e) =>
+                                      handleReviewClick(
+                                        e,
+                                        group.id_produk,
+                                        order.id_data,
+                                        group.nama_produk,
+                                        order.invoice,
+                                        group.foto_produk,
+                                      )
+                                    }
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-[#FBB338] to-[#FBB338]/90 text-white text-xs font-semibold rounded-lg hover:from-[#FBB338]/90 hover:to-[#FBB338] transition-all shadow-sm hover:shadow-md"
+                                  >
+                                    <Star className="w-3.5 h-3.5" />
+                                    Review
+                                  </button>
+                                ))}
+                            </div>
                           </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-800 text-sm line-clamp-1">
-                            {detail.nama_produk}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {detail.qty} x {formatCurrency(detail.harga_aktif)}
-                          </p>
-                          {detail.nama_toko && (
-                            <p className="text-xs text-gray-400 mt-0.5">
-                              {detail.nama_toko}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          {/* Tombol Komplain - tampil jika id_status = 7 */}
-                          {showComplainButton && (
-                            <button
-                              onClick={(e) =>
-                                handleComplainClick(
-                                  e,
-                                  detail.id_produk,
-                                  order.id_data,
-                                  detail.nama_produk,
-                                  order.invoice,
-                                  detail.foto_produk,
-                                )
-                              }
-                              className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-sm hover:shadow-md"
-                            >
-                              <AlertTriangle className="w-3.5 h-3.5" />
-                              Komplain
-                            </button>
-                          )}
-                          {/* Tombol Review - tampil jika id_status = 9 */}
-                          {showReviewButton && (
-                            <button
-                              onClick={(e) =>
-                                handleReviewClick(
-                                  e,
-                                  detail.id_produk,
-                                  order.id_data,
-                                  detail.nama_produk,
-                                  order.invoice,
-                                  detail.foto_produk,
-                                )
-                              }
-                              className="flex items-center gap-1.5 px-3 py-2 bg-linear-to-r from-[#FBB338] to-[#FBB338]/90 text-white text-xs font-semibold rounded-lg hover:from-[#FBB338]/90 hover:to-[#FBB338] transition-all shadow-sm hover:shadow-md"
-                            >
-                              <Star className="w-3.5 h-3.5" />
-                              Review
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      });
+                    })()}
                   {order.details && order.details.length > 2 && (
                     <p className="text-sm text-gray-500 pl-19">
                       +{order.details.length - 2} produk lainnya

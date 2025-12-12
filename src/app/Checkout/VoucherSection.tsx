@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Tag, Gift } from "lucide-react";
-import { getMyVouchers, getAvailableVouchers, claimVoucher } from "@/utils/voucherActions";
+import {
+  getMyVouchers,
+  getAvailableVouchers,
+  claimVoucher,
+} from "@/utils/voucherActions";
 import type { VoucherData } from "@/utils/voucherService";
 import Swal from "sweetalert2";
 
@@ -11,14 +15,26 @@ interface VoucherSectionProps {
   setVoucherCodeToko: (code: string) => void;
   voucherCodeJaja: string;
   setVoucherCodeJaja: (code: string) => void;
-  appliedVoucherToko: { code: string; discount: number; type: string; message?: string } | null;
-  appliedVoucherJaja: { code: string; discount: number; type: string; message?: string } | null;
+  appliedVoucherToko: {
+    code: string;
+    discount: number;
+    type: string;
+    message?: string;
+  } | null;
+  appliedVoucherJaja: {
+    code: string;
+    discount: number;
+    type: string;
+    message?: string;
+  } | null;
   onApplyVoucherToko: () => void;
   onRemoveVoucherToko: () => void;
   onApplyVoucherJaja: () => void;
   onRemoveVoucherJaja: () => void;
   voucherMessageToko?: string;
   voucherMessageJaja?: string;
+  storeIdFromCart?: number; // ID toko dari cart items
+  storeNameFromCart?: string; // Nama toko dari cart items
 }
 
 const VoucherSection: React.FC<VoucherSectionProps> = ({
@@ -34,6 +50,8 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
   onRemoveVoucherJaja,
   voucherMessageToko,
   voucherMessageJaja,
+  storeIdFromCart,
+  storeNameFromCart,
 }) => {
   const [showVoucherModal, setShowVoucherModal] = useState(false);
   const [myVouchers, setMyVouchers] = useState<VoucherData[]>([]);
@@ -94,13 +112,39 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
     }
   };
 
-  const handleUseVoucher = (code: string, dari: string) => {
+  const handleUseVoucher = (
+    code: string,
+    dari: string,
+    voucherStoreId?: number,
+  ) => {
     if (dari === "toko") {
+      // Check if voucher is for the same store
+      if (
+        voucherStoreId &&
+        storeIdFromCart &&
+        voucherStoreId !== storeIdFromCart
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Voucher Tidak Dapat Digunakan",
+          text: "Voucher ini hanya bisa digunakan untuk toko yang sesuai.",
+          confirmButtonColor: "#55B4E5",
+        });
+        return;
+      }
       setVoucherCodeToko(code);
       setShowVoucherModal(false);
+      // Auto apply after selecting
+      setTimeout(() => {
+        onApplyVoucherToko();
+      }, 100);
     } else if (dari === "jaja") {
       setVoucherCodeJaja(code);
       setShowVoucherModal(false);
+      // Auto apply after selecting
+      setTimeout(() => {
+        onApplyVoucherJaja();
+      }, 100);
     }
   };
 
@@ -119,7 +163,14 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
           borderTop: "1px solid #dee2e6",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "12px",
+          }}
+        >
           <p
             style={{
               fontSize: "12px",
@@ -153,7 +204,14 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
 
         {/* Voucher Toko */}
         <div style={{ marginBottom: "12px" }}>
-          <p style={{ fontSize: "10px", color: "#6c757d", marginBottom: "6px", fontWeight: "500" }}>
+          <p
+            style={{
+              fontSize: "10px",
+              color: "#6c757d",
+              marginBottom: "6px",
+              fontWeight: "500",
+            }}
+          >
             Voucher Toko
           </p>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -179,7 +237,9 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                 disabled={!voucherCodeToko.trim()}
                 style={{
                   padding: "8px 14px",
-                  backgroundColor: voucherCodeToko.trim() ? "#FBB338" : "#e0e0e0",
+                  backgroundColor: voucherCodeToko.trim()
+                    ? "#FBB338"
+                    : "#e0e0e0",
                   color: "white",
                   border: "none",
                   borderRadius: "6px",
@@ -209,7 +269,16 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
             )}
           </div>
           {voucherMessageToko && (
-            <p style={{ fontSize: "10px", color: "#10B981", marginTop: "4px", display: "flex", alignItems: "center", gap: "4px" }}>
+            <p
+              style={{
+                fontSize: "10px",
+                color: "#10B981",
+                marginTop: "4px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
               <span>✓</span> {voucherMessageToko}
             </p>
           )}
@@ -217,7 +286,14 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
 
         {/* Voucher Jaja */}
         <div>
-          <p style={{ fontSize: "10px", color: "#6c757d", marginBottom: "6px", fontWeight: "500" }}>
+          <p
+            style={{
+              fontSize: "10px",
+              color: "#6c757d",
+              marginBottom: "6px",
+              fontWeight: "500",
+            }}
+          >
             Voucher Jaja
           </p>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -243,7 +319,9 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                 disabled={!voucherCodeJaja.trim()}
                 style={{
                   padding: "8px 14px",
-                  backgroundColor: voucherCodeJaja.trim() ? "#FBB338" : "#e0e0e0",
+                  backgroundColor: voucherCodeJaja.trim()
+                    ? "#FBB338"
+                    : "#e0e0e0",
                   color: "white",
                   border: "none",
                   borderRadius: "6px",
@@ -273,7 +351,16 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
             )}
           </div>
           {voucherMessageJaja && (
-            <p style={{ fontSize: "10px", color: "#10B981", marginTop: "4px", display: "flex", alignItems: "center", gap: "4px" }}>
+            <p
+              style={{
+                fontSize: "10px",
+                color: "#10B981",
+                marginTop: "4px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
               <span>✓</span> {voucherMessageJaja}
             </p>
           )}
@@ -309,8 +396,17 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>Voucher Tersedia</h3>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>
+                Voucher Tersedia
+              </h3>
               <button
                 onClick={() => setShowVoucherModal(false)}
                 style={{
@@ -325,7 +421,13 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
             </div>
 
             {loadingVouchers ? (
-              <div style={{ textAlign: "center", padding: "20px", color: "#6c757d" }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                  color: "#6c757d",
+                }}
+              >
                 <p>Memuat voucher...</p>
               </div>
             ) : (
@@ -333,7 +435,14 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                 {/* My Vouchers */}
                 {myVouchers.length > 0 && (
                   <div style={{ marginBottom: "20px" }}>
-                    <h4 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px", color: "#333" }}>
+                    <h4
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        marginBottom: "12px",
+                        color: "#333",
+                      }}
+                    >
                       Voucher Saya
                     </h4>
                     {myVouchers.map((voucher) => {
@@ -342,10 +451,20 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                       const discount = voucher.persentase_diskon
                         ? `${voucher.persentase_diskon}%`
                         : voucher.nominal_diskon
-                        ? `Rp ${voucher.nominal_diskon.toLocaleString("id-ID")}`
-                        : voucher.diskon || "";
+                          ? `Rp ${voucher.nominal_diskon.toLocaleString("id-ID")}`
+                          : voucher.diskon || "";
                       const dari = voucher.dari || "";
                       const berakhir = voucher.berakhir || "";
+                      const voucherStoreName = voucher.nama_toko || "";
+                      const voucherStoreId = voucher.id_toko;
+
+                      // Check if voucher can be used for current store
+                      const isStoreVoucher = dari === "toko";
+                      const canUseVoucher =
+                        !isStoreVoucher ||
+                        !storeIdFromCart ||
+                        !voucherStoreId ||
+                        voucherStoreId === storeIdFromCart;
 
                       return (
                         <div
@@ -358,17 +477,37 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
+                            opacity: canUseVoucher ? 1 : 0.5,
+                            backgroundColor: canUseVoucher
+                              ? "white"
+                              : "#f5f5f5",
                           }}
                         >
                           <div style={{ flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                marginBottom: "4px",
+                              }}
+                            >
                               <Gift size={14} color="#FBB338" />
-                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#333" }}>{code}</span>
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#333",
+                                }}
+                              >
+                                {code}
+                              </span>
                               <span
                                 style={{
                                   fontSize: "9px",
                                   padding: "2px 6px",
-                                  backgroundColor: dari === "toko" ? "#FBB338" : "#55B4E5",
+                                  backgroundColor:
+                                    dari === "toko" ? "#FBB338" : "#55B4E5",
                                   color: "white",
                                   borderRadius: "4px",
                                 }}
@@ -376,25 +515,69 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                                 {dari === "toko" ? "Toko" : "Jaja"}
                               </span>
                             </div>
-                            <p style={{ fontSize: "11px", color: "#666", margin: "4px 0" }}>{title}</p>
-                            <p style={{ fontSize: "10px", color: "#999", margin: 0 }}>
-                              Diskon: {discount} • Berlaku hingga: {new Date(berakhir).toLocaleDateString("id-ID")}
+                            <p
+                              style={{
+                                fontSize: "11px",
+                                color: "#666",
+                                margin: "4px 0",
+                              }}
+                            >
+                              {title}
                             </p>
+                            {isStoreVoucher && voucherStoreName && (
+                              <p
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#FBB338",
+                                  margin: "2px 0",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                📍 Berlaku di: {voucherStoreName}
+                              </p>
+                            )}
+                            <p
+                              style={{
+                                fontSize: "10px",
+                                color: "#999",
+                                margin: 0,
+                              }}
+                            >
+                              Diskon: {discount} • Berlaku hingga:{" "}
+                              {new Date(berakhir).toLocaleDateString("id-ID")}
+                            </p>
+                            {!canUseVoucher && (
+                              <p
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#dc3545",
+                                  margin: "4px 0",
+                                  fontStyle: "italic",
+                                }}
+                              >
+                                ⚠️ Hanya untuk {voucherStoreName}
+                              </p>
+                            )}
                           </div>
                           <button
-                            onClick={() => handleUseVoucher(code, dari)}
+                            onClick={() =>
+                              handleUseVoucher(code, dari, voucherStoreId)
+                            }
+                            disabled={!canUseVoucher}
                             style={{
                               padding: "6px 12px",
-                              backgroundColor: "#10B981",
+                              backgroundColor: canUseVoucher
+                                ? "#10B981"
+                                : "#ccc",
                               color: "white",
                               border: "none",
                               borderRadius: "6px",
-                              cursor: "pointer",
+                              cursor: canUseVoucher ? "pointer" : "not-allowed",
                               fontSize: "10px",
                               fontWeight: "600",
                             }}
                           >
-                            Pakai
+                            {canUseVoucher ? "Pakai" : "Tidak Bisa"}
                           </button>
                         </div>
                       );
@@ -405,7 +588,14 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                 {/* Available Vouchers */}
                 {availableVouchers.length > 0 && (
                   <div>
-                    <h4 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px", color: "#333" }}>
+                    <h4
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        marginBottom: "12px",
+                        color: "#333",
+                      }}
+                    >
                       Voucher Tersedia
                     </h4>
                     {availableVouchers.map((voucher) => {
@@ -415,7 +605,18 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                       const dari = voucher.dari || "";
                       const berakhir = voucher.berakhir || "";
                       const sudahKlaim = voucher.sudah_klaim || false;
-                      const bisaLangsungPakai = voucher.bisa_langsung_pakai || false;
+                      const bisaLangsungPakai =
+                        voucher.bisa_langsung_pakai || false;
+                      const voucherStoreName = voucher.nama_toko || "";
+                      const voucherStoreId = voucher.id_toko;
+
+                      // Check if voucher can be used for current store
+                      const isStoreVoucher = dari === "toko";
+                      const canUseVoucher =
+                        !isStoreVoucher ||
+                        !storeIdFromCart ||
+                        !voucherStoreId ||
+                        voucherStoreId === storeIdFromCart;
 
                       return (
                         <div
@@ -429,17 +630,34 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                             justifyContent: "space-between",
                             alignItems: "center",
                             backgroundColor: sudahKlaim ? "#f9f9f9" : "white",
+                            opacity: canUseVoucher ? 1 : 0.5,
                           }}
                         >
                           <div style={{ flex: 1 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                marginBottom: "4px",
+                              }}
+                            >
                               <Tag size={14} color="#FBB338" />
-                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#333" }}>{code}</span>
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#333",
+                                }}
+                              >
+                                {code}
+                              </span>
                               <span
                                 style={{
                                   fontSize: "9px",
                                   padding: "2px 6px",
-                                  backgroundColor: dari === "toko" ? "#FBB338" : "#55B4E5",
+                                  backgroundColor:
+                                    dari === "toko" ? "#FBB338" : "#55B4E5",
                                   color: "white",
                                   borderRadius: "4px",
                                 }}
@@ -447,44 +665,103 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                                 {dari === "toko" ? "Toko" : "Jaja"}
                               </span>
                             </div>
-                            <p style={{ fontSize: "11px", color: "#666", margin: "4px 0" }}>{title}</p>
-                            <p style={{ fontSize: "10px", color: "#999", margin: 0 }}>
-                              Diskon: {discount} • Berlaku hingga: {new Date(berakhir).toLocaleDateString("id-ID")}
+                            <p
+                              style={{
+                                fontSize: "11px",
+                                color: "#666",
+                                margin: "4px 0",
+                              }}
+                            >
+                              {title}
                             </p>
+                            {isStoreVoucher && voucherStoreName && (
+                              <p
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#FBB338",
+                                  margin: "2px 0",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                📍 Berlaku di: {voucherStoreName}
+                              </p>
+                            )}
+                            <p
+                              style={{
+                                fontSize: "10px",
+                                color: "#999",
+                                margin: 0,
+                              }}
+                            >
+                              Diskon: {discount} • Berlaku hingga:{" "}
+                              {new Date(berakhir).toLocaleDateString("id-ID")}
+                            </p>
+                            {!canUseVoucher && (
+                              <p
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#dc3545",
+                                  margin: "4px 0",
+                                  fontStyle: "italic",
+                                }}
+                              >
+                                ⚠️ Hanya untuk {voucherStoreName}
+                              </p>
+                            )}
                           </div>
                           {sudahKlaim ? (
-                            <span style={{ fontSize: "10px", color: "#999", fontStyle: "italic" }}>Sudah Diklaim</span>
+                            <span
+                              style={{
+                                fontSize: "10px",
+                                color: "#999",
+                                fontStyle: "italic",
+                              }}
+                            >
+                              Sudah Diklaim
+                            </span>
                           ) : bisaLangsungPakai ? (
                             <button
-                              onClick={() => handleUseVoucher(code, dari)}
+                              onClick={() =>
+                                handleUseVoucher(code, dari, voucherStoreId)
+                              }
+                              disabled={!canUseVoucher}
                               style={{
                                 padding: "6px 12px",
-                                backgroundColor: "#10B981",
+                                backgroundColor: canUseVoucher
+                                  ? "#10B981"
+                                  : "#ccc",
                                 color: "white",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: "pointer",
+                                cursor: canUseVoucher
+                                  ? "pointer"
+                                  : "not-allowed",
                                 fontSize: "10px",
                                 fontWeight: "600",
                               }}
                             >
-                              Pakai
+                              {canUseVoucher ? "Pakai" : "Tidak Bisa"}
                             </button>
                           ) : (
                             <button
                               onClick={() => handleClaimVoucher(code)}
+                              disabled={!canUseVoucher}
                               style={{
                                 padding: "6px 12px",
-                                backgroundColor: "#FBB338",
+                                backgroundColor: canUseVoucher
+                                  ? "#FBB338"
+                                  : "#ccc",
                                 color: "white",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: "pointer",
+                                cursor: canUseVoucher
+                                  ? "pointer"
+                                  : "not-allowed",
                                 fontSize: "10px",
                                 fontWeight: "600",
                               }}
                             >
-                              Klaim
+                              {canUseVoucher ? "Klaim" : "Tidak Bisa"}
                             </button>
                           )}
                         </div>
@@ -494,7 +771,13 @@ const VoucherSection: React.FC<VoucherSectionProps> = ({
                 )}
 
                 {myVouchers.length === 0 && availableVouchers.length === 0 && (
-                  <div style={{ textAlign: "center", padding: "30px", color: "#999" }}>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "30px",
+                      color: "#999",
+                    }}
+                  >
                     <p>Tidak ada voucher tersedia saat ini</p>
                   </div>
                 )}

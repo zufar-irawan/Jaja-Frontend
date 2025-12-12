@@ -18,6 +18,7 @@ export interface VoucherData {
   berakhir?: string;
   dari?: string;
   nama_toko?: string;
+  id_toko?: number;
   sudah_klaim?: boolean;
   bisa_langsung_pakai?: boolean;
 }
